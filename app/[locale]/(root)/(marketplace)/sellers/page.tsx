@@ -1,7 +1,7 @@
-export const dynamic = "force-dynamic";
+import { getOrSetCached } from "@/lib/redis";
 import { db } from "@/lib/db";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
 import type { Prisma } from "@prisma/client";
@@ -14,6 +14,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "seo.sellers" });
   return {
     title: t("title"),
@@ -25,6 +26,49 @@ export async function generateMetadata({
 
 interface Props {
   searchParams: Promise<{ q?: string; page?: string }>;
+}
+
+// Caches the query result directly — see gems/page.tsx's getGemsResults for
+// why, and why this uses the Redis cache rather than unstable_cache. Keyed
+// under the "listings:" prefix (even though this queries sellers, not
+// listings) so it's cleared by the same invalidateCache("listings:*") calls
+// on listing mutations — a seller card's active-listing count depends on
+// listing data too.
+async function getSellersResults(
+  where: Prisma.UserWhereInput,
+  page: number,
+  limit: number,
+) {
+  return getOrSetCached(
+    `listings:sellers:${JSON.stringify(where)}:${page}:${limit}`,
+    120,
+    async () => {
+      const [sellers, total] = await Promise.all([
+        db.user.findMany({
+          where,
+          select: {
+            id: true,
+            name: true,
+            shopSlug: true,
+            shopBio: true,
+            shopBannerUrl: true,
+            isVerified: true,
+            locationCity: true,
+            specialties: true,
+            subscription: {
+              select: { plan: { select: { name: true } } },
+            },
+            _count: { select: { listings: { where: { status: "ACTIVE" } } } },
+          },
+          orderBy: [{ isVerified: "desc" }, { createdAt: "desc" }],
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        db.user.count({ where }),
+      ]);
+      return { sellers, total };
+    },
+  );
 }
 
 export default async function SellersPage({ searchParams }: Props) {
@@ -47,29 +91,7 @@ export default async function SellersPage({ searchParams }: Props) {
     ];
   }
 
-  const [sellers, total] = await Promise.all([
-    db.user.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        shopSlug: true,
-        shopBio: true,
-        shopBannerUrl: true,
-        isVerified: true,
-        locationCity: true,
-        specialties: true,
-        subscription: {
-          select: { plan: { select: { name: true } } },
-        },
-        _count: { select: { listings: { where: { status: "ACTIVE" } } } },
-      },
-      orderBy: [{ isVerified: "desc" }, { createdAt: "desc" }],
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    db.user.count({ where }),
-  ]);
+  const { sellers, total } = await getSellersResults(where, page, limit);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">

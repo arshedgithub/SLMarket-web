@@ -1,8 +1,8 @@
-export const dynamic = "force-dynamic";
 import { Suspense } from "react";
+import { getOrSetCached } from "@/lib/redis";
 import { db } from "@/lib/db";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { Coins } from "lucide-react";
@@ -17,6 +17,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "seo.preciousMetals" });
   return {
     title: t("title"),
@@ -113,6 +114,34 @@ export default async function PreciousMetalsPage({ searchParams }: Props) {
   );
 }
 
+// Caches the query result directly — see gems/page.tsx's getGemsResults for
+// why, and why this uses the Redis cache rather than unstable_cache. Shorter
+// window than gems/jewellery since listings here track live metal prices
+// more closely.
+async function getMetalsResults(
+  where: Prisma.ListingWhereInput,
+  page: number,
+  limit: number,
+) {
+  return getOrSetCached(
+    `listings:metals:${JSON.stringify(where)}:${page}:${limit}`,
+    60,
+    async () => {
+      const [listings, total] = await Promise.all([
+        db.listing.findMany({
+          where,
+          include: { seller: { select: { name: true, isVerified: true } } },
+          orderBy: [{ isBoosted: "desc" }, { createdAt: "desc" }],
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        db.listing.count({ where }),
+      ]);
+      return { listings, total };
+    },
+  );
+}
+
 async function MetalsResults({
   where,
   page,
@@ -124,16 +153,7 @@ async function MetalsResults({
   limit: number;
   pageHref: (p: number) => string;
 }) {
-  const [listings, total] = await Promise.all([
-    db.listing.findMany({
-      where,
-      include: { seller: { select: { name: true, isVerified: true } } },
-      orderBy: [{ isBoosted: "desc" }, { createdAt: "desc" }],
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    db.listing.count({ where }),
-  ]);
+  const { listings, total } = await getMetalsResults(where, page, limit);
 
   return (
     <>

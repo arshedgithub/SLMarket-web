@@ -1,13 +1,13 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 import { Suspense } from "react";
-import { auth } from "@/auth";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { localeAlternates } from "@/lib/seo/hreflang";
-import { ArrowRight, Store } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { categories } from "@/config/const/navLinks";
+import { HeroSellerLink, BottomSellerCta } from "./_components/SellerCta";
 import {
   MetalPricesSection,
   FeaturedAndNewArrivalsSection,
@@ -29,6 +29,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "seo.home" });
   return {
     title: t("title"),
@@ -39,18 +40,6 @@ export async function generateMetadata({
 }
 
 export default async function HomePage() {
-  // auth() only decodes the JWT session cookie (no DB call), so this stays
-  // fast and doesn't block the page from rendering immediately. The DB-backed
-  // sections below are each wrapped in their own <Suspense> and stream in
-  // independently, rather than the whole page waiting on the slowest query.
-  const session = await auth();
-  const isSeller = session?.user?.role === "SELLER";
-  const sellHref = !session?.user
-    ? "/login?next=/seller-registration"
-    : isSeller
-      ? "/dashboard"
-      : "/seller-registration";
-
   const servicesPreview =
     categories
       .find((c) => c.id === "services")
@@ -59,7 +48,7 @@ export default async function HomePage() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950">
-      {/* Hero — purely static + the cheap session check above, no DB query */}
+      {/* Hero — purely static; the seller CTA reads session client-side */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-dark to-primary">
         <div className="absolute inset-0 opacity-20 bg-primary-dark">
           <Image
@@ -92,13 +81,7 @@ export default async function HomePage() {
             >
               Browse Gems <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href={sellHref}
-              className="inline-flex items-center gap-2 border-2 border-white/70 text-white font-semibold px-6 py-3 rounded-lg hover:bg-white/10 transition-colors"
-            >
-              <Store className="w-4 h-4" />{" "}
-              {isSeller ? "Go to Seller Dashboard" : "Become a Seller"}
-            </Link>
+            <HeroSellerLink />
           </div>
         </div>
       </section>
@@ -201,26 +184,10 @@ export default async function HomePage() {
         <BlogSection />
       </Suspense>
 
-      {/* Become a seller CTA — static + the cheap session check above */}
+      {/* Become a seller CTA — session-dependent content lives in BottomSellerCta */}
       <section className="bg-gradient-to-br from-primary to-primary-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-            {isSeller
-              ? "Manage Your Shop on Lumevelo"
-              : "Sell Your Gems, Jewellery, or Services on Lumevelo"}
-          </h2>
-          <p className="text-gray-200 max-w-2xl mx-auto mb-6">
-            {isSeller
-              ? "List new inventory, track enquiries, and grow your shop's reach on Lumevelo."
-              : "Set up your shop, list your inventory, and reach buyers actively searching for certified gems, precious metals, and jewellery."}
-          </p>
-          <Link
-            href={sellHref}
-            className="inline-flex items-center gap-2 bg-white text-primary-dark font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            {isSeller ? "Go to Dashboard" : "Start Selling"}{" "}
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <BottomSellerCta />
         </div>
       </section>
     </div>

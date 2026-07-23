@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { invalidateCache } from "@/lib/redis";
+import { invalidateListingsCache } from "@/lib/listings-cache";
 import { adminListingActionSchema } from "@/lib/validations/listing";
 import { createNotification } from "@/lib/messaging/server";
 
@@ -50,7 +50,7 @@ export async function PATCH(
           },
   });
 
-  await invalidateCache(`listings:*`);
+  await invalidateListingsCache();
 
   await createNotification(
     parsed.data.action === "approve"

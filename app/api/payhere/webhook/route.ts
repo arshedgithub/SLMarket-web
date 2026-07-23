@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyPayhereWebhook } from "@/lib/payhere";
 import { sendSubscriptionConfirmation } from "@/lib/email";
+import { invalidateListingsCache } from "@/lib/listings-cache";
 
 export async function POST(req: NextRequest) {
   const body = await req.formData();
@@ -139,6 +140,8 @@ export async function POST(req: NextRequest) {
           data: { isBoosted: true, boostEndAt: endDate },
         }),
       ]);
+
+      await invalidateListingsCache();
     }
   }
 

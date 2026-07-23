@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { updateListingSchema } from "@/lib/validations/listing";
-import { invalidateCache } from "@/lib/redis";
+import { invalidateListingsCache } from "@/lib/listings-cache";
 import { deleteAsset } from "@/lib/cloudinary";
 import { getReelQuotaStatus } from "@/lib/reelQuota";
 import { flattenFieldErrors } from "@/lib/utils/zodErrors";
@@ -187,7 +187,7 @@ export async function PUT(
     await deleteAsset(existing.reelUrl, "video").catch(() => {});
   }
 
-  await invalidateCache(`listings:*`);
+  await invalidateListingsCache();
   return NextResponse.json(updated);
 }
 
@@ -219,6 +219,11 @@ export async function DELETE(
   if (existing.reelUrl) {
     await deleteAsset(existing.reelUrl, "video").catch(() => {});
   }
+
+  // Deleting an ACTIVE listing wasn't clearing the cache before this —
+  // without it, a deleted listing would keep showing up on marketplace
+  // pages (and the homepage) until the cache's time-based window passed.
+  await invalidateListingsCache();
 
   return NextResponse.json({ message: "Listing deleted" });
 }

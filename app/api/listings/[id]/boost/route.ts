@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { boostSchema } from "@/lib/validations/subscription";
 import { buildPayhereFormData } from "@/lib/payhere";
+import { invalidateListingsCache } from "@/lib/listings-cache";
 
 const BOOST_PRICES_USD: Record<string, number> = {
   TOP_SEARCH_1D: 3.5,
@@ -83,6 +84,8 @@ export async function POST(
         data: { freeBoostsRemaining: { decrement: 1 } },
       }),
     ]);
+
+    await invalidateListingsCache();
 
     return NextResponse.json({ message: "Boost applied successfully" });
   }
