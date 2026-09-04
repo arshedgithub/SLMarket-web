@@ -1,7 +1,11 @@
 {
   "signIn": "පිවිසෙන්න",
   "register": "ලියාපදිංචි වන්න",
+  "signInRegister": "පිවිසෙන්න / ලියාපදිංචි වන්න",
   "allCategories": "සියලුම කාණ්ඩ",
+  "browseCategories": "කාණ්ඩ පිරික්සන්න",
+  "sellers": "විලාසිකරුවන්",
+  "collections": "එකතු",
   "featured": "විශේෂාංගිත",
   "about": "අප ගැන",
   "blog": "බ්ලොග්",
@@ -11,7 +15,9 @@
   "searchPlaceholder": "මැණික්, ආභරණ, විලාසිකරුවන් සොයන්න...",
   "deals": "වට්ටම්",
   "sellerDashboard": "විලාසිකරු උපකරණ පුවරුව",
+  "sellerBadge": "විලාසිකරු",
   "startSelling": "විකිණීම ආරම්භ කරන්න",
+  "newListing": "නව ලැයිස්තුව",
   "savedItems": "සුරැකි අයිතම",
   "editProfile": "පැතිකඩ සංස්කරණය කරන්න",
   "logout": "ඉවත් වන්න",
@@ -20,5 +26,34 @@
   "toggleMenu": "මෙනුව මාරු කරන්න",
   "accountMenu": "ගිණුම් මෙනුව",
   "toggleDarkMode": "අඳුරු මාදිලිය මාරු කරන්න",
-  "changeLanguage": "භාෂාව වෙනස් කරන්න"
+  "changeLanguage": "භාෂාව වෙනස් කරන්න",
+  "megaMenu": {
+    "notSureTitle": "ඔබ සොයන්නේ කුමක්දැයි විශ්වාස නැද්ද?",
+    "notSureDesc": "අපගේ විශේෂඥයින් ඔබට උදව් කිරීමට සූදානම්.",
+    "contactExperts": "අපගේ විශේෂඥයින් අමතන්න",
+    "explorePrefix": "ගවේෂණය කරන්න",
+    "viewAllPrefix": "සියල්ල බලන්න",
+    "explore": "ගවේෂණය කරන්න",
+    "collection": "එකතුව",
+    "viewListing": "ලැයිස්තුව බලන්න",
+    "browseCategory": "පිරික්සන්න",
+    "visitShop": "සාප්පුවට යන්න",
+    "adEyebrow": {
+      "boostedListing": "අනුග්‍රහිත ලැයිස්තුව",
+      "premiumShop": "විශේෂිත සාප්පුව"
+    },
+    "adFeatures": {
+      "certified": { "title": "ස්වභාවික හා සහතික කළ", "subtitle": "GIA / IGI / SSEF" },
+      "selection": { "title": "පුළුල් තේරීමක්", "subtitle": "සියලුම හැඩතල හා ප්‍රමාණ" },
+      "sellers": { "title": "සත්‍යාපිත විලාසිකරුවන්", "subtitle": "ලොව පුරා විශ්වාසනීය" }
+    },
+    "quickLinks": {
+      "trending": { "title": "දැන් ජනප්‍රිය", "subtitle": "දැන් ජනප්‍රියම" },
+      "verifiedSellers": { "title": "සත්‍යාපිත විලාසිකරුවන්", "subtitle": "ගෝලීය ජාලය" },
+      "rareAuctions": { "title": "දුර්ලභ මැණික් වෙන්දේසි", "subtitle": "සුවිශේෂී හා අනන්‍ය" },
+      "newlyListed": { "title": "අලුතින් ලැයිස්තුගත", "subtitle": "දිනපතා නව එකතු" },
+      "certifiedGems": { "title": "සහතික කළ මැණික්", "subtitle": "විද්‍යාගාර පරීක්ෂිත" },
+      "premiumDealers": { "title": "වාණිජ්‍ය වෙළෙන්දන්", "subtitle": "ඉහළම ශ්‍රේණියේ විලාසිකරුවන්" }
+    }
+  }
 }

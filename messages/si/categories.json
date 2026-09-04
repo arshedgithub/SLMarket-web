@@ -1,0 +1,70 @@
+{
+  "gems": {
+    "name": "මැණික්",
+    "subcategories": {
+      "all": "සියලුම මැණික්",
+      "sapphire": "සෆායර් (නිල් මැණික්/පුෂ්පරාග/ගෙවුඩ)",
+      "ruby": "රතු මැණික් (රූබි)",
+      "catseye": "කැට්ස් අයි",
+      "spinel": "කිරිංචි (ස්පිනල්)",
+      "alexandrite": "පසින්ගල් (ඇලෙක්සැන්ඩ්‍රයිට්)",
+      "garnet": "ගෝමේද/රබහ (ගාර්නට්)",
+      "tourmaline": "තෝරමල්ලි (ටුවර්මලින්)",
+      "aquamarine": "ඇක්වාමැරීන්",
+      "Padparadscha": "පද්මරාග",
+      "emerald": "මරකත (එමරල්ඩ්)",
+      "zircon": "ජාගුන් (සzර්කන්)",
+      "other-gems": "අනෙකුත් මැණික්"
+    }
+  },
+  "precious-metals": {
+    "name": "වටිනා ලෝහ",
+    "subcategories": {
+      "all": "සියලුම ලෝහ",
+      "gold": "රත්‍රන්",
+      "silver": "රිදී",
+      "platinum": "ප්ලැටිනම්",
+      "palladium": "පලේඩියම්",
+      "other-metals": "අනෙකුත්"
+    }
+  },
+  "jewellery": {
+    "name": "ආභරණ",
+    "subcategories": {
+      "all": "සියලුම ආභරණ",
+      "rings": "මුදු",
+      "necklaces": "මාල",
+      "earrings": "කරාබු",
+      "bracelets": "වළලු",
+      "pendants": "පෙන්ඩන්ට්",
+      "wedding_sets": "විවාහ හා විලවුන් කට්ටල",
+      "other": "අනෙකුත් ආභරණ"
+    }
+  },
+  "services": {
+    "name": "සේවා",
+    "subcategories": {
+      "all": "සියලුම සේවා",
+      "certification": "මැණික් සහතික කිරීම",
+      "gem_cutting": "මැණික් කැපීම හා දිලිසීම",
+      "gold_testing": "රත්‍රන් හා ලෝහ පරීක්ෂාව",
+      "valuation": "මැණික් හා ආභරණ තක්සේරුව",
+      "custom_design": "අභිරුචි ආභරණ නිර්මාණය",
+      "repair": "ආභරණ අලුත්වැඩියා හා දිලිසීම",
+      "engraving": "කැටයම් කිරීම",
+      "transport": "ආරක්ෂිත ප්‍රවාහන හා කුරියර්",
+      "buying_consultation": "මිලදී ගැනීමේ උපදේශනය",
+      "training": "මැණික් විද්‍යා පුහුණුව",
+      "mining_tours": "මැණික් පතල් සංචාර",
+      "other": "අනෙකුත් සේවා"
+    }
+  },
+  "sellers": {
+    "name": "විලාසිකරුවන්",
+    "subcategories": {
+      "shops": "සාප්පු හා වෙළෙන්දන්",
+      "shop_profile": "ඔබේම සාප්පු පැතිකඩක් සාදන්න",
+      "new": "විකිණීම ආරම්භ කරන්න"
+    }
+  }
+}

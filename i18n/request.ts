@@ -7,7 +7,7 @@ import { routing } from "./routing";
 // the feature being worked on as more of the app gets translated. Add the
 // namespace name here once a new area (home, dashboard, admin, ...) starts
 // using useTranslations/getTranslations.
-const NAMESPACES = ["nav", "auth", "seo"] as const;
+const NAMESPACES = ["nav", "auth", "seo", "home", "categories"] as const;
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;

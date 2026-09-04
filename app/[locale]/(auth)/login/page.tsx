@@ -6,12 +6,12 @@ import { useRouter, Link } from "@/i18n/navigation";
 import { signIn, getSession } from "next-auth/react";
 import Image from "next/image";
 import { Eye, EyeOff, Lock, ChevronDown } from "lucide-react";
-import { colors } from "@/lib/theme/colors";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { AuthMethodSwitch } from "@/components/auth/AuthMethodSwitch";
 import { COUNTRIES, getDialCode } from "@/lib/utils/countries";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import { Button } from "@/components/ui/button";
+import { colors } from "@/lib/theme/colors";
 
 // Different parts of the app link to /login with either ?next= (e.g. the
 // navbar's "Sell" link, EnquiryModal, MessageSellerButton) or ?callbackUrl=
@@ -94,39 +94,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex bg-[#f5f5f5] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen flex items-center justify-center bg-[var(--color-luxury-bg)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
         <LanguageSwitcher />
       </div>
 
-      <div className="max-w-md w-full mx-auto space-y-8 bg-white p-8 rounded-lg shadow-lg">
+      <div className="max-w-md w-full mx-auto space-y-8 bg-[var(--color-luxury-surface)] border border-[var(--color-luxury-border)] p-8 rounded-lg shadow-lg">
         {/* Logo and Header */}
         <div className="text-center">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2"
-          >
-            <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full">
-              <Image
-                src="/images/blue-sapphire-gemstone-free-png.webp"
-                alt="Lumevelo"
-                fill
-                sizes="48px"
-                className="object-cover"
-              />
-            </div>
-            <span className="font-bold text-2xl text-primary">Lumevelo</span>
+          <Link href="/" className="inline-flex items-center justify-center">
+            <Image
+              src="/logo-nav-gold.png"
+              alt="Lumevelo"
+              width={1616}
+              height={356}
+              priority
+              className="h-10 w-auto"
+            />
           </Link>
-          <h2 className="mt-6 text-3xl font-extrabold text-[#34495e]">
+          <h2 className="mt-6 text-3xl font-extrabold text-[var(--color-luxury-text)]">
             {t("title")}
           </h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-[var(--color-luxury-text-body)]">
             {t("orCreateAccount")}
             <br />
             <Link
               href="/register"
-              className="font-bold"
-              style={{ color: colors.primary.main }}
+              className="font-bold text-gold-hover dark:text-gold-champagne hover:underline"
             >
               {t("createAccount")}
             </Link>
@@ -159,7 +153,7 @@ export default function LoginPage() {
               />
             ) : (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-[var(--color-luxury-text-secondary)] mb-1.5">
                   {t("phoneNumber")}
                 </label>
                 <div className="flex gap-2">
@@ -167,7 +161,7 @@ export default function LoginPage() {
                     <select
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      className="h-full appearance-none border border-gray-300 rounded-lg pl-3 pr-8 py-2.5 text-sm bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="h-full appearance-none border border-[var(--color-luxury-border)] rounded-lg pl-3 pr-8 py-2.5 text-sm bg-[var(--color-luxury-bg)] text-[var(--color-luxury-text)] font-medium focus:outline-none focus:ring-2 focus:ring-gold"
                     >
                       {COUNTRIES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -175,7 +169,7 @@ export default function LoginPage() {
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-luxury-text-body)] pointer-events-none" />
                   </div>
                   <input
                     type="tel"
@@ -186,7 +180,7 @@ export default function LoginPage() {
                       setPhoneLocal(e.target.value.replace(/[^0-9\s\-()]/g, ""))
                     }
                     placeholder={t("phonePlaceholder")}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 border border-[var(--color-luxury-border)] rounded-lg px-3 py-2.5 text-sm bg-[var(--color-luxury-surface)] text-[var(--color-luxury-text)] focus:outline-none focus:ring-2 focus:ring-gold"
                   />
                 </div>
               </div>

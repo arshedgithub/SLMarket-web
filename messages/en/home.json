@@ -1,0 +1,145 @@
+{
+  "hero": {
+    "eyebrow": "Connecting Value. Creating Trust.",
+    "titlePrefix": "The World's Premier",
+    "titleHighlight": "Gem & Jewellery",
+    "titleSuffix": "Marketplace",
+    "subtitle": "Discover exceptional gems, fine jewellery, precious metals and trusted services from verified sellers across the globe.",
+    "exploreMarketplace": "Explore Marketplace",
+    "becomeASeller": "Become a Seller",
+    "goToSellerDashboard": "Go to Seller Dashboard",
+    "badges": {
+      "verifiedSellers": { "title": "Verified Sellers", "subtitle": "Global Network" },
+      "secureTransactions": { "title": "Secure Transactions", "subtitle": "Trade with Confidence" },
+      "qualityAssured": { "title": "Quality Assured", "subtitle": "Certified & Trusted" },
+      "worldwideShipping": { "title": "Worldwide Shipping", "subtitle": "Fast & Insured" }
+    }
+  },
+  "stats": {
+    "verifiedSellers": "Verified Sellers",
+    "productsListed": "Products Listed",
+    "countriesConnected": "Countries Connected",
+    "buyerSatisfaction": "Buyer Satisfaction",
+    "customerSupport": "Customer Support"
+  },
+  "categories": {
+    "eyebrow": "Shop by Category",
+    "heading": "Explore Our Premium Categories",
+    "viewAll": "View All Categories",
+    "subtitles": {
+      "gems": "12+ Types",
+      "precious-metals": "6+ Types",
+      "jewellery": "8+ Types",
+      "services": "12+ Services",
+      "sellers": "Join Our Network",
+      "deals": "Best Prices Daily"
+    },
+    "dealsName": "Deals & Offers"
+  },
+  "trust": {
+    "eyebrow": "Why Buy & Sell With Lumevelo?",
+    "heading": "Trusted by Buyers & Sellers Worldwide",
+    "description": "We ensure a seamless and secure marketplace experience with transparency, quality and trust at every step.",
+    "learnMore": "Learn More About Us",
+    "features": {
+      "certified": {
+        "title": "Certified & Verified",
+        "desc": "All products and sellers are verified for your peace of mind."
+      },
+      "secure": {
+        "title": "Secure & Safe",
+        "desc": "Escrow protection and secure payments for worry-free transactions."
+      },
+      "global": {
+        "title": "Global Reach",
+        "desc": "Connecting buyers and sellers from over 200+ countries."
+      },
+      "support": {
+        "title": "Premium Support",
+        "desc": "Our dedicated support team is here to help you 24/7."
+      }
+    }
+  },
+  "handpicked": {
+    "eyebrow": "Handpicked Collection",
+    "heading": "Exquisite Gems, Timeless Beauty",
+    "description": "Discover rare and certified gemstones curated for true connoisseurs.",
+    "shopGems": "Shop Gems",
+    "viewAllGems": "View All Gems",
+    "gems": {
+      "sapphire": "Sapphire",
+      "emerald": "Emerald",
+      "ruby": "Ruby",
+      "alexandrite": "Alexandrite"
+    }
+  },
+  "servicesPreview": {
+    "eyebrow": "Gem & Jewellery Services",
+    "heading": "Expert Services, Every Step of the Way",
+    "viewAll": "View All",
+    "items": {
+      "certification": {
+        "name": "Gem Certification",
+        "desc": "Certified experts from institutions like GIA & IGI"
+      },
+      "cutting": {
+        "name": "Gem Cutting & Polishing",
+        "desc": "Precision cutting for brilliance & clarity"
+      },
+      "customDesign": {
+        "name": "Custom Jewellery Design",
+        "desc": "Bespoke pieces tailored to your style"
+      },
+      "repair": {
+        "name": "Jewellery Repair & Polishing",
+        "desc": "Restore your jewellery to its original shine"
+      },
+      "goldTesting": {
+        "name": "Gold & Metal Testing",
+        "desc": "Accurate testing for purity & authenticity"
+      },
+      "valuation": {
+        "name": "Gem & Jewellery Valuation",
+        "desc": "Professional valuation you can trust"
+      }
+    }
+  },
+  "quickAccess": {
+    "eyebrow": "Popular Searches",
+    "heading": "Quick Access",
+    "viewAll": "View All",
+    "items": {
+      "blueSapphire": "Blue Sapphire",
+      "emeraldRing": "Emerald Ring",
+      "gemCertification": "Gem Certification",
+      "diamondRing": "Diamond Ring",
+      "gold22k": "Gold 22K",
+      "platinumJewellery": "Platinum Jewellery"
+    }
+  },
+  "journeyCta": {
+    "heading": "Ready to Begin Your Journey?",
+    "sellerHeading": "Continue Your Journey With Lumevelo",
+    "description": "Join thousands of buyers and sellers in the world's most trusted gem & jewellery marketplace.",
+    "sellerDesc": "List new inventory, track enquiries, and grow your shop's reach on Lumevelo.",
+    "exploreMarketplace": "Explore Marketplace",
+    "becomeASeller": "Become a Seller",
+    "goToDashboard": "Go to Dashboard",
+    "badges": {
+      "community": "Trusted Community",
+      "secure": "Secure & Safe",
+      "easy": "Easy Transactions"
+    }
+  },
+  "growSeller": {
+    "eyebrow": "Become a Seller",
+    "heading": "Grow Your Business With Lumevelo",
+    "description": "Reach millions of buyers worldwide and grow your trusted brand.",
+    "joinNow": "Join Now",
+    "stats": {
+      "commission": "0% Commission",
+      "reach": "Global Buyer Reach",
+      "support": "Dedicated Support"
+    }
+  }
+}
