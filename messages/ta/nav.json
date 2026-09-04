@@ -1,7 +1,11 @@
 {
   "signIn": "உள்நுழைக",
   "register": "பதிவு செய்க",
+  "signInRegister": "உள்நுழைக / பதிவு செய்க",
   "allCategories": "அனைத்து வகைகளும்",
+  "browseCategories": "வகைகளை உலாவுக",
+  "sellers": "விற்பனையாளர்கள்",
+  "collections": "தொகுப்புகள்",
   "featured": "சிறப்பு",
   "about": "எங்களைப் பற்றி",
   "blog": "வலைப்பதிவு",
@@ -11,7 +15,9 @@
   "searchPlaceholder": "ரத்தினங்கள், நகைகள், விற்பனையாளர்களைத் தேடுங்கள்...",
   "deals": "சலுகைகள்",
   "sellerDashboard": "விற்பனையாளர் டாஷ்போர்டு",
+  "sellerBadge": "விற்பனையாளர்",
   "startSelling": "விற்பனையைத் தொடங்குங்கள்",
+  "newListing": "புதிய பட்டியல்",
   "savedItems": "சேமிக்கப்பட்ட பொருட்கள்",
   "editProfile": "சுயவிவரத்தைத் திருத்து",
   "logout": "வெளியேறு",
@@ -20,5 +26,34 @@
   "toggleMenu": "மெனுவை மாற்று",
   "accountMenu": "கணக்கு மெனு",
   "toggleDarkMode": "இருண்ட பயன்முறையை மாற்று",
-  "changeLanguage": "மொழியை மாற்று"
+  "changeLanguage": "மொழியை மாற்று",
+  "megaMenu": {
+    "notSureTitle": "நீங்கள் தேடுவது என்னவென்று தெரியவில்லையா?",
+    "notSureDesc": "எங்கள் நிபுணர்கள் உதவ தயாராக உள்ளனர்.",
+    "contactExperts": "எங்கள் நிபுணர்களைத் தொடர்பு கொள்ளுங்கள்",
+    "explorePrefix": "ஆராயுங்கள்",
+    "viewAllPrefix": "அனைத்தையும் காண்க",
+    "explore": "ஆராயுங்கள்",
+    "collection": "தொகுப்பு",
+    "viewListing": "பட்டியலைக் காண்க",
+    "browseCategory": "உலாவுக",
+    "visitShop": "கடைக்குச் செல்லவும்",
+    "adEyebrow": {
+      "boostedListing": "விளம்பரப்படுத்தப்பட்ட பட்டியல்",
+      "premiumShop": "சிறப்பு கடை"
+    },
+    "adFeatures": {
+      "certified": { "title": "இயற்கையான & சான்றளிக்கப்பட்ட", "subtitle": "GIA / IGI / SSEF" },
+      "selection": { "title": "பரந்த தேர்வு", "subtitle": "அனைத்து வடிவங்களும் அளவுகளும்" },
+      "sellers": { "title": "சரிபார்க்கப்பட்ட விற்பனையாளர்கள்", "subtitle": "உலகளவில் நம்பகமானது" }
+    },
+    "quickLinks": {
+      "trending": { "title": "இப்போது பிரபலமானது", "subtitle": "இப்போது பிரபலமானவை" },
+      "verifiedSellers": { "title": "சரிபார்க்கப்பட்ட விற்பனையாளர்கள்", "subtitle": "உலகளாவிய நெட்வொர்க்" },
+      "rareAuctions": { "title": "அரிய ரத்தின ஏலங்கள்", "subtitle": "பிரத்யேகமான & தனித்துவமான" },
+      "newlyListed": { "title": "புதிதாக பட்டியலிடப்பட்டது", "subtitle": "தினசரி புதிய வரவுகள்" },
+      "certifiedGems": { "title": "சான்றளிக்கப்பட்ட ரத்தினங்கள்", "subtitle": "ஆய்வக சோதனை செய்யப்பட்டது" },
+      "premiumDealers": { "title": "பிரீமியம் விற்பனையாளர்கள்", "subtitle": "உயர் மதிப்பீட்டு விற்பனையாளர்கள்" }
+    }
+  }
 }

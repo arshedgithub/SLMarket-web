@@ -1,8 +1,8 @@
-export const dynamic = "force-dynamic";
 import { Suspense } from "react";
+import { getOrSetCached } from "@/lib/redis";
 import { db } from "@/lib/db";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { Gem, Sparkles, Shield, Globe2, Award } from "lucide-react";
@@ -17,6 +17,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "seo.gems" });
   return {
     title: t("title"),
@@ -142,6 +143,50 @@ export default async function GemsPage({ searchParams }: Props) {
   );
 }
 
+// Caches the actual query result, keyed on the filters/page — this page
+// reads searchParams, which Next.js always renders dynamically regardless
+// of a page-level revalidate export, so the DB round-trip needs caching
+// directly. Uses the same Redis cache as HomeDataSections.tsx (proven to
+// work reliably) rather than Next's unstable_cache/revalidateTag, which
+// turned out to leave the cache permanently missing after a single
+// revalidateTag call in this Next.js version — see lib/listings-cache.ts.
+async function getGemsResults(
+  where: Prisma.ListingWhereInput,
+  page: number,
+  limit: number,
+) {
+  return getOrSetCached(
+    `listings:gems:${JSON.stringify(where)}:${page}:${limit}`,
+    120,
+    async () => {
+      const [listings, total] = await Promise.all([
+        db.listing.findMany({
+          where,
+          include: {
+            seller: {
+              select: {
+                name: true,
+                isVerified: true,
+                locationCity: true,
+                subscription: { select: { plan: { select: { name: true } } } },
+              },
+            },
+          },
+          orderBy: [
+            { isBoosted: "desc" },
+            { isFeaturedHomepage: "desc" },
+            { createdAt: "desc" },
+          ],
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        db.listing.count({ where }),
+      ]);
+      return { listings, total };
+    },
+  );
+}
+
 async function GemsResults({
   where,
   page,
@@ -159,29 +204,7 @@ async function GemsResults({
   maxPrice?: number;
   priceTierHref: (min?: number, max?: number) => string;
 }) {
-  const [listings, total] = await Promise.all([
-    db.listing.findMany({
-      where,
-      include: {
-        seller: {
-          select: {
-            name: true,
-            isVerified: true,
-            locationCity: true,
-            subscription: { select: { plan: { select: { name: true } } } },
-          },
-        },
-      },
-      orderBy: [
-        { isBoosted: "desc" },
-        { isFeaturedHomepage: "desc" },
-        { createdAt: "desc" },
-      ],
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    db.listing.count({ where }),
-  ]);
+  const { listings, total } = await getGemsResults(where, page, limit);
 
   const stats = [
     {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   Facebook,
   Twitter,
@@ -15,26 +16,25 @@ import {
 import { useSellerCta } from "@/hooks/useSellerCta";
 
 export default function Footer() {
-  const { href: sellerHref, label: sellerLabel } = useSellerCta();
+  const t = useTranslations("nav");
+  const { href: sellerHref, labelKey: sellerLabelKey } = useSellerCta();
+  const sellerLabel = t(sellerLabelKey);
 
   return (
-    <footer className="bg-surface text-text border-t border-border pt-12 pb-8 transition-colors duration-300">
+    <footer className="bg-surface text-text border-t border-border pt-12 pb-8 transition-colors duration-300 dark:bg-[#0c0d10] dark:border-[#2c2f36]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
           <div>
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
-                <Image
-                  src="/images/blue-sapphire-gemstone-free-png.webp"
-                  alt="Lumevelo"
-                  fill
-                  sizes="40px"
-                  className="object-cover"
-                />
-              </div>
-              <span className="font-bold text-xl text-primary">Lumevelo</span>
+            <Link href="/" className="flex items-center mb-4">
+              <Image
+                src="/logo-nav-gold.png"
+                alt="Lumevelo"
+                width={1616}
+                height={356}
+                className="h-9 w-auto"
+              />
             </Link>
 
             <p className="text-light-text mb-4">

@@ -50,6 +50,38 @@
   --color-border: #e1e6ed;
   --color-text: #1f2937;
   --color-light-text: #6b7785;
+
+  /* Luxury marketplace palette — scoped to the home page's editorial
+     redesign (hero, category/trust/handpicked sections) rather than
+     merged into the tokens above, since those already drive the rest
+     of the site (nav, dashboard, auth) and must keep their current
+     blue/platinum look. */
+  --color-luxury-bg: #faf8f4;
+  --color-luxury-bg-secondary: #f5f1ea;
+  --color-luxury-surface: #ffffff;
+  --color-luxury-surface-elevated: #ffffff;
+  --color-luxury-border: #e6ded3;
+  --color-luxury-border-hover: #d8c5a8;
+  --color-luxury-divider: #ead8bc;
+  --color-luxury-text: #1a1a1a;
+  --color-luxury-text-secondary: #4e4e4e;
+  --color-luxury-text-body: #666666;
+  --color-luxury-text-disabled: #9d9d9d;
+
+  --color-gold: #c89a4b;
+  --color-gold-hover: #b7832f;
+  --color-gold-champagne: #e5d1a5;
+  --color-gold-light: #f4d79a;
+  --color-gold-dark: #a66a1f;
+
+  --color-gem-sapphire: #1655c5;
+  --color-gem-emerald: #0e8a6a;
+  --color-gem-ruby: #b11834;
+  --color-gem-citrine: #d7a326;
+  --color-gem-amethyst: #6e49b8;
+  --color-gem-aquamarine: #48c3d9;
+  --color-gem-garnet: #7b1223;
+  --color-gem-spinel: #a11749;
 }
 
 .dark {
@@ -69,6 +101,24 @@
 
   --color-premium: #c8506e;
   --color-features: #3fa784;
+
+  /* Luxury dark — not black, a deep charcoal so the gold and gem accents
+     stay rich instead of flattening against pure #000. */
+  --color-luxury-bg: #0c0d10;
+  --color-luxury-bg-secondary: #14161b;
+  --color-luxury-surface: #1a1d24;
+  --color-luxury-surface-elevated: #20242c;
+  --color-luxury-border: #2c2f36;
+  --color-luxury-border-hover: #3b3f47;
+  --color-luxury-divider: #4c3b23;
+  --color-luxury-text: #f7f5f2;
+  --color-luxury-text-secondary: #cfc8bc;
+  --color-luxury-text-body: #b4aea3;
+  --color-luxury-text-disabled: #7a7a7a;
+
+  /* Gold is intentionally unchanged from light mode — same palette reads
+     richer against the dark surfaces above without needing new hexes. */
+  --color-gold-champagne: #d9b970;
 }
 
 body {
@@ -97,4 +147,59 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Luxury gold buttons — home page only. Gradient version for primary CTAs:
+   a warm metallic bronze-to-champagne sweep (not a flat/glossy gold) with
+   a matching hairline border, flat/outline versions for secondary
+   actions. */
+.btn-gold-gradient {
+  background-image: linear-gradient(
+    135deg,
+    #8a5a21 0%,
+    #9c6b31 30%,
+    #b07a37 65%,
+    #c18a43 100%
+  );
+  border: 1px solid #9c6b31;
+  color: #fff8ee;
+  box-shadow:
+    0 10px 30px rgba(171, 118, 48, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+  transition:
+    background-image 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.btn-gold-gradient:hover {
+  background-image: linear-gradient(
+    135deg,
+    #9a682a 0%,
+    #b47c37 45%,
+    #cb9450 100%
+  );
+  box-shadow:
+    0 12px 34px rgba(171, 118, 48, 0.36),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.btn-gold-flat {
+  background-color: var(--color-gold);
+  color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+.btn-gold-flat:hover {
+  background-color: var(--color-gold-hover);
+}
+
+.btn-gold-outline {
+  background-color: var(--color-luxury-surface);
+  border: 1px solid var(--color-luxury-border-hover);
+  color: var(--color-luxury-text);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.btn-gold-outline:hover {
+  border-color: var(--color-gold);
+  background-color: var(--color-luxury-bg-secondary);
 }

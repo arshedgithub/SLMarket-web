@@ -59,6 +59,14 @@ export const categories = [
         image: "/images/categories/gems/aquamarine.png",
       },
       {
+        id: "Padparadscha",
+        name: "Padparadscha",
+        href: "/gems?type=padparadscha",
+        // No dedicated photo yet — padparadscha is technically a sapphire
+        // variety, so the sapphire thumbnail is the closest stand-in.
+        image: "/images/categories/gems/sapphire.webp",
+      },
+      {
         id: "emerald",
         name: "Emerald",
         href: "/gems?type=emerald",

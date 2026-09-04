@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
   icons: {
-    icon: "/images/blue-sapphire-gemstone-free-png.webp",
-    shortcut: "/images/blue-sapphire-gemstone-free-png.webp",
-    apple: "/images/blue-sapphire-gemstone-free-png.webp",
+    icon: "/logo-mark.png",
+    shortcut: "/logo-mark.png",
+    apple: "/logo-mark.png",
   },
 };
 
@@ -59,7 +59,7 @@ function structuredData(locale: string) {
       "@type": "Organization",
       name: "Lumevelo",
       url: SITE_URL,
-      logo: `${SITE_URL}/images/blue-sapphire-gemstone-free-png.webp`,
+      logo: `${SITE_URL}/logo-mark.png`,
     },
     {
       "@context": "https://schema.org",
