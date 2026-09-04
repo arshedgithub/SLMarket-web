@@ -2,13 +2,16 @@
 
 import React from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useThemeStore } from "@/store/themeStore";
 import { useSellerCta } from "@/hooks/useSellerCta";
 
 export default function About() {
+  const t = useTranslations("nav");
   const { isDarkMode } = useThemeStore();
-  const { href: sellerHref, label: sellerLabel } = useSellerCta();
+  const { href: sellerHref, labelKey: sellerLabelKey } = useSellerCta();
+  const sellerLabel = t(sellerLabelKey);
 
   return (
     <div

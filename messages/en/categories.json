@@ -1,0 +1,70 @@
+{
+  "gems": {
+    "name": "Gems",
+    "subcategories": {
+      "all": "All Gems",
+      "sapphire": "Sapphire",
+      "ruby": "Ruby",
+      "catseye": "Cat's Eye",
+      "spinel": "Spinel",
+      "alexandrite": "Alexandrite",
+      "garnet": "Garnet",
+      "tourmaline": "Tourmaline",
+      "aquamarine": "Aquamarine",
+      "Padparadscha": "Padparadscha",
+      "emerald": "Emerald",
+      "zircon": "Zircon",
+      "other-gems": "Other Gems"
+    }
+  },
+  "precious-metals": {
+    "name": "Precious Metals",
+    "subcategories": {
+      "all": "All Metals",
+      "gold": "Gold",
+      "silver": "Silver",
+      "platinum": "Platinum",
+      "palladium": "Palladium",
+      "other-metals": "Other"
+    }
+  },
+  "jewellery": {
+    "name": "Jewellery",
+    "subcategories": {
+      "all": "All Jewellery",
+      "rings": "Rings",
+      "necklaces": "Necklaces",
+      "earrings": "Earrings",
+      "bracelets": "Bracelets",
+      "pendants": "Pendants",
+      "wedding_sets": "Wedding & Engagement Sets",
+      "other": "Other Jewellery"
+    }
+  },
+  "services": {
+    "name": "Services",
+    "subcategories": {
+      "all": "All Services",
+      "certification": "Gem Certification",
+      "gem_cutting": "Gem Cutting & Polishing",
+      "gold_testing": "Gold & Metal Testing",
+      "valuation": "Gem & Jewellery Valuation",
+      "custom_design": "Custom Jewellery Design",
+      "repair": "Jewellery Repair & Polishing",
+      "engraving": "Engraving",
+      "transport": "Secure Transport & Courier",
+      "buying_consultation": "Buying Consultation",
+      "training": "Gemology Training",
+      "mining_tours": "Gem Mine Tours",
+      "other": "Other Services"
+    }
+  },
+  "sellers": {
+    "name": "Sellers",
+    "subcategories": {
+      "shops": "Shops & Dealers",
+      "shop_profile": "Create Your Own Shop Profile",
+      "new": "Start Selling"
+    }
+  }
+}

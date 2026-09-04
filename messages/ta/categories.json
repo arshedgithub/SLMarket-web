@@ -1,0 +1,70 @@
+{
+  "gems": {
+    "name": "ரத்தினங்கள்",
+    "subcategories": {
+      "all": "அனைத்து ரத்தினங்களும்",
+      "sapphire": "நீலக்கல்",
+      "ruby": "ரூபி",
+      "catseye": "வைடூரியம்",
+      "spinel": "ஸ்பினல்",
+      "alexandrite": "அலெக்ஸாண்ட்ரைட்",
+      "garnet": "கோமேதகம்",
+      "tourmaline": "டூர்மலின்",
+      "aquamarine": "அக்வாமரின்",
+      "Padparadscha": "பத்மராகா",
+      "emerald": "மரகதம்",
+      "zircon": "சzர்கான்",
+      "other-gems": "பிற ரத்தினங்கள்"
+    }
+  },
+  "precious-metals": {
+    "name": "விலைமதிப்பற்ற உலோகங்கள்",
+    "subcategories": {
+      "all": "அனைத்து உலோகங்களும்",
+      "gold": "தங்கம்",
+      "silver": "வெள்ளி",
+      "platinum": "பிளாட்டினம்",
+      "palladium": "பலேடியம்",
+      "other-metals": "பிற"
+    }
+  },
+  "jewellery": {
+    "name": "நகைகள்",
+    "subcategories": {
+      "all": "அனைத்து நகைகளும்",
+      "rings": "மோதிரங்கள்",
+      "necklaces": "நெக்லஸ்கள்",
+      "earrings": "காதணிகள்",
+      "bracelets": "வளையல்கள்",
+      "pendants": "பதக்கங்கள்",
+      "wedding_sets": "திருமண & நிச்சயதார்த்த செட்கள்",
+      "other": "பிற நகைகள்"
+    }
+  },
+  "services": {
+    "name": "சேவைகள்",
+    "subcategories": {
+      "all": "அனைத்து சேவைகளும்",
+      "certification": "ரத்தின சான்றளிப்பு",
+      "gem_cutting": "ரத்தின வெட்டு & மெருகூட்டல்",
+      "gold_testing": "தங்கம் & உலோக சோதனை",
+      "valuation": "ரத்தினம் & நகை மதிப்பீடு",
+      "custom_design": "தனிப்பயன் நகை வடிவமைப்பு",
+      "repair": "நகை பழுது & மெருகூட்டல்",
+      "engraving": "செதுக்குதல்",
+      "transport": "பாதுகாப்பான போக்குவரத்து & கூரியர்",
+      "buying_consultation": "வாங்குதல் ஆலோசனை",
+      "training": "ரத்தினவியல் பயிற்சி",
+      "mining_tours": "ரத்தின சுரங்க சுற்றுலா",
+      "other": "பிற சேவைகள்"
+    }
+  },
+  "sellers": {
+    "name": "விற்பனையாளர்கள்",
+    "subcategories": {
+      "shops": "கடைகள் & வியாபாரிகள்",
+      "shop_profile": "உங்கள் சொந்த கடை சுயவிவரத்தை உருவாக்குங்கள்",
+      "new": "விற்பனையைத் தொடங்குங்கள்"
+    }
+  }
+}

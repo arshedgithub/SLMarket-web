@@ -1,9 +1,11 @@
 import { Layout } from "@/components";
+import { getMegaMenuAds } from "@/lib/getMegaMenuAds";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <Layout>{children}</Layout>;
+  const megaMenuAds = await getMegaMenuAds();
+  return <Layout megaMenuAds={megaMenuAds}>{children}</Layout>;
 }
