@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
       },
     ],
     formats: ["image/avif", "image/webp"],
+    // A handful of first-party category thumbnails are inline SVG
+    // illustrations we author ourselves (see public/images/marketplace).
+    // They are never user-supplied, so serving them through next/image is
+    // safe; the CSP still blocks scripts inside any SVG.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // How long the Next.js Image Optimization cache (and any CDN in front of
     // it) keeps an optimized derivative before re-checking the source.
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days — these static category/nav images rarely change
@@ -24,7 +31,7 @@ const nextConfig: NextConfig = {
   // Expose only safe public env vars
   env: {
     NEXT_PUBLIC_APP_URL:
-      process.env.NEXT_PUBLIC_APP_URL ?? "https://lumevelo.com",
+      process.env.NEXT_PUBLIC_APP_URL ?? "https://slmarket.lk",
   },
 
   serverExternalPackages: ["bcryptjs"],

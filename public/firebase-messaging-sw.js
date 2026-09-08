@@ -38,7 +38,7 @@ try {
 
     self.registration.showNotification(title, {
       body,
-      icon: "/images/blue-sapphire-gemstone-free-png.webp",
+      icon: "/logo.png",
       data: { link },
     });
   });

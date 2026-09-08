@@ -3,107 +3,162 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Base font stack — Inter for Latin text, with Tamil/Sinhala fonts as
-     fallbacks so the browser renders each script in the right typeface
-     per-glyph without any locale-conditional class-switching. */
+  /*
+   * ============================================================
+   * TYPOGRAPHY
+   * ============================================================
+   */
+
   --font-sans:
-    var(--font-inter), var(--font-tamil), var(--font-sinhala), ui-sans-serif,
-    system-ui, sans-serif;
+    var(--font-inter),
+    var(--font-tamil),
+    var(--font-sinhala),
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
 
-  /* Primary - Royal Blue */
-  --color-primary-50: #eaf1f8;
-  --color-primary-100: #cfe0ef;
-  --color-primary-200: #a3c2df;
-  --color-primary-300: #76a3ce;
-  --color-primary-400: #4a7fc2;
-  --color-primary-500: #2f5fa0;
-  --color-primary-600: #1f4e8c;
-  --color-primary-700: #173d70;
-  --color-primary-800: #102c54;
-  --color-primary-900: #0a1d38;
-  --color-primary: #1f4e8c;
-  --color-primary-light: #4a7fc2;
-  --color-primary-dark: #173d70;
+  /*
+   * ============================================================
+   * CORE COLORS
+   * ============================================================
+   */
 
-  /* Secondary - Platinum */
-  --color-secondary-50: #f7f8fa;
-  --color-secondary-100: #edf0f3;
-  --color-secondary-200: #dbe1e8;
-  --color-secondary-300: #c2cbd6;
-  --color-secondary-400: #aab6c4;
-  --color-secondary-500: #9ca8b8;
-  --color-secondary-600: #7e8ca0;
-  --color-secondary-700: #636f82;
-  --color-secondary-800: #4a5566;
-  --color-secondary-900: #333b49;
-  --color-secondary: #9ca8b8;
-  --color-secondary-light: #c2cbd6;
-  --color-secondary-dark: #7e8ca0;
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dbe8ff;
+  --color-primary-200: #bfd4ff;
+  --color-primary-300: #91b5ff;
+  --color-primary-400: #5f91f5;
+  --color-primary-500: #2f6de0;
+  --color-primary-600: #1557d6;
+  --color-primary-700: #1249b5;
+  --color-primary-800: #103d91;
+  --color-primary-900: #102f6b;
 
-  /* Accents */
+  --color-primary: #1557d6;
+  --color-primary-light: #5f91f5;
+  --color-primary-dark: #103d91;
+
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
+
+  --color-secondary: #64748b;
+  --color-secondary-light: #94a3b8;
+  --color-secondary-dark: #475569;
+
+  /*
+   * ============================================================
+   * MARKETPLACE
+   * ============================================================
+   */
+
+  --color-market-blue: #1557d6;
+  --color-market-blue-dark: #0d3fa5;
+  --color-market-blue-light: #eaf2ff;
+
+  --color-market-background: #f6f9fe;
+  --color-market-surface: #ffffff;
+  --color-market-surface-soft: #f8fbff;
+
+  --color-market-text: #10213f;
+  --color-market-text-secondary: #475569;
+  --color-market-text-muted: #64748b;
+
+  --color-market-border: #e4ebf5;
+  --color-market-border-strong: #d4dfef;
+
+  --color-market-success: #16a34a;
+  --color-market-warning: #f59e0b;
+  --color-market-danger: #dc2626;
+
+  /*
+   * ============================================================
+   * EXISTING APPLICATION TOKENS
+   *
+   * Kept so other pages of the application don't break.
+   * ============================================================
+   */
+
   --color-premium: #9b2242;
   --color-features: #1f7a5c;
 
-  /* Neutrals */
-  --color-background: #f3f5f8;
+  --color-background: #f6f9fe;
   --color-surface: #ffffff;
-  --color-border: #e1e6ed;
-  --color-text: #1f2937;
-  --color-light-text: #6b7785;
+  --color-border: #e4ebf5;
+  --color-text: #10213f;
+  --color-light-text: #64748b;
 
-  /* Luxury marketplace palette — scoped to the home page's editorial
-     redesign (hero, category/trust/handpicked sections) rather than
-     merged into the tokens above, since those already drive the rest
-     of the site (nav, dashboard, auth) and must keep their current
-     blue/platinum look. */
-  --color-luxury-bg: #faf8f4;
-  --color-luxury-bg-secondary: #f5f1ea;
+  /*
+   * ============================================================
+   * LEGACY LUXURY TOKENS
+   *
+   * Kept for other existing pages/components.
+   * The new homepage does NOT use them.
+   * ============================================================
+   */
+
+  --color-luxury-bg: #fafafa;
+  --color-luxury-bg-secondary: #f4f6f9;
   --color-luxury-surface: #ffffff;
   --color-luxury-surface-elevated: #ffffff;
-  --color-luxury-border: #e6ded3;
-  --color-luxury-border-hover: #d8c5a8;
-  --color-luxury-divider: #ead8bc;
-  --color-luxury-text: #1a1a1a;
-  --color-luxury-text-secondary: #4e4e4e;
-  --color-luxury-text-body: #666666;
-  --color-luxury-text-disabled: #9d9d9d;
+  --color-luxury-border: #e5e7eb;
+  --color-luxury-border-hover: #d1d5db;
+  --color-luxury-divider: #e5e7eb;
 
-  --color-gold: #c89a4b;
-  --color-gold-hover: #b7832f;
-  --color-gold-champagne: #e5d1a5;
-  --color-gold-light: #f4d79a;
-  --color-gold-dark: #a66a1f;
+  --color-luxury-text: #111827;
+  --color-luxury-text-secondary: #374151;
+  --color-luxury-text-body: #6b7280;
+  --color-luxury-text-disabled: #9ca3af;
 
-  --color-gem-sapphire: #1655c5;
-  --color-gem-emerald: #0e8a6a;
-  --color-gem-ruby: #b11834;
-  --color-gem-citrine: #d7a326;
-  --color-gem-amethyst: #6e49b8;
-  --color-gem-aquamarine: #48c3d9;
-  --color-gem-garnet: #7b1223;
-  --color-gem-spinel: #a11749;
+  /*
+   * Accent ramp: the single brand-highlight colour used for links,
+   * active states and outline buttons. This replaced an older "gold"
+   * ramp; the values are the SLMarket blue.
+   */
+  --color-accent: #1557d6;
+  --color-accent-hover: #1249b5;
+  --color-accent-strong: #103d91;
+  --color-accent-soft: #91b5ff;
+  --color-accent-subtle: #eef4ff;
 }
 
 .dark {
-  --color-background: #0d1b2e;
-  --color-surface: #16263d;
-  --color-border: #28384f;
-  --color-text: #e5e9ef;
-  --color-light-text: #9aa7b8;
+  --color-background: #0c1422;
+  --color-surface: #111d30;
+  --color-border: #24344c;
+  --color-text: #eef4ff;
+  --color-light-text: #a9b6c8;
 
-  --color-primary: #4a7fc2;
-  --color-primary-light: #76a3ce;
-  --color-primary-dark: #1f4e8c;
+  --color-primary: #5f91f5;
+  --color-primary-light: #91b5ff;
+  --color-primary-dark: #2f6de0;
 
-  --color-secondary: #c2cbd6;
-  --color-secondary-light: #dbe1e8;
-  --color-secondary-dark: #9ca8b8;
+  --color-market-background: #0c1422;
+  --color-market-surface: #111d30;
+  --color-market-surface-soft: #142238;
+
+  --color-market-text: #f3f7ff;
+  --color-market-text-secondary: #c4cfde;
+  --color-market-text-muted: #94a3b8;
+
+  --color-market-border: #263852;
+  --color-market-border-strong: #334966;
+
+  --color-market-blue: #5f91f5;
+  --color-market-blue-dark: #2f6de0;
+  --color-market-blue-light: #172d4d;
 
   --color-premium: #c8506e;
   --color-features: #3fa784;
 
-  /* Luxury dark — not black, a deep charcoal so the gold and gem accents
-     stay rich instead of flattening against pure #000. */
+  /* Legacy */
   --color-luxury-bg: #0c0d10;
   --color-luxury-bg-secondary: #14161b;
   --color-luxury-surface: #1a1d24;
@@ -111,95 +166,515 @@
   --color-luxury-border: #2c2f36;
   --color-luxury-border-hover: #3b3f47;
   --color-luxury-divider: #4c3b23;
+
   --color-luxury-text: #f7f5f2;
   --color-luxury-text-secondary: #cfc8bc;
   --color-luxury-text-body: #b4aea3;
   --color-luxury-text-disabled: #7a7a7a;
 
-  /* Gold is intentionally unchanged from light mode — same palette reads
-     richer against the dark surfaces above without needing new hexes. */
-  --color-gold-champagne: #d9b970;
+  --color-accent: #5f91f5;
+  --color-accent-hover: #91b5ff;
+  --color-accent-strong: #2f6de0;
+  --color-accent-soft: #1f3a63;
+  --color-accent-subtle: #16233c;
+}
+
+/*
+ * ============================================================
+ * BASE
+ * ============================================================
+ */
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--color-background);
+  margin: 0;
+  background: var(--color-background);
   color: var(--color-text);
+  font-family: var(--font-sans);
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
+
+button,
+a,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/*
+ * ============================================================
+ * SLMARKET HOMEPAGE
+ * ============================================================
+ */
+
+.marketplace-page {
+  min-height: 100%;
+  background: var(--color-market-background);
+  color: var(--color-market-text);
+}
+
+/*
+ * Hero
+ */
+
+.marketplace-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 28rem;
+  background: linear-gradient(
+    180deg,
+    #eaf3ff 0%,
+    #f1f6ff 55%,
+    var(--color-market-background) 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  .marketplace-hero {
+    min-height: 32rem;
+  }
+}
+
+.dark .marketplace-hero {
+  background: linear-gradient(
+    180deg,
+    #0c1a30 0%,
+    #0d1828 60%,
+    var(--color-market-background) 100%
+  );
+}
+
+/*
+ * Full-bleed hero photo (public/images/hero-bg.webp).
+ */
+
+.marketplace-hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/*
+ * A strong fade behind the hero copy so the dark heading/body text stays
+ * fully legible where it sits over the photo. Uses the page background
+ * token so it works in light and dark without a separate rule.
+ */
+
+.marketplace-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      var(--color-market-background) 0%,
+      color-mix(in srgb, var(--color-market-background) 94%, transparent) 30%,
+      color-mix(in srgb, var(--color-market-background) 62%, transparent) 48%,
+      color-mix(in srgb, var(--color-market-background) 18%, transparent) 66%,
+      transparent 84%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-market-background) 35%, transparent) 0%,
+      transparent 38%
+    );
+}
+
+@media (max-width: 767px) {
+  .marketplace-hero-scrim {
+    background:
+      linear-gradient(
+        90deg,
+        var(--color-market-background) 0%,
+        color-mix(in srgb, var(--color-market-background) 90%, transparent) 48%,
+        color-mix(in srgb, var(--color-market-background) 55%, transparent) 80%,
+        color-mix(in srgb, var(--color-market-background) 28%, transparent) 100%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-market-background) 45%, transparent) 0%,
+        transparent 46%
+      );
+  }
+}
+
+/*
+ * Left/right edges of the (contained) photo dissolve into the page
+ * background so there is no hard vertical seam once side gutters appear
+ * on wider screens.
+ */
+
+.marketplace-hero-edges {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--color-market-background) 0%,
+    transparent 5%,
+    transparent 88%,
+    color-mix(in srgb, var(--color-market-background) 40%, transparent) 95%,
+    var(--color-market-background) 100%
+  );
+}
+
+/*
+ * The bottom of the photo gradually dissolves into the page background.
+ */
+
+.marketplace-hero-basefade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-market-background) 10%, transparent) 32%,
+    color-mix(in srgb, var(--color-market-background) 42%, transparent) 60%,
+    color-mix(in srgb, var(--color-market-background) 78%, transparent) 82%,
+    var(--color-market-background) 100%
+  );
+}
+
+/*
+ * Scroll without a visible scrollbar (used by the homepage category rail).
+ */
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * Search box
+ */
+
+.marketplace-search {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 58px;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(214, 225, 241, 0.95);
+  border-radius: 17px;
+  box-shadow:
+    0 15px 45px rgba(30, 74, 140, 0.1),
+    0 3px 10px rgba(30, 74, 140, 0.05);
+  backdrop-filter: blur(15px);
+}
+
+.dark .marketplace-search {
+  background: rgba(17, 29, 48, 0.94);
+  border-color: #2a3c56;
+}
+
+/*
+ * Primary CTA
+ */
+
+.market-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(
+    135deg,
+    #1764e8 0%,
+    #104dcc 100%
+  );
+  color: #ffffff;
+  border: 1px solid #1455d4;
+  box-shadow:
+    0 8px 22px rgba(21, 87, 214, 0.23);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.market-primary:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(
+    135deg,
+    #2674f1 0%,
+    #0f47bb 100%
+  );
+  box-shadow:
+    0 12px 28px rgba(21, 87, 214, 0.3);
+}
+
+/*
+ * Button utilities
+ *
+ * .btn-solid   filled brand button (primary action, e.g. Register)
+ * .btn-outline  bordered brand button (secondary action, e.g. Sell)
+ */
+
+.btn-solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #1764e8 0%, #104dcc 100%);
+  color: #ffffff;
+  border: 1px solid #1455d4;
+  box-shadow: 0 6px 18px rgba(21, 87, 214, 0.22);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.btn-solid:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #2674f1 0%, #0f47bb 100%);
+  box-shadow: 0 10px 24px rgba(21, 87, 214, 0.3);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.btn-outline:hover {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-hover);
+}
+
+/*
+ * Glass
+ */
+
+.market-glass {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 12px 35px rgba(30, 74, 140, 0.08),
+    0 2px 8px rgba(30, 74, 140, 0.04);
+  backdrop-filter: blur(15px);
+}
+
+.dark .market-glass {
+  background: rgba(17, 29, 48, 0.78);
+  border-color: rgba(73, 97, 127, 0.6);
+}
+
+/*
+ * Category cards
+ */
+
+.market-category-card {
+  background: var(--color-market-surface);
+  border: 1px solid var(--color-market-border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.market-category-card:hover {
+  transform: translateY(-3px);
+  border-color: #b8cef5;
+  box-shadow:
+    0 15px 35px rgba(31, 76, 150, 0.1);
+}
+
+.dark .market-category-card:hover {
+  border-color: #46658f;
+}
+
+/*
+ * Listing cards
+ */
+
+.market-listing-card {
+  overflow: hidden;
+  background: var(--color-market-surface);
+  border: 1px solid var(--color-market-border);
+  border-radius: 17px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.market-listing-card:hover {
+  transform: translateY(-2px);
+  border-color: #c4d5ef;
+  box-shadow:
+    0 15px 35px rgba(31, 76, 150, 0.1);
+}
+
+/*
+ * Section card
+ */
+
+.market-section-card {
+  background: var(--color-market-surface);
+  border: 1px solid var(--color-market-border);
+  border-radius: 24px;
+}
+
+/*
+ * Trust strip
+ */
+
+.market-trust-strip {
+  background: var(--color-market-surface);
+  border: 1px solid var(--color-market-border);
+  border-radius: 22px;
+}
+
+/*
+ * Deal banner
+ */
+
+.market-deal-banner {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 15% 100%,
+      rgba(255, 255, 255, 0.16),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      #123fb2 0%,
+      #1557d6 52%,
+      #247be5 100%
+    );
+  color: white;
+}
+
+/*
+ * Newsletter
+ */
+
+.market-newsletter {
+  background:
+    linear-gradient(
+      135deg,
+      #10213f 0%,
+      #0d2b5d 100%
+    );
+  color: white;
+}
+
+/*
+ * Network node animation
+ */
+
+@keyframes market-node-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.market-node {
+  animation: market-node-pulse 3s ease-in-out infinite;
+}
+
+/*
+ * Skeleton
+ */
 
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--color-border) 80%, white 20%) 25%,
-    color-mix(in srgb, var(--color-background) 50%, white 50%) 50%,
-    color-mix(in srgb, var(--color-border) 80%, white 20%) 75%
-  );
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-border) 80%, white 20%) 25%,
+      color-mix(in srgb, var(--color-background) 50%, white 50%) 50%,
+      color-mix(in srgb, var(--color-border) 80%, white 20%) 75%
+    );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* Luxury gold buttons — home page only. Gradient version for primary CTAs:
-   a warm metallic bronze-to-champagne sweep (not a flat/glossy gold) with
-   a matching hairline border, flat/outline versions for secondary
-   actions. */
-.btn-gold-gradient {
-  background-image: linear-gradient(
-    135deg,
-    #8a5a21 0%,
-    #9c6b31 30%,
-    #b07a37 65%,
-    #c18a43 100%
-  );
-  border: 1px solid #9c6b31;
-  color: #fff8ee;
-  box-shadow:
-    0 10px 30px rgba(171, 118, 48, 0.28),
-    0 2px 8px rgba(0, 0, 0, 0.15);
-  transition:
-    background-image 0.2s ease,
-    box-shadow 0.2s ease;
-}
-.btn-gold-gradient:hover {
-  background-image: linear-gradient(
-    135deg,
-    #9a682a 0%,
-    #b47c37 45%,
-    #cb9450 100%
-  );
-  box-shadow:
-    0 12px 34px rgba(171, 118, 48, 0.36),
-    0 2px 8px rgba(0, 0, 0, 0.18);
+/*
+ * Accessibility
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-.btn-gold-flat {
-  background-color: var(--color-gold);
-  color: #ffffff;
-  transition: background-color 0.2s ease;
-}
-.btn-gold-flat:hover {
-  background-color: var(--color-gold-hover);
-}
+/*
+ * Mobile adjustments
+ */
 
-.btn-gold-outline {
-  background-color: var(--color-luxury-surface);
-  border: 1px solid var(--color-luxury-border-hover);
-  color: var(--color-luxury-text);
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
-}
-.btn-gold-outline:hover {
-  border-color: var(--color-gold);
-  background-color: var(--color-luxury-bg-secondary);
+@media (max-width: 767px) {
+  .marketplace-search {
+    min-height: 52px;
+    border-radius: 14px;
+  }
+
+  .market-category-card {
+    border-radius: 15px;
+  }
+
+  .market-section-card {
+    border-radius: 18px;
+  }
 }

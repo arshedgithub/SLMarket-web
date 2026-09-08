@@ -2,21 +2,25 @@
   "signIn": "Sign in",
   "register": "Register",
   "signInRegister": "Sign In / Register",
+  "categories": "Categories",
   "allCategories": "All Categories",
   "browseCategories": "Browse Categories",
+  "deals": "Deals",
+  "sellWithUs": "Sell with us",
+  "help": "Help",
+  "helpCenter": "Help Center",
   "sellers": "Sellers",
   "collections": "Collections",
   "featured": "Featured",
   "about": "About",
   "blog": "Blog",
-  "helpCenter": "Help Center",
   "darkMode": "Dark Mode",
   "language": "Language",
-  "searchPlaceholder": "Search gems, jewellery, sellers...",
-  "deals": "Deals",
+  "searchPlaceholder": "Try \"Toyota Aqua 2015\" or \"3BR house Negombo\"",
   "sellerDashboard": "Seller Dashboard",
   "sellerBadge": "Seller",
   "startSelling": "Start Selling",
+  "goToSellerDashboard": "Go to Seller Dashboard",
   "newListing": "New Listing",
   "savedItems": "Saved Items",
   "editProfile": "Edit Profile",
@@ -28,32 +32,18 @@
   "toggleDarkMode": "Toggle dark mode",
   "changeLanguage": "Change language",
   "megaMenu": {
-    "notSureTitle": "Not sure what you're looking for?",
-    "notSureDesc": "Our experts are here to help.",
-    "contactExperts": "Contact Our Experts",
+    "title": "Browse Categories",
+    "subtitle": "Everything you need, all in one marketplace",
     "explorePrefix": "Explore",
-    "viewAllPrefix": "View All",
-    "explore": "Explore",
-    "collection": "Collection",
-    "viewListing": "View Listing",
-    "browseCategory": "Browse",
-    "visitShop": "Visit Shop",
-    "adEyebrow": {
-      "boostedListing": "Sponsored Listing",
-      "premiumShop": "Featured Shop"
-    },
-    "adFeatures": {
-      "certified": { "title": "Natural & Certified", "subtitle": "GIA / IGI / SSEF" },
-      "selection": { "title": "Wide Selection", "subtitle": "All Shapes & Sizes" },
-      "sellers": { "title": "Verified Sellers", "subtitle": "Trusted Worldwide" }
-    },
-    "quickLinks": {
-      "trending": { "title": "Trending Now", "subtitle": "Popular Right Now" },
-      "verifiedSellers": { "title": "Verified Sellers", "subtitle": "Global Network" },
-      "rareAuctions": { "title": "Rare Gem Auctions", "subtitle": "Exclusive & Unique" },
-      "newlyListed": { "title": "Newly Listed", "subtitle": "Fresh Arrivals Daily" },
-      "certifiedGems": { "title": "Certified Gems", "subtitle": "Lab Tested & Verified" },
-      "premiumDealers": { "title": "Premium Dealers", "subtitle": "Top Rated Sellers" }
+    "viewAllPrefix": "View all in",
+    "browse": "Browse",
+    "popularSearches": "Popular searches",
+    "viewListing": "View listing",
+    "sponsored": "Sponsored",
+    "help": {
+      "title": "Not sure where to look?",
+      "desc": "Tell us what you need and we'll help you find it.",
+      "cta": "Contact support"
     }
   }
 }

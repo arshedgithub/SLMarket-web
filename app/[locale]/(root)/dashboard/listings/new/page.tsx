@@ -2,64 +2,35 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { NewListingWizard } from "./_components/NewListingWizard";
-import { getReelQuotaStatus } from "@/lib/reelQuota";
+import { PostAdFlow } from "@/components/post-ad/PostAdFlow";
 
 export const metadata: Metadata = { title: "New Listing" };
 
 export default async function NewListingPage() {
   const session = await auth();
-  if (!session || session.user.role !== "SELLER") {
-    redirect("/dashboard/listings");
+  if (!session?.user?.id) {
+    redirect("/login?next=/dashboard/listings/new");
   }
 
-  const [seller, reelQuota] = await Promise.all([
-    db.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        locationCity: true,
-        country: true,
-        phone: true,
-        whatsappNumber: true,
-        subscription: {
-          select: {
-            plan: {
-              select: {
-                maxImagesPerListing: true,
-                maxCertificationImages: true,
-              },
-            },
-          },
-        },
-      },
-    }),
-    getReelQuotaStatus(session.user.id),
-  ]);
+  const seller = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { phone: true, whatsappNumber: true },
+  });
 
   return (
-    <div className="max-w-3xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          New Listing
+    <div className="max-w-5xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-[var(--color-market-text)]">
+          Post your ad
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Fill in the details below to publish your listing on the marketplace.
+        <p className="mt-1 text-sm text-[var(--color-market-text-muted)]">
+          A short, guided flow. Your progress saves as you go.
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-        <NewListingWizard
-          sellerLocation={seller?.locationCity ?? ""}
-          sellerCountry={seller?.country ?? "LK"}
+      <div className="market-section-card p-5 sm:p-8">
+        <PostAdFlow
           sellerPhone={seller?.phone ?? seller?.whatsappNumber ?? ""}
-          sellerWhatsapp={seller?.whatsappNumber ?? ""}
-          canUploadReels={reelQuota.allowed}
-          reelsRemaining={reelQuota.remaining}
-          reelsMaxPerMonth={reelQuota.maxPerMonth}
-          planMaxImages={seller?.subscription?.plan.maxImagesPerListing ?? null}
-          planMaxCertificationImages={
-            seller?.subscription?.plan.maxCertificationImages ?? null
-          }
         />
       </div>
     </div>

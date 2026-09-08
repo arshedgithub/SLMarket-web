@@ -193,18 +193,16 @@ export default function RegisterPage() {
           <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100">
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2.5 mb-5"
+              className="mb-5 inline-flex items-center justify-center"
             >
-              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full">
-                <Image
-                  src="/images/blue-sapphire-gemstone-free-png.webp"
-                  alt="Lumevelo"
-                  fill
-                  sizes="40px"
-                  className="object-cover"
-                />
-              </div>
-              <span className="font-bold text-xl text-primary">Lumevelo</span>
+              <Image
+                src="/logo.webp"
+                alt="SLMarket.lk"
+                width={720}
+                height={248}
+                priority
+                className="h-10 w-auto"
+              />
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
             <p className="mt-1.5 text-sm text-gray-500">
@@ -424,7 +422,7 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              {/* Verify error — shown at bottom of card */}
+              {/* Verify error, shown at bottom of card */}
               {fieldErrors.verify && (
                 <div className="mx-4 mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-600">
                   {fieldErrors.verify}

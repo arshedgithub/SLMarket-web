@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# stray upload folder created by the asset drop tool
+/resources-dev
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

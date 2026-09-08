@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { Gem, Home, Search, Sparkles, Coins, Wrench } from "lucide-react";
+import { Home, Search, Car, Smartphone, Wrench, Store } from "lucide-react";
 import { Layout } from "@/components";
 
 export const metadata = { title: "Page Not Found" };
 
 const popularCategories = [
-  { href: "/gems", label: "Gems", icon: Gem },
-  { href: "/jewellery", label: "Jewellery", icon: Sparkles },
-  { href: "/precious-metals", label: "Precious Metals", icon: Coins },
+  { href: "/vehicles", label: "Vehicles", icon: Car },
+  { href: "/property", label: "Property", icon: Home },
+  { href: "/electronics", label: "Electronics", icon: Smartphone },
   { href: "/services", label: "Services", icon: Wrench },
 ];
 
@@ -17,7 +17,7 @@ export default function NotFound() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
         <div className="mb-8 flex justify-center">
           <div className="relative h-24 w-24 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg">
-            <Gem className="h-12 w-12 text-white" />
+            <Store className="h-12 w-12 text-white" />
           </div>
         </div>
 
@@ -41,7 +41,7 @@ export default function NotFound() {
             Back to Homepage
           </Link>
           <Link
-            href="/gems"
+            href="/search"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-border text-text hover:bg-background font-semibold transition-colors"
           >
             <Search className="h-4 w-4" />

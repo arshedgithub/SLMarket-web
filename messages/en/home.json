@@ -1,145 +1,119 @@
 {
   "hero": {
-    "eyebrow": "Connecting Value. Creating Trust.",
-    "titlePrefix": "The World's Premier",
-    "titleHighlight": "Gem & Jewellery",
-    "titleSuffix": "Marketplace",
-    "subtitle": "Discover exceptional gems, fine jewellery, precious metals and trusted services from verified sellers across the globe.",
-    "exploreMarketplace": "Explore Marketplace",
-    "becomeASeller": "Become a Seller",
-    "goToSellerDashboard": "Go to Seller Dashboard",
-    "badges": {
-      "verifiedSellers": { "title": "Verified Sellers", "subtitle": "Global Network" },
-      "secureTransactions": { "title": "Secure Transactions", "subtitle": "Trade with Confidence" },
-      "qualityAssured": { "title": "Quality Assured", "subtitle": "Certified & Trusted" },
-      "worldwideShipping": { "title": "Worldwide Shipping", "subtitle": "Fast & Insured" }
-    }
+    "badge": "Sri Lanka's local marketplace",
+    "titleLine1": "Sri Lanka's",
+    "titleLine2": "Marketplace for",
+    "titleHighlight": "Every Need",
+    "subtitle": "Buy, sell and discover great deals near you. From property and vehicles to electronics, jobs, food, services and everyday essentials.",
+    "searchAllCategories": "All categories",
+    "searchCategoryLabel": "Search category",
+    "searchLabel": "Search marketplace",
+    "searchPlaceholder": "Try \"3BR house Negombo\" or \"Toyota Aqua 2015\"",
+    "searchButton": "Search",
+    "popularLabel": "Popular:"
   },
-  "stats": {
-    "verifiedSellers": "Verified Sellers",
-    "productsListed": "Products Listed",
-    "countriesConnected": "Countries Connected",
-    "buyerSatisfaction": "Buyer Satisfaction",
-    "customerSupport": "Customer Support"
+  "categoryTaglines": {
+    "vehicles": "Cars, bikes & three-wheelers",
+    "property": "Land, houses & rentals",
+    "electronics": "Phones, laptops & more",
+    "home-garden": "Furniture & home living",
+    "fashion": "Clothing, shoes & bags",
+    "food": "Groceries & fresh produce",
+    "agriculture": "Machinery, seeds & crops",
+    "animals-pets": "Pets, livestock & supplies",
+    "services": "Repairs, classes & experts",
+    "jobs": "Full-time & part-time",
+    "health-beauty": "Skincare, makeup & wellness",
+    "hobbies": "Sports gear, fitness & hobbies",
+    "education": "Classes, courses & tutoring",
+    "other": "Everything else on the market"
   },
-  "categories": {
-    "eyebrow": "Shop by Category",
-    "heading": "Explore Our Premium Categories",
-    "viewAll": "View All Categories",
-    "subtitles": {
-      "gems": "12+ Types",
-      "precious-metals": "6+ Types",
-      "jewellery": "8+ Types",
-      "services": "12+ Services",
-      "sellers": "Join Our Network",
-      "deals": "Best Prices Daily"
+  "browse": {
+    "heading": "Browse categories",
+    "subheading": "Everything you need, all in one marketplace",
+    "viewAll": "View all"
+  },
+  "featured": {
+    "heading": "Featured Listings",
+    "subheading": "Handpicked deals from trusted sellers",
+    "viewAll": "View all"
+  },
+  "shops": {
+    "eyebrow": "Featured Shops",
+    "heading": "Discover",
+    "headingHighlight": "Trusted Local Businesses",
+    "subheading": "Shop from verified stores offering quality products and reliable service.",
+    "viewAll": "View All Shops",
+    "visit": "Visit Shop",
+    "listings": "Listings",
+    "more": "More"
+  },
+  "deals": {
+    "eyebrow": "Deals & Offers",
+    "headingStart": "Find Great",
+    "headingHighlight": "Deals Near You",
+    "desc": "Discover seller offers, price drops and negotiable deals from trusted sellers across Sri Lanka.",
+    "cta": "Explore All Deals",
+    "coupons": {
+      "title": "Coupons & Offers",
+      "desc": "Exclusive promotions from premium shops across all categories.",
+      "note": "Use coupon codes and save on your favourite items.",
+      "cta": "Explore Offers"
     },
-    "dealsName": "Deals & Offers"
-  },
-  "trust": {
-    "eyebrow": "Why Buy & Sell With Lumevelo?",
-    "heading": "Trusted by Buyers & Sellers Worldwide",
-    "description": "We ensure a seamless and secure marketplace experience with transparency, quality and trust at every step.",
-    "learnMore": "Learn More About Us",
-    "features": {
-      "certified": {
-        "title": "Certified & Verified",
-        "desc": "All products and sellers are verified for your peace of mind."
-      },
-      "secure": {
-        "title": "Secure & Safe",
-        "desc": "Escrow protection and secure payments for worry-free transactions."
-      },
-      "global": {
-        "title": "Global Reach",
-        "desc": "Connecting buyers and sellers from over 200+ countries."
-      },
-      "support": {
-        "title": "Premium Support",
-        "desc": "Our dedicated support team is here to help you 24/7."
-      }
+    "priceDrops": {
+      "title": "Price Drops",
+      "desc": "Listings that just became more affordable.",
+      "note": "Get the best value with recently reduced prices.",
+      "cta": "See Price Drops"
+    },
+    "negotiable": {
+      "title": "Negotiable Deals",
+      "desc": "Find listings where sellers are open to a better deal.",
+      "note": "Talk, negotiate and get a great price.",
+      "cta": "Explore Negotiable"
     }
   },
-  "handpicked": {
-    "eyebrow": "Handpicked Collection",
-    "heading": "Exquisite Gems, Timeless Beauty",
-    "description": "Discover rare and certified gemstones curated for true connoisseurs.",
-    "shopGems": "Shop Gems",
-    "viewAllGems": "View All Gems",
-    "gems": {
-      "sapphire": "Sapphire",
-      "emerald": "Emerald",
-      "ruby": "Ruby",
-      "alexandrite": "Alexandrite"
-    }
+  "sell": {
+    "eyebrow": "Start Selling Today",
+    "heading": "Sell on",
+    "tagline": "Turn things you no longer need into something valuable.",
+    "desc": "List your property, vehicle, electronics, products, services or anything else and reach buyers across Sri Lanka.",
+    "ctaPost": "Post a Free Listing",
+    "ctaShop": "Open a Shop",
+    "freeTitle": "Free to list",
+    "freeDesc": "No listing fees",
+    "reachTitle": "Reach local buyers",
+    "reachDesc": "Across Sri Lanka",
+    "quickTitle": "Quick and easy",
+    "quickDesc": "List in minutes"
   },
-  "servicesPreview": {
-    "eyebrow": "Gem & Jewellery Services",
-    "heading": "Expert Services, Every Step of the Way",
-    "viewAll": "View All",
-    "items": {
-      "certification": {
-        "name": "Gem Certification",
-        "desc": "Certified experts from institutions like GIA & IGI"
-      },
-      "cutting": {
-        "name": "Gem Cutting & Polishing",
-        "desc": "Precision cutting for brilliance & clarity"
-      },
-      "customDesign": {
-        "name": "Custom Jewellery Design",
-        "desc": "Bespoke pieces tailored to your style"
-      },
-      "repair": {
-        "name": "Jewellery Repair & Polishing",
-        "desc": "Restore your jewellery to its original shine"
-      },
-      "goldTesting": {
-        "name": "Gold & Metal Testing",
-        "desc": "Accurate testing for purity & authenticity"
-      },
-      "valuation": {
-        "name": "Gem & Jewellery Valuation",
-        "desc": "Professional valuation you can trust"
-      }
-    }
+  "whyUs": {
+    "eyebrow": "Why Choose Us",
+    "heading": "Why",
+    "desc": "More than just a marketplace, we create opportunities for a stronger Sri Lanka.",
+    "script": "Local People, Stronger Communities",
+    "builtTitle": "Built for Sri Lanka",
+    "builtDesc": "A marketplace designed around local buyers, sellers and businesses.",
+    "discoverTitle": "More Ways to Get Discovered",
+    "discoverDesc": "Listings, shops, deals and powerful marketplace discovery.",
+    "exposureTitle": "Extra Exposure for Premium Listings",
+    "exposureDesc": "Get additional visibility through our social media promotion channels.",
+    "everyoneTitle": "For Individuals & Businesses",
+    "everyoneDesc": "Sell one item or build your business presence with a professional shop."
   },
-  "quickAccess": {
-    "eyebrow": "Popular Searches",
-    "heading": "Quick Access",
-    "viewAll": "View All",
-    "items": {
-      "blueSapphire": "Blue Sapphire",
-      "emeraldRing": "Emerald Ring",
-      "gemCertification": "Gem Certification",
-      "diamondRing": "Diamond Ring",
-      "gold22k": "Gold 22K",
-      "platinumJewellery": "Platinum Jewellery"
-    }
-  },
-  "journeyCta": {
-    "heading": "Ready to Begin Your Journey?",
-    "sellerHeading": "Continue Your Journey With Lumevelo",
-    "description": "Join thousands of buyers and sellers in the world's most trusted gem & jewellery marketplace.",
-    "sellerDesc": "List new inventory, track enquiries, and grow your shop's reach on Lumevelo.",
-    "exploreMarketplace": "Explore Marketplace",
-    "becomeASeller": "Become a Seller",
-    "goToDashboard": "Go to Dashboard",
-    "badges": {
-      "community": "Trusted Community",
-      "secure": "Secure & Safe",
-      "easy": "Easy Transactions"
-    }
-  },
-  "growSeller": {
-    "eyebrow": "Become a Seller",
-    "heading": "Grow Your Business With Lumevelo",
-    "description": "Reach millions of buyers worldwide and grow your trusted brand.",
-    "joinNow": "Join Now",
-    "stats": {
-      "commission": "0% Commission",
-      "reach": "Global Buyer Reach",
-      "support": "Dedicated Support"
-    }
+  "mobileApp": {
+    "eyebrow": "Coming Soon",
+    "heading": "Mobile App",
+    "tagline": "Your marketplace, now in your pocket.",
+    "desc": "Browse listings, discover deals, manage favourites and connect with buyers and sellers, anytime, anywhere in Sri Lanka.",
+    "comingSoon": "Coming soon on iOS and Android",
+    "f1Title": "Easy to use",
+    "f1Desc": "Clean and simple experience",
+    "f2Title": "Instant notifications",
+    "f2Desc": "Be the first to know",
+    "f3Title": "Save favourites",
+    "f3Desc": "Never miss a deal",
+    "f4Title": "Access anywhere",
+    "f4Desc": "Across Sri Lanka"
   }
 }
