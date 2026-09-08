@@ -32,8 +32,8 @@ export default function About() {
         </p>
         <div className="relative w-full h-64 rounded-lg mb-8 overflow-hidden">
           <Image
-            src="/images/blue-sapphire-gemstone-free-png.webp"
-            alt="Certified gemstones on Lumevelo"
+            src="/images/hero-bg.webp"
+            alt="SLMarket.lk marketplace"
             fill
             sizes="(max-width: 768px) 100vw, 768px"
             className="object-cover"

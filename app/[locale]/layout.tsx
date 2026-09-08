@@ -20,23 +20,23 @@ const notoSansSinhala = Noto_Sans_Sinhala({
 
 export const metadata: Metadata = {
   title: {
-    default: "Lumevelo: Global Gem & Jewellery Marketplace",
-    template: "%s | Lumevelo",
+    default: "SLMarket.lk: Sri Lanka's Marketplace for Every Need",
+    template: "%s | SLMarket.lk",
   },
   description:
-    "Lumevelo is a global online marketplace for certified gems, precious metals, and fine jewellery, connecting buyers and verified sellers worldwide, anytime.",
+    "SLMarket.lk is Sri Lanka's online marketplace for vehicles, property, electronics, home and garden, fashion, food, agriculture, pets, services, jobs and everyday essentials, connecting buyers and verified local sellers.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://lumevelo.com",
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://slmarket.lk",
   ),
   openGraph: {
     type: "website",
-    siteName: "Lumevelo",
+    siteName: "SLMarket.lk",
   },
   twitter: { card: "summary_large_image" },
   icons: {
-    icon: "/logo-mark.png",
-    shortcut: "/logo-mark.png",
-    apple: "/logo-mark.png",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
@@ -44,27 +44,27 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://lumevelo.com";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://slmarket.lk";
 
-// Organization + WebSite JSON-LD, shared across locales — helps Google
+// Organization + WebSite JSON-LD, shared across locales. Helps Google
 // understand the brand/site as a single entity across /en, /ta, /si and
 // improves how it can appear in search (knowledge panel, sitelinks). No
 // SearchAction here since the nav search box isn't wired to a real search
-// results page yet — a schema pointing at a non-functional URL would be
-// invalid structured data.
+// results page yet, and a schema pointing at a non-functional URL would
+// be invalid structured data.
 function structuredData(locale: string) {
   return [
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      name: "Lumevelo",
+      name: "SLMarket.lk",
       url: SITE_URL,
-      logo: `${SITE_URL}/logo-mark.png`,
+      logo: `${SITE_URL}/logo.png`,
     },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: "Lumevelo",
+      name: "SLMarket.lk",
       url: `${SITE_URL}/${locale}`,
       inLanguage: locale,
     },

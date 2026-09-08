@@ -1,70 +1,178 @@
 {
-  "gems": {
-    "name": "ரத்தினங்கள்",
+  "vehicles": {
+    "name": "வாகனங்கள்",
     "subcategories": {
-      "all": "அனைத்து ரத்தினங்களும்",
-      "sapphire": "நீலக்கல்",
-      "ruby": "ரூபி",
-      "catseye": "வைடூரியம்",
-      "spinel": "ஸ்பினல்",
-      "alexandrite": "அலெக்ஸாண்ட்ரைட்",
-      "garnet": "கோமேதகம்",
-      "tourmaline": "டூர்மலின்",
-      "aquamarine": "அக்வாமரின்",
-      "Padparadscha": "பத்மராகா",
-      "emerald": "மரகதம்",
-      "zircon": "சzர்கான்",
-      "other-gems": "பிற ரத்தினங்கள்"
+      "cars": "கார்கள்",
+      "motorbikes": "மோட்டார் சைக்கிள்கள்",
+      "three-wheelers": "முச்சக்கர வண்டிகள்",
+      "vans-lorries": "வேன்கள், லாரிகள் & பேருந்துகள்",
+      "auto-parts": "வாகன உதிரிபாகங்கள் & பாகங்கள்",
+      "bicycles": "மிதிவண்டிகள்",
+      "boats": "படகுகள் & நீர் போக்குவரத்து",
+      "rentals": "வாகன வாடகை"
     }
   },
-  "precious-metals": {
-    "name": "விலைமதிப்பற்ற உலோகங்கள்",
+  "property": {
+    "name": "சொத்து",
     "subcategories": {
-      "all": "அனைத்து உலோகங்களும்",
-      "gold": "தங்கம்",
-      "silver": "வெள்ளி",
-      "platinum": "பிளாட்டினம்",
-      "palladium": "பலேடியம்",
-      "other-metals": "பிற"
+      "houses-sale": "விற்பனைக்கு வீடுகள்",
+      "land-sale": "விற்பனைக்கு நிலம்",
+      "apartments": "அடுக்குமாடி குடியிருப்புகள்",
+      "houses-rent": "வாடகைக்கு வீடுகள்",
+      "commercial": "வணிக சொத்து",
+      "rooms-annexes": "அறைகள் & இணைப்புகள்",
+      "holiday": "விடுமுறை & குறுகிய கால"
     }
   },
-  "jewellery": {
-    "name": "நகைகள்",
+  "electronics": {
+    "name": "மின்னணுசாதனங்கள்",
     "subcategories": {
-      "all": "அனைத்து நகைகளும்",
-      "rings": "மோதிரங்கள்",
-      "necklaces": "நெக்லஸ்கள்",
-      "earrings": "காதணிகள்",
-      "bracelets": "வளையல்கள்",
-      "pendants": "பதக்கங்கள்",
-      "wedding_sets": "திருமண & நிச்சயதார்த்த செட்கள்",
-      "other": "பிற நகைகள்"
+      "mobile-phones": "கைபேசிகள்",
+      "computers": "கணினிகள் & மடிக்கணினிகள்",
+      "tvs": "தொலைக்காட்சிகள்",
+      "cameras": "கேமராக்கள்",
+      "audio": "ஒலி & ஹெட்ஃபோன்கள்",
+      "gaming": "கேமிங்",
+      "home-appliances": "வீட்டு உபகரணங்கள்",
+      "accessories": "பாகங்கள்"
+    }
+  },
+  "home-garden": {
+    "name": "வீடு & தோட்டம்",
+    "subcategories": {
+      "furniture": "தளபாடங்கள்",
+      "home-decor": "வீட்டு அலங்காரம்",
+      "kitchen-dining": "சமையலறை & உணவு",
+      "bedding-bath": "படுக்கை & குளியல்",
+      "garden-outdoor": "தோட்டம் & வெளிப்புறம்",
+      "tools-diy": "கருவிகள் & DIY",
+      "lighting": "விளக்கு"
+    }
+  },
+  "fashion": {
+    "name": "நாகரிகம்",
+    "subcategories": {
+      "womens-clothing": "பெண்கள் ஆடைகள்",
+      "mens-clothing": "ஆண்கள் ஆடைகள்",
+      "kids-clothing": "குழந்தைகள் ஆடைகள்",
+      "shoes": "காலணிகள்",
+      "bags": "பைகள் & பயணப் பைகள்",
+      "watches": "கடிகாரங்கள்",
+      "jewellery-accessories": "நகைகள் & பாகங்கள்",
+      "wedding-bridal": "திருமணம் & மணப்பெண்"
+    }
+  },
+  "food": {
+    "name": "உணவு & மளிகை",
+    "subcategories": {
+      "fresh-produce": "புதிய காய்கறிகள் & பழங்கள்",
+      "rice-grains": "அரிசி & தானியங்கள்",
+      "spices": "மசாலா & சுவையூட்டிகள்",
+      "bakery-sweets": "பேக்கரி & இனிப்புகள்",
+      "beverages": "பானங்கள்",
+      "homemade": "வீட்டில் தயாரிக்கப்பட்ட உணவு",
+      "catering": "கேட்டரிங்"
+    }
+  },
+  "agriculture": {
+    "name": "விவசாயம் & பண்ணை",
+    "subcategories": {
+      "farm-machinery": "பண்ணை இயந்திரங்கள்",
+      "seeds-plants": "விதைகள் & செடிகள்",
+      "fertilizer": "உரம் & இரசாயனங்கள்",
+      "tools-equipment": "கருவிகள் & உபகரணங்கள்",
+      "irrigation": "நீர்ப்பாசனம்",
+      "harvest-crops": "அறுவடை & பயிர்கள்",
+      "animal-feed": "கால்நடை தீவனம்"
+    }
+  },
+  "animals-pets": {
+    "name": "விலங்குகள் & செல்லப்பிராணிகள்",
+    "subcategories": {
+      "dogs": "நாய்கள்",
+      "cats": "பூனைகள்",
+      "birds": "பறவைகள்",
+      "fish-aquariums": "மீன் & மீன்தொட்டிகள்",
+      "farm-animals": "பண்ணை விலங்குகள்",
+      "poultry": "கோழி வளர்ப்பு",
+      "pet-food": "செல்லப்பிராணி உணவு",
+      "pet-accessories": "செல்லப்பிராணி பாகங்கள்",
+      "veterinary": "கால்நடை மருத்துவம்"
     }
   },
   "services": {
     "name": "சேவைகள்",
     "subcategories": {
-      "all": "அனைத்து சேவைகளும்",
-      "certification": "ரத்தின சான்றளிப்பு",
-      "gem_cutting": "ரத்தின வெட்டு & மெருகூட்டல்",
-      "gold_testing": "தங்கம் & உலோக சோதனை",
-      "valuation": "ரத்தினம் & நகை மதிப்பீடு",
-      "custom_design": "தனிப்பயன் நகை வடிவமைப்பு",
-      "repair": "நகை பழுது & மெருகூட்டல்",
-      "engraving": "செதுக்குதல்",
-      "transport": "பாதுகாப்பான போக்குவரத்து & கூரியர்",
-      "buying_consultation": "வாங்குதல் ஆலோசனை",
-      "training": "ரத்தினவியல் பயிற்சி",
-      "mining_tours": "ரத்தின சுரங்க சுற்றுலா",
-      "other": "பிற சேவைகள்"
+      "home-repairs": "வீட்டு பழுதுபார்ப்பு",
+      "cleaning": "சுத்தம் செய்தல்",
+      "tuition": "டியூஷன் & வகுப்புகள்",
+      "events": "திருமணம் & நிகழ்வுகள்",
+      "movers": "போக்குவரத்து & இடமாற்றம்",
+      "beauty-wellness": "அழகு & நலம்",
+      "software-it": "மென்பொருள் & தகவல் தொழில்நுட்பம்",
+      "business": "வணிக சேவைகள்",
+      "tech-repair": "தொழில்நுட்ப பழுதுபார்ப்பு"
     }
   },
-  "sellers": {
-    "name": "விற்பனையாளர்கள்",
+  "jobs": {
+    "name": "வேலைகள்",
     "subcategories": {
-      "shops": "கடைகள் & வியாபாரிகள்",
-      "shop_profile": "உங்கள் சொந்த கடை சுயவிவரத்தை உருவாக்குங்கள்",
-      "new": "விற்பனையைத் தொடங்குங்கள்"
+      "full-time": "முழுநேரம்",
+      "part-time": "பகுதிநேரம்",
+      "internships": "பயிற்சி",
+      "work-from-home": "வீட்டிலிருந்து வேலை",
+      "drivers": "ஓட்டுநர்கள்",
+      "domestic-staff": "வீட்டு பணியாளர்கள்",
+      "hospitality": "விருந்தோம்பல்",
+      "sales-marketing": "விற்பனை & சந்தைப்படுத்தல்"
+    }
+  },
+  "health-beauty": {
+    "name": "உடல்நலம் & அழகு",
+    "subcategories": {
+      "skincare": "சரும பராமரிப்பு",
+      "haircare": "முடி பராமரிப்பு",
+      "makeup": "ஒப்பனை",
+      "fragrances": "வாசனை திரவியங்கள்",
+      "supplements": "சத்துணவு நிரப்பிகள்",
+      "medical-equipment": "மருத்துவ உபகரணங்கள்",
+      "fitness": "உடற்தகுதி"
+    }
+  },
+  "hobbies": {
+    "name": "விளையாட்டு & பொழுதுபோக்கு",
+    "subcategories": {
+      "sports-equipment": "விளையாட்டு உபகரணங்கள்",
+      "fitness-gym": "உடற்பயிற்சி & ஜிம்",
+      "outdoor-camping": "வெளிப்புறம் & முகாம்",
+      "cycling": "சைக்கிள் ஓட்டுதல்",
+      "musical-instruments": "இசைக் கருவிகள்",
+      "handmade-crafts": "கையால் செய்யப்பட்ட கைவினைப் பொருட்கள்",
+      "art-collectibles": "கலை & சேகரிப்புகள்",
+      "books-magazines": "புத்தகங்கள் & பத்திரிகைகள்",
+      "toys-games": "பொம்மைகள் & விளையாட்டுகள்"
+    }
+  },
+  "education": {
+    "name": "கல்வி",
+    "subcategories": {
+      "tuition-classes": "டியூஷன் & வகுப்புகள்",
+      "online-courses": "ஆன்லைன் படிப்புகள்",
+      "exam-preparation": "தேர்வு தயாரிப்பு",
+      "languages": "மொழி வகுப்புகள்",
+      "skills-training": "திறன் & தொழிற்பயிற்சி",
+      "study-abroad": "வெளிநாட்டுப் படிப்பு",
+      "books-stationery": "புத்தகங்கள் & எழுதுபொருட்கள்"
+    }
+  },
+  "other": {
+    "name": "மற்றவை",
+    "subcategories": {
+      "everything-else": "மற்ற அனைத்தும்",
+      "free-giveaway": "இலவசம் & வழங்கல்",
+      "wanted": "தேவை",
+      "lost-found": "தொலைந்தவை & கிடைத்தவை",
+      "community": "சமூகம்"
     }
   }
 }

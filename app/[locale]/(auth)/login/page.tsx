@@ -15,7 +15,7 @@ import { colors } from "@/lib/theme/colors";
 
 // Different parts of the app link to /login with either ?next= (e.g. the
 // navbar's "Sell" link, EnquiryModal, MessageSellerButton) or ?callbackUrl=
-// (the proxy.ts middleware redirect) — read both so neither path silently
+// (the proxy.ts middleware redirect). Read both so neither path silently
 // drops the user's intended destination.
 function getRedirectTarget(): string | null {
   const params = new URLSearchParams(window.location.search);
@@ -72,7 +72,7 @@ export default function LoginPage() {
       const redirectTarget = getRedirectTarget();
 
       // router.push alone already fetches fresh server data for the
-      // destination route — a trailing router.refresh() here would just
+      // destination route; a trailing router.refresh() here would just
       // discard that fetch and re-request the same page a second time.
       if (redirectTarget) {
         router.push(redirectTarget);
@@ -104,10 +104,10 @@ export default function LoginPage() {
         <div className="text-center">
           <Link href="/" className="inline-flex items-center justify-center">
             <Image
-              src="/logo-nav-gold.png"
-              alt="Lumevelo"
-              width={1616}
-              height={356}
+              src="/logo.webp"
+              alt="SLMarket.lk"
+              width={720}
+              height={248}
               priority
               className="h-10 w-auto"
             />
@@ -120,7 +120,7 @@ export default function LoginPage() {
             <br />
             <Link
               href="/register"
-              className="font-bold text-gold-hover dark:text-gold-champagne hover:underline"
+              className="font-bold text-primary dark:text-primary-light hover:underline"
             >
               {t("createAccount")}
             </Link>
@@ -161,7 +161,7 @@ export default function LoginPage() {
                     <select
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      className="h-full appearance-none border border-[var(--color-luxury-border)] rounded-lg pl-3 pr-8 py-2.5 text-sm bg-[var(--color-luxury-bg)] text-[var(--color-luxury-text)] font-medium focus:outline-none focus:ring-2 focus:ring-gold"
+                      className="h-full appearance-none border border-[var(--color-luxury-border)] rounded-lg pl-3 pr-8 py-2.5 text-sm bg-[var(--color-luxury-bg)] text-[var(--color-luxury-text)] font-medium focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       {COUNTRIES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -180,7 +180,7 @@ export default function LoginPage() {
                       setPhoneLocal(e.target.value.replace(/[^0-9\s\-()]/g, ""))
                     }
                     placeholder={t("phonePlaceholder")}
-                    className="flex-1 border border-[var(--color-luxury-border)] rounded-lg px-3 py-2.5 text-sm bg-[var(--color-luxury-surface)] text-[var(--color-luxury-text)] focus:outline-none focus:ring-2 focus:ring-gold"
+                    className="flex-1 border border-[var(--color-luxury-border)] rounded-lg px-3 py-2.5 text-sm bg-[var(--color-luxury-surface)] text-[var(--color-luxury-text)] focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>

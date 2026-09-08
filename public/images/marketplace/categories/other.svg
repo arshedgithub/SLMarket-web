@@ -1,0 +1,23 @@
+<svg width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Other categories">
+  <defs>
+    <linearGradient id="otBg" x1="0" y1="0" x2="400" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eef4ff"/>
+      <stop offset="1" stop-color="#dbe8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="320" fill="url(#otBg)"/>
+  <ellipse cx="200" cy="256" rx="150" ry="20" fill="#1557d6" opacity="0.08"/>
+  <!-- 3x3 grid of rounded tiles, bottom-right one a plus -->
+  <g>
+    <rect x="132" y="96"  width="40" height="40" rx="10" fill="#5f91f5"/>
+    <rect x="180" y="96"  width="40" height="40" rx="10" fill="#1557d6"/>
+    <rect x="228" y="96"  width="40" height="40" rx="10" fill="#5f91f5"/>
+    <rect x="132" y="144" width="40" height="40" rx="10" fill="#1557d6"/>
+    <rect x="180" y="144" width="40" height="40" rx="10" fill="#103d91"/>
+    <rect x="228" y="144" width="40" height="40" rx="10" fill="#1557d6"/>
+    <rect x="132" y="192" width="40" height="40" rx="10" fill="#5f91f5"/>
+    <rect x="180" y="192" width="40" height="40" rx="10" fill="#1557d6"/>
+  </g>
+  <rect x="228" y="192" width="40" height="40" rx="10" fill="#1f7a5c"/>
+  <path d="M248 202v20M238 212h20" stroke="#eef4ff" stroke-width="6" stroke-linecap="round"/>
+</svg>

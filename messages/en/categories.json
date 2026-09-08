@@ -1,70 +1,178 @@
 {
-  "gems": {
-    "name": "Gems",
+  "vehicles": {
+    "name": "Vehicles",
     "subcategories": {
-      "all": "All Gems",
-      "sapphire": "Sapphire",
-      "ruby": "Ruby",
-      "catseye": "Cat's Eye",
-      "spinel": "Spinel",
-      "alexandrite": "Alexandrite",
-      "garnet": "Garnet",
-      "tourmaline": "Tourmaline",
-      "aquamarine": "Aquamarine",
-      "Padparadscha": "Padparadscha",
-      "emerald": "Emerald",
-      "zircon": "Zircon",
-      "other-gems": "Other Gems"
+      "cars": "Cars",
+      "motorbikes": "Motorbikes",
+      "three-wheelers": "Three Wheelers",
+      "vans-lorries": "Vans, Lorries & Buses",
+      "auto-parts": "Auto Parts & Accessories",
+      "bicycles": "Bicycles",
+      "boats": "Boats & Water Transport",
+      "rentals": "Vehicle Rentals"
     }
   },
-  "precious-metals": {
-    "name": "Precious Metals",
+  "property": {
+    "name": "Property",
     "subcategories": {
-      "all": "All Metals",
-      "gold": "Gold",
-      "silver": "Silver",
-      "platinum": "Platinum",
-      "palladium": "Palladium",
-      "other-metals": "Other"
+      "houses-sale": "Houses for Sale",
+      "land-sale": "Land for Sale",
+      "apartments": "Apartments",
+      "houses-rent": "Houses for Rent",
+      "commercial": "Commercial Property",
+      "rooms-annexes": "Rooms & Annexes",
+      "holiday": "Holiday & Short Term"
     }
   },
-  "jewellery": {
-    "name": "Jewellery",
+  "electronics": {
+    "name": "Electronics",
     "subcategories": {
-      "all": "All Jewellery",
-      "rings": "Rings",
-      "necklaces": "Necklaces",
-      "earrings": "Earrings",
-      "bracelets": "Bracelets",
-      "pendants": "Pendants",
-      "wedding_sets": "Wedding & Engagement Sets",
-      "other": "Other Jewellery"
+      "mobile-phones": "Mobile Phones",
+      "computers": "Computers & Laptops",
+      "tvs": "TVs",
+      "cameras": "Cameras",
+      "audio": "Audio & Headphones",
+      "gaming": "Gaming",
+      "home-appliances": "Home Appliances",
+      "accessories": "Accessories"
+    }
+  },
+  "home-garden": {
+    "name": "Home & Garden",
+    "subcategories": {
+      "furniture": "Furniture",
+      "home-decor": "Home Decor",
+      "kitchen-dining": "Kitchen & Dining",
+      "bedding-bath": "Bedding & Bath",
+      "garden-outdoor": "Garden & Outdoor",
+      "tools-diy": "Tools & DIY",
+      "lighting": "Lighting"
+    }
+  },
+  "fashion": {
+    "name": "Fashion",
+    "subcategories": {
+      "womens-clothing": "Women's Clothing",
+      "mens-clothing": "Men's Clothing",
+      "kids-clothing": "Kids' Clothing",
+      "shoes": "Shoes",
+      "bags": "Bags & Luggage",
+      "watches": "Watches",
+      "jewellery-accessories": "Jewellery & Accessories",
+      "wedding-bridal": "Wedding & Bridal"
+    }
+  },
+  "food": {
+    "name": "Food & Groceries",
+    "subcategories": {
+      "fresh-produce": "Fresh Produce",
+      "rice-grains": "Rice & Grains",
+      "spices": "Spices & Condiments",
+      "bakery-sweets": "Bakery & Sweets",
+      "beverages": "Beverages",
+      "homemade": "Homemade Food",
+      "catering": "Catering"
+    }
+  },
+  "agriculture": {
+    "name": "Agriculture & Farming",
+    "subcategories": {
+      "farm-machinery": "Farm Machinery",
+      "seeds-plants": "Seeds & Plants",
+      "fertilizer": "Fertilizer & Chemicals",
+      "tools-equipment": "Tools & Equipment",
+      "irrigation": "Irrigation",
+      "harvest-crops": "Harvest & Crops",
+      "animal-feed": "Animal Feed"
+    }
+  },
+  "animals-pets": {
+    "name": "Animals & Pets",
+    "subcategories": {
+      "dogs": "Dogs",
+      "cats": "Cats",
+      "birds": "Birds",
+      "fish-aquariums": "Fish & Aquariums",
+      "farm-animals": "Farm Animals",
+      "poultry": "Poultry",
+      "pet-food": "Pet Food",
+      "pet-accessories": "Pet Accessories",
+      "veterinary": "Veterinary"
     }
   },
   "services": {
     "name": "Services",
     "subcategories": {
-      "all": "All Services",
-      "certification": "Gem Certification",
-      "gem_cutting": "Gem Cutting & Polishing",
-      "gold_testing": "Gold & Metal Testing",
-      "valuation": "Gem & Jewellery Valuation",
-      "custom_design": "Custom Jewellery Design",
-      "repair": "Jewellery Repair & Polishing",
-      "engraving": "Engraving",
-      "transport": "Secure Transport & Courier",
-      "buying_consultation": "Buying Consultation",
-      "training": "Gemology Training",
-      "mining_tours": "Gem Mine Tours",
-      "other": "Other Services"
+      "home-repairs": "Home Repairs",
+      "cleaning": "Cleaning",
+      "tuition": "Tuition & Classes",
+      "events": "Weddings & Events",
+      "movers": "Transport & Movers",
+      "beauty-wellness": "Beauty & Wellness",
+      "software-it": "Software & IT",
+      "business": "Business Services",
+      "tech-repair": "Tech Repair"
     }
   },
-  "sellers": {
-    "name": "Sellers",
+  "jobs": {
+    "name": "Jobs",
     "subcategories": {
-      "shops": "Shops & Dealers",
-      "shop_profile": "Create Your Own Shop Profile",
-      "new": "Start Selling"
+      "full-time": "Full Time",
+      "part-time": "Part Time",
+      "internships": "Internships",
+      "work-from-home": "Work From Home",
+      "drivers": "Drivers",
+      "domestic-staff": "Domestic Staff",
+      "hospitality": "Hospitality",
+      "sales-marketing": "Sales & Marketing"
+    }
+  },
+  "health-beauty": {
+    "name": "Health & Beauty",
+    "subcategories": {
+      "skincare": "Skincare",
+      "haircare": "Haircare",
+      "makeup": "Makeup",
+      "fragrances": "Fragrances",
+      "supplements": "Supplements",
+      "medical-equipment": "Medical Equipment",
+      "fitness": "Fitness"
+    }
+  },
+  "hobbies": {
+    "name": "Sports & Hobbies",
+    "subcategories": {
+      "sports-equipment": "Sports Equipment",
+      "fitness-gym": "Fitness & Gym",
+      "outdoor-camping": "Outdoor & Camping",
+      "cycling": "Cycling",
+      "musical-instruments": "Musical Instruments",
+      "handmade-crafts": "Handmade Crafts",
+      "art-collectibles": "Art & Collectibles",
+      "books-magazines": "Books & Magazines",
+      "toys-games": "Toys & Games"
+    }
+  },
+  "education": {
+    "name": "Education",
+    "subcategories": {
+      "tuition-classes": "Tuition & Classes",
+      "online-courses": "Online Courses",
+      "exam-preparation": "Exam Preparation",
+      "languages": "Language Classes",
+      "skills-training": "Skills & Vocational",
+      "study-abroad": "Study Abroad",
+      "books-stationery": "Books & Stationery"
+    }
+  },
+  "other": {
+    "name": "Other",
+    "subcategories": {
+      "everything-else": "Everything Else",
+      "free-giveaway": "Free & Giveaway",
+      "wanted": "Wanted",
+      "lost-found": "Lost & Found",
+      "community": "Community"
     }
   }
 }
