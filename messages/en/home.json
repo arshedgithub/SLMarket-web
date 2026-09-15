@@ -10,7 +10,8 @@
     "searchLabel": "Search marketplace",
     "searchPlaceholder": "Try \"3BR house Negombo\" or \"Toyota Aqua 2015\"",
     "searchButton": "Search",
-    "popularLabel": "Popular:"
+    "popularLabel": "Popular searches",
+    "popularMore": "See more"
   },
   "categoryTaglines": {
     "vehicles": "Cars, bikes & three-wheelers",
@@ -31,18 +32,19 @@
   "browse": {
     "heading": "Browse categories",
     "subheading": "Everything you need, all in one marketplace",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "eyebrow": "Explore"
   },
   "featured": {
     "heading": "Featured Listings",
     "subheading": "Handpicked deals from trusted sellers",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "eyebrow": "Featured"
   },
   "shops": {
     "eyebrow": "Featured Shops",
-    "heading": "Discover",
-    "headingHighlight": "Trusted Local Businesses",
-    "subheading": "Shop from verified stores offering quality products and reliable service.",
+    "heading": "Discover Local Businesses",
+    "subheading": "Explore shops from businesses across Sri Lanka.",
     "viewAll": "View All Shops",
     "visit": "Visit Shop",
     "listings": "Listings",
@@ -58,19 +60,22 @@
       "title": "Coupons & Offers",
       "desc": "Exclusive promotions from premium shops across all categories.",
       "note": "Use coupon codes and save on your favourite items.",
-      "cta": "Explore Offers"
+      "cta": "Explore Offers",
+      "tag": "Save more today"
     },
     "priceDrops": {
       "title": "Price Drops",
       "desc": "Listings that just became more affordable.",
       "note": "Get the best value with recently reduced prices.",
-      "cta": "See Price Drops"
+      "cta": "See Price Drops",
+      "tag": "Big savings"
     },
     "negotiable": {
       "title": "Negotiable Deals",
       "desc": "Find listings where sellers are open to a better deal.",
       "note": "Talk, negotiate and get a great price.",
-      "cta": "Explore Negotiable"
+      "cta": "Explore Negotiable",
+      "tag": "Make an offer"
     }
   },
   "sell": {

@@ -12,25 +12,28 @@ import {
   BadgeCheck,
   Bell,
   Car,
+  ChevronRight,
   Clock,
   Crown,
   Gem,
-  Handshake,
+  GraduationCap,
   Heart,
   Home,
   Leaf,
   MapPin,
-  Megaphone,
   MessageCircle,
+  PawPrint,
+  Search,
+  Shirt,
   Smartphone,
   Sparkles,
   Star,
   Store,
   Tag,
-  Ticket,
-  TrendingDown,
   TrendingUp,
   Users,
+  Utensils,
+  Wrench,
   Zap,
 } from "lucide-react";
 import { categories as categoryConfig } from "@/config/const/navLinks";
@@ -40,6 +43,7 @@ import {
 } from "./_components/CategoryRail";
 import { HeroSearch } from "./_components/HeroSearch";
 import { Rail } from "./_components/Rail";
+import { SectionEyebrow } from "./_components/SectionHeader";
 
 /*
  * ============================================================
@@ -70,13 +74,12 @@ type SampleListing = {
  */
 
 const popularSearches: PopularSearch[] = [
-  { label: "3BR House Negombo", href: "/search?q=3BR%20House%20Negombo" },
-  { label: "Toyota Aqua 2015", href: "/search?q=Toyota%20Aqua%202015" },
+  { label: "Toyota Aqua", href: "/search?q=Toyota%20Aqua" },
+  { label: "House for rent", href: "/search?q=house%20for%20rent" },
   { label: "iPhone 13", href: "/search?q=iPhone%2013" },
-  {
-    label: "Part-time Job Colombo",
-    href: "/search?q=Part-time%20Job%20Colombo",
-  },
+  { label: "Part time job", href: "/search?q=part%20time%20job" },
+  { label: "Land for sale", href: "/search?q=land%20for%20sale" },
+  { label: "Laptop", href: "/search?q=laptop" },
 ];
 
 /*
@@ -89,6 +92,26 @@ const popularSearches: PopularSearch[] = [
  */
 
 const CAT_IMG = "/images/marketplace/categories";
+
+const DEAL_ICON_DIR = "/images/marketplace/deals/icons";
+const DEAL_ICON = {
+  gift: `${DEAL_ICON_DIR}/gift.webp`,
+  trendingUp: `${DEAL_ICON_DIR}/trending-up.webp`,
+  handshake: `${DEAL_ICON_DIR}/handshake.webp`,
+  percent: `${DEAL_ICON_DIR}/percent.webp`,
+};
+
+// Mobile App section perks — rendered inside the photo card on desktop,
+// and as a separate block below it on mobile (see the section itself).
+const MOBILE_APP_FEATURES: {
+  key: "f1" | "f2" | "f3" | "f4";
+  icon: IconComponent;
+}[] = [
+  { key: "f1", icon: Smartphone },
+  { key: "f2", icon: Bell },
+  { key: "f3", icon: Heart },
+  { key: "f4", icon: MapPin },
+];
 
 const recommendedListings: SampleListing[] = [
   {
@@ -131,6 +154,46 @@ const recommendedListings: SampleListing[] = [
     badge: "Verified Seller",
     tags: ["Land", "10 Perches"],
   },
+  {
+    title: "L-Shape Sofa Set",
+    location: "Kandy",
+    price: "Rs. 95,000",
+    image: `${CAT_IMG}/home-garden.webp`,
+    badge: "Negotiable",
+    tags: ["Furniture", "6 Seater"],
+  },
+  {
+    title: "Designer Party Dress",
+    location: "Colombo",
+    price: "Rs. 6,500",
+    image: `${CAT_IMG}/fashion.webp`,
+    badge: "New Arrival",
+    tags: ["Women", "Size M"],
+  },
+  {
+    title: "Organic Spice Pack",
+    location: "Matale",
+    price: "Rs. 1,200",
+    image: `${CAT_IMG}/food.webp`,
+    badge: "Verified Seller",
+    tags: ["Organic", "1kg"],
+  },
+  {
+    title: "Home Deep Cleaning",
+    location: "Colombo",
+    price: "Rs. 4,500",
+    image: `${CAT_IMG}/services.webp`,
+    badge: "Verified Business",
+    tags: ["Same Day", "Insured"],
+  },
+  {
+    title: "Mountain Bike, 21-Speed",
+    location: "Nuwara Eliya",
+    price: "Rs. 32,000",
+    image: `${CAT_IMG}/hobbies.webp`,
+    badge: "Negotiable",
+    tags: ["21-Speed", "Good Condition"],
+  },
 ];
 
 /*
@@ -156,7 +219,7 @@ type SampleShop = {
   cover: string;
   thumbs: string[];
   tags: string[];
-  accent: "blue" | "orange" | "dark" | "green";
+  accent: "blue" | "orange" | "dark" | "green" | "purple" | "teal";
   icon: IconComponent;
 };
 
@@ -233,6 +296,114 @@ const featuredShops: SampleShop[] = [
     accent: "green",
     icon: Leaf,
   },
+  {
+    name: "StyleHub",
+    category: "Fashion",
+    location: "Colombo",
+    rating: 4.7,
+    listings: "150+",
+    tagline: "Look Good, Feel Great",
+    tier: "premium",
+    cover: `${CAT_IMG}/fashion.webp`,
+    thumbs: [
+      `${CAT_IMG}/fashion.webp`,
+      `${CAT_IMG}/health-beauty.webp`,
+      `${CAT_IMG}/home-garden.webp`,
+    ],
+    tags: ["Clothing", "Shoes", "Bags"],
+    accent: "purple",
+    icon: Shirt,
+  },
+  {
+    name: "TasteBuds Kitchen",
+    category: "Food & Groceries",
+    location: "Galle",
+    rating: 4.6,
+    listings: "70+",
+    tagline: "Fresh Flavours, Every Day",
+    tier: "verified",
+    cover: `${CAT_IMG}/food.webp`,
+    thumbs: [
+      `${CAT_IMG}/food.webp`,
+      `${CAT_IMG}/agriculture.webp`,
+      `${CAT_IMG}/jobs.webp`,
+    ],
+    tags: ["Homemade", "Catering", "Bakery"],
+    accent: "teal",
+    icon: Utensils,
+  },
+  {
+    name: "EduPro Institute",
+    category: "Education",
+    location: "Kandy",
+    rating: 4.9,
+    listings: "40+",
+    tagline: "Learn Without Limits",
+    tier: "toprated",
+    cover: `${CAT_IMG}/education.webp`,
+    thumbs: [
+      `${CAT_IMG}/education.webp`,
+      `${CAT_IMG}/jobs.webp`,
+      `${CAT_IMG}/electronics.webp`,
+    ],
+    tags: ["Tuition", "Online", "Exam Prep"],
+    accent: "blue",
+    icon: GraduationCap,
+  },
+  {
+    name: "PetCare Lanka",
+    category: "Animals & Pets",
+    location: "Negombo",
+    rating: 4.7,
+    listings: "55+",
+    tagline: "Happy Pets, Happy Homes",
+    tier: "verified",
+    cover: `${CAT_IMG}/animals.webp`,
+    thumbs: [
+      `${CAT_IMG}/animals.webp`,
+      `${CAT_IMG}/agriculture.webp`,
+      `${CAT_IMG}/home-garden.webp`,
+    ],
+    tags: ["Pet Food", "Grooming", "Accessories"],
+    accent: "orange",
+    icon: PawPrint,
+  },
+  {
+    name: "FixIt Services",
+    category: "Services",
+    location: "Colombo",
+    rating: 4.6,
+    listings: "110+",
+    tagline: "Repairs Done Right",
+    tier: "premium",
+    cover: `${CAT_IMG}/services.webp`,
+    thumbs: [
+      `${CAT_IMG}/services.webp`,
+      `${CAT_IMG}/electronics.webp`,
+      `${CAT_IMG}/home-garden.webp`,
+    ],
+    tags: ["Repairs", "Cleaning", "Movers"],
+    accent: "dark",
+    icon: Wrench,
+  },
+  {
+    name: "GlowBeauty",
+    category: "Health & Beauty",
+    location: "Jaffna",
+    rating: 4.8,
+    listings: "65+",
+    tagline: "Shine From Within",
+    tier: "toprated",
+    cover: `${CAT_IMG}/health-beauty.webp`,
+    thumbs: [
+      `${CAT_IMG}/health-beauty.webp`,
+      `${CAT_IMG}/fashion.webp`,
+      `${CAT_IMG}/hobbies.webp`,
+    ],
+    tags: ["Skincare", "Makeup", "Wellness"],
+    accent: "purple",
+    icon: Sparkles,
+  },
 ];
 
 /*
@@ -295,10 +466,6 @@ function ListingCard({ listing }: { listing: SampleListing }) {
             {listing.badge}
           </span>
         )}
-
-        <span className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm">
-          <Heart className="h-4 w-4" />
-        </span>
       </div>
 
       <div className="p-3.5">
@@ -365,69 +532,96 @@ function MiniFeature({
   );
 }
 
-const WHY_SOCIALS = [
+const WHY_SOCIALS_ROW1 = [
   "/images/social/facebook.webp",
   "/images/social/instagram.webp",
   "/images/social/tiktok.webp",
+];
+const WHY_SOCIALS_ROW2 = [
   "/images/social/whatsapp.webp",
+  "/images/social/linkedin.webp",
 ];
 
 function WhyCard({
   tint,
-  iconWrap,
-  icon: Icon,
+  badge,
   title,
   desc,
   image,
+  imageInset = false,
   socials = false,
 }: {
   tint: string;
-  iconWrap: string;
-  icon: IconComponent;
+  badge: string;
   title: string;
   desc: string;
   image?: string;
+  imageInset?: boolean;
   socials?: boolean;
 }) {
   return (
     <div
       className={`flex flex-col overflow-hidden rounded-2xl border border-black/[0.04] ${tint} transition hover:-translate-y-1 hover:shadow-lg`}
     >
-      <div className="flex flex-1 flex-col p-5">
-        <span
-          className={`flex h-11 w-11 items-center justify-center rounded-full ${iconWrap}`}
-        >
-          <Icon className="h-5 w-5" />
-        </span>
-        <h3 className="mt-3.5 text-base font-bold leading-snug text-[var(--color-market-text)]">
-          {title}
-        </h3>
-        <p className="mt-2 text-sm leading-6 text-[var(--color-market-text-secondary)]">
-          {desc}
-        </p>
+      {/* Mobile: badge beside the text. Desktop: badge above the text. */}
+      <div className="flex flex-1 items-center gap-3.5 p-4 sm:flex-col sm:items-stretch sm:gap-0 sm:p-5">
+        <Image
+          src={badge}
+          alt=""
+          width={56}
+          height={56}
+          className="h-12 w-12 shrink-0 drop-shadow-sm sm:h-14 sm:w-14"
+        />
+        <div className="min-w-0">
+          <h3 className="text-[15px] font-bold leading-snug text-[var(--color-market-text)] sm:mt-3.5 sm:text-base">
+            {title}
+          </h3>
+          <p className="mt-1 text-[13px] leading-5 text-[var(--color-market-text-secondary)] sm:mt-2 sm:text-sm sm:leading-6">
+            {desc}
+          </p>
+        </div>
       </div>
 
+      {/* Card media — desktop / tablet only; mobile cards are text + badge */}
       {socials ? (
-        <div className="flex h-44 items-end gap-3.5 px-5 pb-8">
-          {WHY_SOCIALS.map((src) => (
-            <Image
-              key={src}
-              src={src}
-              alt=""
-              width={44}
-              height={44}
-              className="h-10 w-10 drop-shadow-sm"
-            />
-          ))}
+        <div className="hidden flex-col items-center gap-3 px-5 pb-6 sm:flex">
+          <div className="flex justify-center gap-3">
+            {WHY_SOCIALS_ROW1.map((src) => (
+              <Image
+                key={src}
+                src={src}
+                alt=""
+                width={44}
+                height={44}
+                className="h-10 w-10 drop-shadow-sm"
+              />
+            ))}
+          </div>
+          <div className="flex justify-center gap-3">
+            {WHY_SOCIALS_ROW2.map((src) => (
+              <Image
+                key={src}
+                src={src}
+                alt=""
+                width={44}
+                height={44}
+                className="h-10 w-10 drop-shadow-sm"
+              />
+            ))}
+          </div>
         </div>
       ) : image ? (
-        <div className="relative h-44 w-full overflow-hidden">
+        <div
+          className={`relative hidden sm:block ${
+            imageInset ? "mx-6 h-32 sm:mx-8 sm:h-36" : "h-36 w-full sm:h-40"
+          }`}
+        >
           <Image
             src={image}
             alt=""
             fill
-            sizes="320px"
-            className="object-cover object-bottom"
+            sizes="280px"
+            className="object-contain object-bottom"
           />
         </div>
       ) : null}
@@ -469,7 +663,8 @@ export default async function HomePage({
           ====================================================== */}
 
       <section className="marketplace-hero mx-auto max-w-7xl">
-        <div className="marketplace-hero-photo">
+        {/* Desktop / tablet: full-bleed background photo with legibility overlays */}
+        <div className="marketplace-hero-photo hidden sm:block">
           <Image
             src="/images/hero-bg.webp"
             alt=""
@@ -480,18 +675,18 @@ export default async function HomePage({
           />
         </div>
 
-        <div className="marketplace-hero-edges" />
-        <div className="marketplace-hero-scrim" />
-        <div className="marketplace-hero-basefade" />
+        <div className="marketplace-hero-edges hidden sm:block" />
+        <div className="marketplace-hero-scrim hidden sm:block" />
+        <div className="marketplace-hero-basefade hidden sm:block" />
 
-        <div className="px-6 pb-10 pt-10 sm:px-10 sm:pb-12 sm:pt-14 lg:px-14 lg:pt-16">
+        <div className="px-5 pt-8 sm:px-10 sm:pb-12 sm:pt-14 lg:px-14 lg:pt-16">
           <div className="relative z-10 max-w-2xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-blue-700 shadow-sm backdrop-blur dark:border-blue-900 dark:bg-slate-900/70 dark:text-blue-300">
               <span className="h-2 w-2 rounded-full bg-green-500" />
               {t("hero.badge")}
             </div>
 
-            <h1 className="text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-[#10213f] sm:text-5xl lg:text-[58px] dark:text-white">
+            <h1 className="font-heading text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-[#10213f] sm:text-5xl lg:text-[58px] dark:text-white">
               {t("hero.titleLine1")}
               <br />
               {t("hero.titleLine2")}
@@ -515,13 +710,13 @@ export default async function HomePage({
               searchButtonLabel={t("hero.searchButton")}
             />
 
-            {/* POPULAR SEARCH */}
-            <div className="mt-4 flex flex-wrap items-center gap-2">
+            {/* POPULAR SEARCH — desktop (inline under the search bar) */}
+            <div className="mt-4 hidden flex-wrap items-center gap-2 lg:flex">
               <span className="mr-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                 {t("hero.popularLabel")}
               </span>
 
-              {popularSearches.map((search) => (
+              {popularSearches.slice(0, 4).map((search) => (
                 <Link
                   key={search.label}
                   href={search.href}
@@ -532,6 +727,57 @@ export default async function HomePage({
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Phone: the hero art flows below the copy, its top edge fading
+            into the page so the box + app mock-up stay fully visible. */}
+        <div className="relative mt-4 aspect-[4/3] w-full overflow-hidden sm:hidden">
+          <Image
+            src="/images/hero-bg-mobile.webp"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[50%_72%]"
+          />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[var(--color-market-background)] via-[var(--color-market-background)]/75 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[var(--color-market-background)] to-transparent" />
+        </div>
+      </section>
+
+      {/* ======================================================
+          POPULAR SEARCHES — mobile / tablet
+          ====================================================== */}
+
+      <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:hidden">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
+              <TrendingUp className="h-4 w-4" />
+            </span>
+            <h2 className="text-base font-bold text-[var(--color-market-text)]">
+              {t("hero.popularLabel")}
+            </h2>
+          </div>
+          <Link
+            href="/search"
+            className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blue-600"
+          >
+            {t("hero.popularMore")}
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {popularSearches.map((search) => (
+            <Link
+              key={search.label}
+              href={search.href}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-market-border)] bg-[var(--color-market-surface)] px-3 py-2 text-xs font-medium text-[var(--color-market-text-secondary)] transition hover:border-blue-300 hover:text-blue-600"
+            >
+              <Search className="h-3.5 w-3.5 text-blue-500" />
+              {search.label}
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -563,14 +809,17 @@ export default async function HomePage({
           couponsDesc: t("deals.coupons.desc"),
           couponsNote: t("deals.coupons.note"),
           couponsCta: t("deals.coupons.cta"),
+          couponsTag: t("deals.coupons.tag"),
           priceTitle: t("deals.priceDrops.title"),
           priceDesc: t("deals.priceDrops.desc"),
           priceNote: t("deals.priceDrops.note"),
           priceCta: t("deals.priceDrops.cta"),
+          priceTag: t("deals.priceDrops.tag"),
           negTitle: t("deals.negotiable.title"),
           negDesc: t("deals.negotiable.desc"),
           negNote: t("deals.negotiable.note"),
           negCta: t("deals.negotiable.cta"),
+          negTag: t("deals.negotiable.tag"),
         }}
       />
 
@@ -584,11 +833,12 @@ export default async function HomePage({
           subheading={t("featured.subheading")}
           viewAllHref="/search"
           viewAllLabel={t("featured.viewAll")}
+          dotsCount={recommendedListings.length}
         >
           {recommendedListings.map((listing) => (
             <div
               key={listing.title}
-              className="w-[210px] shrink-0 sm:w-[236px]"
+              className="w-[210px] shrink-0 snap-start sm:w-[236px]"
             >
               <ListingCard listing={listing} />
             </div>
@@ -602,12 +852,11 @@ export default async function HomePage({
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <Rail
-          eyebrow={t("shops.eyebrow")}
           heading={t("shops.heading")}
-          headingHighlight={t("shops.headingHighlight")}
           subheading={t("shops.subheading")}
           viewAllHref="/sellers"
           viewAllLabel={t("shops.viewAll")}
+          dotsCount={featuredShops.length}
         >
           {featuredShops.map((shop) => (
             <ShopCard
@@ -615,7 +864,6 @@ export default async function HomePage({
               shop={shop}
               visitLabel={t("shops.visit")}
               listingsLabel={t("shops.listings")}
-              moreLabel={t("shops.more")}
             />
           ))}
         </Rail>
@@ -626,23 +874,33 @@ export default async function HomePage({
           ====================================================== */}
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="relative isolate flex min-h-[440px] items-center overflow-hidden rounded-3xl border border-[var(--color-market-border)] shadow-[0_20px_55px_-24px_rgba(16,33,63,0.22)] sm:min-h-[500px]">
+        <div className="relative isolate flex min-h-[440px] items-center overflow-hidden rounded-3xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] shadow-[0_20px_55px_-24px_rgba(16,33,63,0.22)] sm:min-h-[500px]">
+          {/* Mobile: the same soft wavy background as Deals & Offers */}
+          <Image
+            src="/images/marketplace/deals/background.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            className="-z-10 object-cover object-bottom opacity-90 dark:opacity-20 sm:hidden"
+          />
+          {/* Desktop / tablet: the seller photo */}
           <Image
             src="/images/marketplace/sell/background.webp"
             alt=""
             fill
             priority={false}
             sizes="(max-width: 1320px) 100vw, 1240px"
-            className="-z-10 object-cover object-right"
+            className="-z-10 hidden object-cover object-right sm:block"
           />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-white from-30% via-white/80 to-transparent to-80% dark:from-[#0c1422] dark:via-[#0c1422]/85" />
+          <div className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-white from-30% via-white/80 to-transparent to-80% dark:from-[#0c1422] dark:via-[#0c1422]/85 sm:block" />
 
           <div className="max-w-xl p-6 sm:p-10 lg:p-14">
-            <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 shadow-sm">
-              <Sparkles className="h-3 w-3" />
-              {t("sell.eyebrow")}
-            </span>
-            <h2 className="text-3xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-4xl">
+            <div className="mb-4">
+              <SectionEyebrow icon={Sparkles}>
+                {t("sell.eyebrow")}
+              </SectionEyebrow>
+            </div>
+            <h2 className="font-heading text-3xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-4xl">
               {t("sell.heading")}{" "}
               <span className="text-[#1557d6]">SLMarket.lk</span>
             </h2>
@@ -697,11 +955,8 @@ export default async function HomePage({
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-14">
         <div className="mb-8 max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 shadow-sm dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
-            <Gem className="h-3 w-3" />
-            {t("whyUs.eyebrow")}
-          </span>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-4xl">
+          <SectionEyebrow icon={Gem}>{t("whyUs.eyebrow")}</SectionEyebrow>
+          <h2 className="font-heading mt-3 text-3xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-4xl">
             {t("whyUs.heading")}{" "}
             <span className="text-[#1557d6]">SLMarket.lk?</span>
           </h2>
@@ -713,32 +968,29 @@ export default async function HomePage({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <WhyCard
             tint="bg-blue-50 dark:bg-blue-950/40"
-            iconWrap="bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
-            icon={MapPin}
+            badge="/images/marketplace/why/icon-built.webp"
             title={t("whyUs.builtTitle")}
             desc={t("whyUs.builtDesc")}
             image="/images/marketplace/why/sri-lanka.webp"
           />
           <WhyCard
             tint="bg-pink-50 dark:bg-pink-950/30"
-            iconWrap="bg-pink-100 text-pink-600 dark:bg-pink-900 dark:text-pink-300"
-            icon={Megaphone}
+            badge="/images/marketplace/why/icon-discover.webp"
             title={t("whyUs.discoverTitle")}
             desc={t("whyUs.discoverDesc")}
             image="/images/marketplace/why/discovery.webp"
+            imageInset
           />
           <WhyCard
             tint="bg-emerald-50 dark:bg-emerald-950/30"
-            iconWrap="bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300"
-            icon={TrendingUp}
+            badge="/images/marketplace/why/icon-exposure.webp"
             title={t("whyUs.exposureTitle")}
             desc={t("whyUs.exposureDesc")}
             socials
           />
           <WhyCard
             tint="bg-amber-50 dark:bg-amber-950/30"
-            iconWrap="bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300"
-            icon={Users}
+            badge="/images/marketplace/why/icon-everyone.webp"
             title={t("whyUs.everyoneTitle")}
             desc={t("whyUs.everyoneDesc")}
             image="/images/marketplace/why/storefront.webp"
@@ -754,24 +1006,46 @@ export default async function HomePage({
         id="mobile-app"
         className="mx-auto max-w-7xl scroll-mt-24 px-4 py-8 sm:px-6"
       >
-        <div className="relative isolate flex min-h-[460px] flex-col justify-center overflow-hidden rounded-3xl border border-[var(--color-market-border)] shadow-[0_20px_55px_-24px_rgba(16,33,63,0.22)] sm:min-h-[520px]">
+        <div className="relative isolate overflow-hidden rounded-3xl border border-[var(--color-market-border)] shadow-[0_20px_55px_-24px_rgba(16,33,63,0.22)] sm:min-h-[460px]">
+          {/* Mobile: a tailored portrait shot (phones sit below the copy). */}
+          <Image
+            src="/images/marketplace/mobile-app/background-mobile.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            className="-z-10 object-cover object-top sm:hidden"
+          />
+          {/* Desktop / tablet: the wide phone photo, anchored right. */}
           <Image
             src="/images/marketplace/mobile-app/background.webp"
             alt=""
             fill
             sizes="(max-width: 1320px) 100vw, 1240px"
-            className="-z-10 object-cover object-right"
+            className="-z-10 hidden object-cover object-right sm:block"
           />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-white from-45% via-white/88 to-transparent to-95% dark:from-[#0c1422] dark:via-[#0c1422]/88" />
-          <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-white/85 to-transparent dark:from-[#0c1422]/85" />
+          {/* Mobile: wash the copy's whole zone solid, then fade out — the
+              phones only start showing in the empty space left below the
+              text, so nothing ever draws over them. */}
+          <div className="absolute inset-x-0 top-0 -z-10 h-[380px] bg-gradient-to-b from-white from-78% to-transparent dark:from-[#0c1422] sm:hidden" />
+          {/* Desktop / tablet: wash just enough of the left for the copy to
+              stay legible — the phones in the middle/right stay visible. */}
+          <div className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-white from-38% via-white/70 via-52% to-transparent to-66% dark:from-[#0c1422] dark:via-[#0c1422]/75 sm:block" />
+          {/* Desktop / tablet only — the feature-card row sits at the very
+              bottom of the photo card there, so it still needs a wash under
+              it; mobile has that row below the card instead, so it doesn't. */}
+          <div className="absolute inset-x-0 bottom-0 -z-10 hidden h-2/5 bg-gradient-to-t from-white from-55% via-white/92 via-80% to-transparent dark:from-[#0c1422] dark:via-[#0c1422]/92 sm:block" />
+          {/* Mobile: a matching wash behind the badges pinned to the bottom
+              of the card. */}
+          <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-white via-white/85 to-transparent dark:from-[#0c1422] dark:via-[#0c1422]/85 sm:hidden" />
 
-          <div className="flex flex-col gap-8 p-6 sm:p-10 lg:p-14">
+          <div className="flex min-h-[820px] flex-col gap-8 p-6 sm:min-h-0 sm:p-10 lg:p-14">
             <div className="max-w-xl">
-              <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 shadow-sm">
-                <Smartphone className="h-3 w-3" />
-                {t("mobileApp.eyebrow")}
-              </span>
-              <h2 className="text-3xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-4xl">
+              <div className="mb-4">
+                <SectionEyebrow icon={Smartphone}>
+                  {t("mobileApp.eyebrow")}
+                </SectionEyebrow>
+              </div>
+              <h2 className="font-heading text-3xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-4xl">
                 <span className="text-[#1557d6]">SLMarket.lk</span>{" "}
                 {t("mobileApp.heading")}
               </h2>
@@ -782,7 +1056,9 @@ export default async function HomePage({
                 {t("mobileApp.desc")}
               </p>
 
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              {/* Desktop / tablet: badges sit right under the copy, beside
+                  the phones. */}
+              <div className="mt-6 hidden flex-wrap items-center gap-3 sm:flex">
                 <a href="#" aria-label="Download on the App Store">
                   <Image
                     src="/images/app-badges/app-store.webp"
@@ -802,48 +1078,81 @@ export default async function HomePage({
                   />
                 </a>
               </div>
-              <p className="mt-2 text-xs text-[var(--color-market-text-muted)]">
+              <p className="mt-2 hidden text-xs text-[var(--color-market-text-muted)] sm:block">
                 {t("mobileApp.comingSoon")}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-              {[
-                {
-                  icon: Smartphone,
-                  title: t("mobileApp.f1Title"),
-                  desc: t("mobileApp.f1Desc"),
-                },
-                {
-                  icon: Bell,
-                  title: t("mobileApp.f2Title"),
-                  desc: t("mobileApp.f2Desc"),
-                },
-                {
-                  icon: Heart,
-                  title: t("mobileApp.f3Title"),
-                  desc: t("mobileApp.f3Desc"),
-                },
-                {
-                  icon: MapPin,
-                  title: t("mobileApp.f4Title"),
-                  desc: t("mobileApp.f4Desc"),
-                },
-              ].map((f) => (
+            {/* Mobile: badges pinned to the very bottom of the card, below
+                the phones, instead of sitting on top of them. */}
+            <div className="mt-auto flex flex-nowrap items-center justify-center gap-2 sm:hidden">
+              <a
+                href="#"
+                aria-label="Download on the App Store"
+                className="shrink-0"
+              >
+                <Image
+                  src="/images/app-badges/app-store.webp"
+                  alt="Download on the App Store"
+                  width={480}
+                  height={157}
+                  className="h-8 w-auto transition hover:-translate-y-0.5"
+                />
+              </a>
+              <a
+                href="#"
+                aria-label="Get it on Google Play"
+                className="shrink-0"
+              >
+                <Image
+                  src="/images/app-badges/google-play.webp"
+                  alt="Get it on Google Play"
+                  width={480}
+                  height={139}
+                  className="h-8 w-auto transition hover:-translate-y-0.5"
+                />
+              </a>
+            </div>
+            <p className="text-center text-xs text-[var(--color-market-text-muted)] sm:hidden">
+              {t("mobileApp.comingSoon")}
+            </p>
+
+            {/* Feature grid — desktop / tablet only; on mobile the photo
+                card stays short and the same grid sits below it instead,
+                so it never has to compete with the phones for space. */}
+            <div className="hidden sm:grid sm:grid-cols-4 sm:gap-4">
+              {MOBILE_APP_FEATURES.map(({ key, icon }) => (
                 <div
-                  key={f.title}
+                  key={key}
                   className="rounded-2xl border border-black/[0.06] bg-white p-4 shadow-md dark:border-white/10 dark:bg-white/10"
                 >
                   <MiniFeature
-                    icon={f.icon}
-                    title={f.title}
-                    desc={f.desc}
+                    icon={icon}
+                    title={t(`mobileApp.${key}Title`)}
+                    desc={t(`mobileApp.${key}Desc`)}
                     stack
                   />
                 </div>
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Feature grid — mobile only, below the photo card */}
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:hidden">
+          {MOBILE_APP_FEATURES.map(({ key, icon }) => (
+            <div
+              key={key}
+              className="rounded-2xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] p-4 shadow-sm"
+            >
+              <MiniFeature
+                icon={icon}
+                title={t(`mobileApp.${key}Title`)}
+                desc={t(`mobileApp.${key}Desc`)}
+                stack
+              />
+            </div>
+          ))}
         </div>
       </section>
     </div>
@@ -866,21 +1175,24 @@ type DealsCopy = {
   couponsDesc: string;
   couponsNote: string;
   couponsCta: string;
+  couponsTag: string;
   priceTitle: string;
   priceDesc: string;
   priceNote: string;
   priceCta: string;
+  priceTag: string;
   negTitle: string;
   negDesc: string;
   negNote: string;
   negCta: string;
+  negTag: string;
 };
 
 function DealFeatureCard({
   image,
   tint,
   iconWrap,
-  icon: Icon,
+  icon,
   title,
   description,
   noteIcon: NoteIcon,
@@ -891,7 +1203,7 @@ function DealFeatureCard({
   image: string;
   tint: string;
   iconWrap: string;
-  icon: IconComponent;
+  icon: string;
   title: string;
   description: string;
   noteIcon: IconComponent;
@@ -916,9 +1228,15 @@ function DealFeatureCard({
       <div className="flex flex-1 flex-col px-4 pb-4 pt-2 sm:px-5 sm:pb-5">
         <div className="flex items-center gap-2.5">
           <span
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${iconWrap}`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconWrap}`}
           >
-            <Icon className="h-5 w-5" />
+            <Image
+              src={icon}
+              alt=""
+              width={40}
+              height={40}
+              className="h-5 w-5"
+            />
           </span>
           <h3 className="text-base font-bold text-[var(--color-market-text)]">
             {title}
@@ -936,7 +1254,7 @@ function DealFeatureCard({
 
         <Link
           href={href}
-          className="mt-3.5 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700"
+          className="mt-3.5 flex items-center justify-center gap-1.5 self-center whitespace-nowrap text-[15px] font-bold tracking-tight text-blue-600 hover:text-blue-700"
         >
           {cta}
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
@@ -949,7 +1267,7 @@ function DealFeatureCard({
 function DealsSection({ t }: { t: DealsCopy }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="relative isolate overflow-hidden rounded-3xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] p-5 shadow-[0_20px_55px_-24px_rgba(16,33,63,0.2)] sm:p-7 lg:p-9">
+      <div className="relative isolate overflow-hidden rounded-3xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] p-4 shadow-[0_20px_55px_-24px_rgba(16,33,63,0.2)] sm:p-7 lg:p-9">
         <Image
           src="/images/marketplace/deals/background.webp"
           alt=""
@@ -958,14 +1276,98 @@ function DealsSection({ t }: { t: DealsCopy }) {
           className="-z-10 object-cover object-bottom opacity-90 dark:opacity-20"
         />
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,300px)_1fr] lg:gap-10">
-          <div className="flex flex-col justify-center">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-600">
-              {t.eyebrow}
-            </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-[1.12] tracking-tight text-[var(--color-market-text)] sm:text-4xl">
-              {t.headingStart}
-              <br />
+        {/* Mobile — its own compact layout (not the desktop/tablet header) */}
+        <div className="sm:hidden">
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1557d6]">
+                <Image
+                  src={DEAL_ICON.percent}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="h-5 w-5"
+                />
+              </span>
+              <div className="min-w-0">
+                <h2 className="font-heading text-xl font-extrabold leading-tight tracking-tight text-[var(--color-market-text)]">
+                  {t.eyebrow}
+                </h2>
+                <p className="truncate text-xs text-[var(--color-market-text-muted)]">
+                  {t.headingStart} {t.headingHighlight}
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/deals"
+              className="shrink-0 whitespace-nowrap pt-1 text-sm font-semibold text-blue-600"
+            >
+              {t.cta}
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              {
+                tint: "bg-[#fdf4e7] dark:bg-[#2a2418]",
+                iconWrap: "bg-orange-500",
+                icon: DEAL_ICON.gift,
+                title: t.couponsTitle,
+                tag: t.couponsTag,
+                href: "/deals?type=coupons",
+              },
+              {
+                tint: "bg-[#eef4fd] dark:bg-[#17263c]",
+                iconWrap: "bg-blue-500",
+                icon: DEAL_ICON.trendingUp,
+                title: t.priceTitle,
+                tag: t.priceTag,
+                href: "/deals?type=price-drops",
+              },
+              {
+                tint: "bg-[#eef7ef] dark:bg-[#172a1d]",
+                iconWrap: "bg-green-500",
+                icon: DEAL_ICON.handshake,
+                title: t.negTitle,
+                tag: t.negTag,
+                href: "/deals?type=negotiable",
+              },
+            ].map((c) => (
+              <Link
+                key={c.title}
+                href={c.href}
+                className={`flex flex-col gap-2 rounded-2xl border border-black/[0.04] p-3 ${c.tint}`}
+              >
+                <span
+                  className={`flex h-9 w-9 items-center justify-center rounded-full ${c.iconWrap}`}
+                >
+                  <Image
+                    src={c.icon}
+                    alt=""
+                    width={36}
+                    height={36}
+                    className="h-4.5 w-4.5"
+                  />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-[12px] font-bold leading-tight text-[var(--color-market-text)]">
+                    {c.title}
+                  </h3>
+                  <p className="mt-1 text-[10px] leading-tight text-[var(--color-market-text-muted)]">
+                    {c.tag}
+                  </p>
+                </div>
+                <ArrowRight className="mt-auto h-3.5 w-3.5 self-end text-[var(--color-market-text-muted)]" />
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="hidden gap-8 sm:grid lg:grid-cols-[minmax(0,300px)_1fr] lg:gap-10">
+          <div className="flex flex-col items-start justify-center">
+            <SectionEyebrow icon={Tag}>{t.eyebrow}</SectionEyebrow>
+            <h2 className="font-heading mt-3 text-3xl font-extrabold leading-tight tracking-tight text-[var(--color-market-text)] sm:text-4xl">
+              {t.headingStart}{" "}
               <span className="text-[#1557d6]">{t.headingHighlight}</span>
             </h2>
             <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--color-market-text-secondary)]">
@@ -986,7 +1388,7 @@ function DealsSection({ t }: { t: DealsCopy }) {
               image="/images/marketplace/deals/coupons.webp"
               tint="bg-[#fdf4e7] dark:bg-[#2a2418]"
               iconWrap="bg-orange-500"
-              icon={Ticket}
+              icon={DEAL_ICON.gift}
               title={t.couponsTitle}
               description={t.couponsDesc}
               noteIcon={Store}
@@ -998,7 +1400,7 @@ function DealsSection({ t }: { t: DealsCopy }) {
               image="/images/marketplace/deals/price-drops.webp"
               tint="bg-[#eef4fd] dark:bg-[#17263c]"
               iconWrap="bg-blue-500"
-              icon={TrendingDown}
+              icon={DEAL_ICON.trendingUp}
               title={t.priceTitle}
               description={t.priceDesc}
               noteIcon={Clock}
@@ -1010,7 +1412,7 @@ function DealsSection({ t }: { t: DealsCopy }) {
               image="/images/marketplace/deals/negotiable.webp"
               tint="bg-[#eef7ef] dark:bg-[#172a1d]"
               iconWrap="bg-green-500"
-              icon={Handshake}
+              icon={DEAL_ICON.handshake}
               title={t.negTitle}
               description={t.negDesc}
               noteIcon={MessageCircle}
@@ -1031,50 +1433,34 @@ function DealsSection({ t }: { t: DealsCopy }) {
  * ============================================================
  */
 
-const SHOP_ACCENT: Record<
-  SampleShop["accent"],
-  { grad: string; avatar: string }
-> = {
-  blue: {
-    grad: "from-transparent via-[rgba(15,47,107,0.35)] to-[rgba(15,47,107,0.9)]",
-    avatar: "bg-blue-600",
-  },
-  orange: {
-    grad: "from-transparent via-[rgba(42,29,12,0.3)] to-[rgba(42,29,12,0.88)]",
-    avatar: "bg-orange-500",
-  },
-  dark: {
-    grad: "from-transparent via-[rgba(0,0,0,0.35)] to-[rgba(0,0,0,0.88)]",
-    avatar: "bg-[#10213f]",
-  },
-  green: {
-    grad: "from-transparent via-[rgba(15,43,26,0.35)] to-[rgba(15,43,26,0.9)]",
-    avatar: "bg-green-600",
-  },
+const SHOP_ACCENT: Record<SampleShop["accent"], string> = {
+  blue: "bg-blue-600",
+  orange: "bg-orange-500",
+  dark: "bg-[#10213f]",
+  green: "bg-green-600",
+  purple: "bg-violet-600",
+  teal: "bg-teal-600",
 };
 
-// Shop credibility tiers, highest first: Top Rated > Premium > Verified.
+// Credibility label shown on the cover: Top Rated > Premium > Verified.
 const SHOP_TIER: Record<
   ShopTier,
-  { label: string; icon: IconComponent; text: string; iconCls: string }
+  { label: string; icon: IconComponent; cls: string }
 > = {
   toprated: {
     label: "Top Rated",
     icon: Award,
-    text: "text-amber-700 dark:text-amber-300",
-    iconCls: "text-amber-500",
+    cls: "text-amber-600 dark:text-amber-300",
   },
   premium: {
-    label: "Premium Shop",
+    label: "Premium",
     icon: Crown,
-    text: "text-violet-700 dark:text-violet-300",
-    iconCls: "text-violet-500",
+    cls: "text-violet-600 dark:text-violet-300",
   },
   verified: {
-    label: "Verified Shop",
+    label: "Verified",
     icon: BadgeCheck,
-    text: "text-emerald-700 dark:text-emerald-300",
-    iconCls: "text-emerald-500",
+    cls: "text-emerald-600 dark:text-emerald-300",
   },
 };
 
@@ -1082,117 +1468,92 @@ function ShopCard({
   shop,
   visitLabel,
   listingsLabel,
-  moreLabel,
 }: {
   shop: SampleShop;
   visitLabel: string;
   listingsLabel: string;
-  moreLabel: string;
 }) {
   const Icon = shop.icon;
-  const a = SHOP_ACCENT[shop.accent];
   const tier = SHOP_TIER[shop.tier];
   const TierIcon = tier.icon;
 
   return (
-    <div className="flex w-[288px] shrink-0 flex-col overflow-hidden rounded-2xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] shadow-sm transition hover:shadow-lg sm:w-[320px]">
+    <article className="flex w-[300px] shrink-0 snap-start flex-col overflow-hidden rounded-3xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] shadow-sm transition hover:shadow-lg sm:w-[338px]">
       {/* Cover */}
-      <div className="relative h-40">
+      <div className="relative h-36">
         <Image
           src={shop.cover}
           alt=""
           fill
-          sizes="320px"
+          sizes="338px"
           className="object-cover"
         />
-        <div className={`absolute inset-0 bg-gradient-to-r ${a.grad}`} />
         <span
-          className={`absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm ${tier.text}`}
+          className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm ${tier.cls}`}
         >
-          <TierIcon className={`h-3.5 w-3.5 ${tier.iconCls}`} />
+          <TierIcon className="h-3.5 w-3.5" />
           {tier.label}
         </span>
-        <p className="absolute right-4 top-5 max-w-[62%] text-right text-lg font-extrabold leading-tight text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.45)]">
-          {shop.tagline}
-        </p>
       </div>
 
-      {/* Thumbs */}
-      <div className="-mt-6 flex gap-2 px-3">
-        {shop.thumbs.slice(0, 3).map((src, i) => (
-          <div
-            key={i}
-            className="relative aspect-square flex-1 overflow-hidden rounded-xl border-2 border-[var(--color-market-surface)] bg-slate-100 shadow-sm"
-          >
-            <Image
-              src={src}
-              alt=""
-              fill
-              sizes="100px"
-              className="object-cover"
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Identity */}
-      <div className="flex items-start gap-3 px-4 pt-3.5">
-        <span
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white ${a.avatar}`}
-        >
-          <Icon className="h-5 w-5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1 text-sm font-bold text-[var(--color-market-text)]">
-            <span className="truncate">{shop.name}</span>
-            <BadgeCheck className="h-4 w-4 shrink-0 text-blue-500" />
-          </p>
-          <p className="truncate text-xs text-[var(--color-market-text-muted)]">
-            {shop.category} &bull; {shop.location}
-          </p>
-          <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--color-market-text-muted)]">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-            <span className="font-semibold text-[var(--color-market-text)]">
-              {shop.rating.toFixed(1)}
-            </span>
-            <span className="text-[var(--color-market-border-strong)]">|</span>
-            {shop.listings} {listingsLabel}
-          </p>
-        </div>
-        <button
-          type="button"
-          aria-label="Save shop"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--color-market-text-muted)] hover:bg-background hover:text-blue-600"
-        >
-          <Heart className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-1.5 px-4 pt-3">
-        {shop.tags.map((tag) => (
+      {/* Full-width identity panel, overlapping the cover */}
+      <div className="relative z-10 -mt-6 rounded-t-2xl bg-[var(--color-market-surface)] px-4 pb-3 pt-4">
+        <div className="flex items-start gap-2.5">
           <span
-            key={tag}
-            className="rounded-full bg-background px-2.5 py-1 text-[11px] font-medium text-[var(--color-market-text-secondary)]"
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${
+              SHOP_ACCENT[shop.accent]
+            }`}
           >
-            {tag}
+            <Icon className="h-5 w-5" />
           </span>
-        ))}
-        <span className="rounded-full bg-background px-2.5 py-1 text-[11px] font-medium text-blue-600">
-          {moreLabel}
-        </span>
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1 text-sm font-bold text-[var(--color-market-text)]">
+              <span className="truncate">{shop.name}</span>
+              <BadgeCheck className="h-4 w-4 shrink-0 text-blue-500" />
+            </p>
+            <p className="truncate text-xs text-[var(--color-market-text-muted)]">
+              {shop.category} &middot; {shop.location}
+            </p>
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--color-market-text-muted)]">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span className="font-semibold text-[var(--color-market-text)]">
+                {shop.rating.toFixed(1)}
+              </span>
+              <span className="text-[var(--color-market-border-strong)]">
+                |
+              </span>
+              {shop.listings} {listingsLabel}
+            </p>
+          </div>
+        </div>
+
+        {/* Listing thumbnails */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {shop.thumbs.slice(0, 3).map((src, i) => (
+            <div
+              key={i}
+              className="relative aspect-square overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800"
+            >
+              <Image
+                src={src}
+                alt=""
+                fill
+                sizes="96px"
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Visit */}
-      <div className="mt-auto p-4">
-        <Link
-          href="/sellers"
-          className="flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 py-2.5 text-sm font-bold text-blue-600 transition hover:bg-blue-100 hover:-translate-y-0.5 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
-        >
-          {visitLabel}
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </div>
+      {/* Visit — full-width bar, flush to the card edges */}
+      <Link
+        href="/sellers"
+        className="mt-auto flex items-center justify-center gap-1.5 bg-blue-50 py-3.5 text-sm font-bold text-blue-600 transition hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
+      >
+        {visitLabel}
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </article>
   );
 }

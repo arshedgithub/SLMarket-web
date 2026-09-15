@@ -78,6 +78,7 @@ export default function Navigation({
 
   const catModalRef = useRef<HTMLDivElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const tabletProfileMenuRef = useRef<HTMLDivElement | null>(null);
   const mobileProfileMenuRef = useRef<HTMLDivElement | null>(null);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const mobileNotificationsRef = useRef<HTMLDivElement | null>(null);
@@ -113,8 +114,9 @@ export default function Navigation({
   );
 
   useOutsideClick([catModalRef], () => closeCatModal());
-  useOutsideClick([profileMenuRef, mobileProfileMenuRef], () =>
-    setIsProfileMenuOpen(false),
+  useOutsideClick(
+    [profileMenuRef, tabletProfileMenuRef, mobileProfileMenuRef],
+    () => setIsProfileMenuOpen(false),
   );
   useOutsideClick(
     [notificationsRef, mobileNotificationsRef],
@@ -330,12 +332,39 @@ export default function Navigation({
               />
             </Link>
 
-            {/* Center nav (desktop) */}
-            <div className="hidden items-center gap-5 md:flex lg:gap-7">
+            {/* Center nav (tablet — a condensed row: no Deals, short Sell label) */}
+            <div className="hidden items-center gap-4 md:flex lg:hidden">
               <button
                 type="button"
                 onClick={openCatModal}
-                className="flex items-center gap-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                {t("categories")}
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+              <Link
+                href={sellHref}
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+              >
+                <Store className="h-4 w-4" />
+                {t("sell")}
+              </Link>
+              <Link
+                href="/help-center/contact"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+              >
+                <HelpCircle className="h-4 w-4" />
+                {t("help")}
+              </Link>
+            </div>
+
+            {/* Center nav (desktop) */}
+            <div className="hidden items-center gap-5 lg:flex lg:gap-7">
+              <button
+                type="button"
+                onClick={openCatModal}
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <LayoutGrid className="h-4 w-4" />
                 {t("categories")}
@@ -343,29 +372,76 @@ export default function Navigation({
               </button>
               <Link
                 href="/deals"
-                className="flex items-center gap-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <Tag className="h-4 w-4" />
                 {t("deals")}
               </Link>
               <Link
                 href={sellHref}
-                className="flex items-center gap-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <Store className="h-4 w-4" />
                 {t("sellWithUs")}
               </Link>
               <Link
                 href="/help-center/contact"
-                className="flex items-center gap-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <HelpCircle className="h-4 w-4" />
                 {t("help")}
               </Link>
             </div>
 
+            {/* Right cluster (tablet) */}
+            <div className="hidden items-center gap-2 md:flex lg:hidden">
+              <LanguageSwitcher compact />
+
+              <button
+                onClick={changeTheme}
+                aria-label={t("toggleDarkMode")}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background hover:text-primary"
+              >
+                {isDarkMode ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </button>
+
+              <div className="mx-1 h-5 w-px bg-border" />
+
+              {session?.user ? (
+                <div className="relative" ref={tabletProfileMenuRef}>
+                  <button
+                    onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/15"
+                    aria-label={t("accountMenu")}
+                  >
+                    <User className="h-5 w-5" />
+                  </button>
+                  {isProfileMenuOpen && profileDropdownContent}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <Link
+                    href="/login"
+                    className="whitespace-nowrap px-2 py-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
+                  >
+                    {t("signIn")}
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="btn-solid whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold"
+                  >
+                    {t("register")}
+                  </Link>
+                </div>
+              )}
+            </div>
+
             {/* Right cluster (desktop) */}
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="hidden items-center gap-2 lg:flex">
               <LanguageSwitcher />
 
               <button

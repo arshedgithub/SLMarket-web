@@ -17,6 +17,13 @@
     system-ui,
     sans-serif;
 
+  /* Section / display headings only — a touch more premium than the body. */
+  --font-heading:
+    var(--font-heading-face),
+    var(--font-tamil),
+    var(--font-sinhala),
+    var(--font-sans);
+
   /*
    * ============================================================
    * CORE COLORS
@@ -239,6 +246,20 @@ button {
   );
 }
 
+/* Phones: the copy sits on a light band at the top and the hero art flows
+   in below it, so the section just grows to fit its content. */
+@media (max-width: 639px) {
+  .marketplace-hero {
+    min-height: 0;
+    background: linear-gradient(
+      180deg,
+      #eaf3ff 0%,
+      #f4f8ff 45%,
+      var(--color-market-background) 78%
+    );
+  }
+}
+
 @media (min-width: 1024px) {
   .marketplace-hero {
     min-height: 32rem;
@@ -293,20 +314,17 @@ button {
 }
 
 @media (max-width: 767px) {
+  /* Phone: wash the upper area where the copy sits (heading + subtitle),
+     then clear quickly so the box + phone in the lower photo stay visible. */
   .marketplace-hero-scrim {
-    background:
-      linear-gradient(
-        90deg,
-        var(--color-market-background) 0%,
-        color-mix(in srgb, var(--color-market-background) 90%, transparent) 48%,
-        color-mix(in srgb, var(--color-market-background) 55%, transparent) 80%,
-        color-mix(in srgb, var(--color-market-background) 28%, transparent) 100%
-      ),
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-market-background) 45%, transparent) 0%,
-        transparent 46%
-      );
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-market-background) 84%, transparent) 0%,
+      color-mix(in srgb, var(--color-market-background) 76%, transparent) 34%,
+      color-mix(in srgb, var(--color-market-background) 56%, transparent) 46%,
+      color-mix(in srgb, var(--color-market-background) 16%, transparent) 60%,
+      transparent 70%
+    );
   }
 }
 
@@ -665,9 +683,14 @@ button {
  */
 
 @media (max-width: 767px) {
+  /* Phone: stack the search into two rows (category row, then input + button). */
   .marketplace-search {
-    min-height: 52px;
-    border-radius: 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    min-height: 0;
+    padding: 8px;
+    border-radius: 16px;
   }
 
   .market-category-card {

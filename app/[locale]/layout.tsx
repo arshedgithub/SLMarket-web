@@ -1,5 +1,10 @@
 import "../globals.css";
-import { Inter, Noto_Sans_Tamil, Noto_Sans_Sinhala } from "next/font/google";
+import {
+  Inter,
+  Plus_Jakarta_Sans,
+  Noto_Sans_Tamil,
+  Noto_Sans_Sinhala,
+} from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,6 +14,12 @@ import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+// A distinct, more premium display face for section headings only — the
+// body keeps Inter for readability.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-heading-face",
+});
 const notoSansTamil = Noto_Sans_Tamil({
   subsets: ["tamil"],
   variable: "--font-tamil",
@@ -89,7 +100,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${notoSansTamil.variable} ${notoSansSinhala.variable} font-sans`}
+        className={`${inter.variable} ${jakarta.variable} ${notoSansTamil.variable} ${notoSansSinhala.variable} font-sans`}
       >
         <script
           type="application/ld+json"

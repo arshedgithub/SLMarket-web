@@ -13,7 +13,19 @@ const LANGUAGE_LABELS: Record<Locale, string> = {
   si: "සිංහල",
 };
 
-export default function LanguageSwitcher() {
+// Short form for the tablet-width nav, where there isn't room for the full
+// language name next to the logo, nav links and auth buttons.
+const LANGUAGE_LABELS_SHORT: Record<Locale, string> = {
+  en: "En",
+  ta: "தமி",
+  si: "සිං",
+};
+
+export default function LanguageSwitcher({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
   const t = useTranslations("nav");
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -31,14 +43,14 @@ export default function LanguageSwitcher() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-1 text-sm font-medium text-light-text hover:text-text transition-colors"
+        className="flex items-center gap-1 whitespace-nowrap text-sm font-medium text-light-text hover:text-text transition-colors"
         aria-label={t("changeLanguage")}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        {LANGUAGE_LABELS[locale]}
+        {compact ? LANGUAGE_LABELS_SHORT[locale] : LANGUAGE_LABELS[locale]}
         <ChevronDown
-          className={`h-3.5 w-3.5 transform transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 shrink-0 transform transition-transform ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
