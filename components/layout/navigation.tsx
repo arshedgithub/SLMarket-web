@@ -328,7 +328,7 @@ export default function Navigation({
                 width={760}
                 height={147}
                 priority
-                className="h-7 w-auto sm:h-8"
+                className="relative -top-1.25 h-7 w-auto sm:h-8"
               />
             </Link>
 
