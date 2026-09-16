@@ -2,12 +2,11 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import {
   User,
-  Search,
   Sun,
   Moon,
   ChevronDown,
@@ -22,6 +21,7 @@ import {
   MessageCircle,
   Heart,
   LayoutGrid,
+  LayoutList,
   HelpCircle,
   Tag,
 } from "lucide-react";
@@ -60,12 +60,8 @@ export default function Navigation({
 }) {
   const t = useTranslations("nav");
   const tCategories = useTranslations("categories");
-  const pathname = usePathname();
-  const isHomePage = pathname === "/";
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const isCatModalOpen = useCategoryModalStore((s) => s.isOpen);
   const openCatModalStore = useCategoryModalStore((s) => s.open);
   const closeCatModal = useCategoryModalStore((s) => s.close);
@@ -155,11 +151,6 @@ export default function Navigation({
   const changeTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
     toggleDarkMode();
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Search results page isn't wired yet.
   };
 
   const openCatModal = () => {
@@ -273,48 +264,6 @@ export default function Navigation({
     </div>
   );
 
-  /* ============================================================
-     SEARCH PILL (desktop non-home + mobile)
-     ============================================================ */
-
-  const searchPill = (autoFocus = false) => (
-    <form
-      onSubmit={handleSearchSubmit}
-      className="flex w-full items-stretch overflow-hidden rounded-full border border-border bg-background transition-shadow focus-within:ring-2 focus-within:ring-primary/30"
-    >
-      <div className="relative flex flex-shrink-0 items-center border-r border-border">
-        <select
-          aria-label={t("allCategories")}
-          defaultValue=""
-          className="max-w-[92px] cursor-pointer appearance-none truncate bg-transparent py-2 pl-3 pr-7 text-sm font-medium text-text focus:outline-none lg:max-w-[150px]"
-        >
-          <option value="">{t("allCategories")}</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {tCategories(`${category.id}.name`)}
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="pointer-events-none absolute right-2.5 h-3.5 w-3.5 text-light-text" />
-      </div>
-      <input
-        type="text"
-        placeholder={t("searchPlaceholder")}
-        value={searchQuery}
-        autoFocus={autoFocus}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-text placeholder:text-light-text focus:outline-none"
-      />
-      <button
-        type="submit"
-        aria-label={t("searchPlaceholder")}
-        className="market-primary flex w-11 flex-shrink-0 items-center justify-center"
-      >
-        <Search className="h-4 w-4" />
-      </button>
-    </form>
-  );
-
   return (
     <>
       <nav className="sticky top-0 z-40 border-b border-border bg-surface text-text transition-colors duration-300 dark:bg-[#0c1422]">
@@ -334,6 +283,13 @@ export default function Navigation({
 
             {/* Center nav (tablet — a condensed row: no Deals, short Sell label) */}
             <div className="hidden items-center gap-4 md:flex lg:hidden">
+              <Link
+                href="/listings"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+              >
+                <LayoutList className="h-4 w-4" />
+                {t("allListings")}
+              </Link>
               <button
                 type="button"
                 onClick={openCatModal}
@@ -361,6 +317,13 @@ export default function Navigation({
 
             {/* Center nav (desktop) */}
             <div className="hidden items-center gap-5 lg:flex lg:gap-7">
+              <Link
+                href="/listings"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+              >
+                <LayoutList className="h-4 w-4" />
+                {t("allListings")}
+              </Link>
               <button
                 type="button"
                 onClick={openCatModal}
@@ -528,19 +491,6 @@ export default function Navigation({
 
             {/* Right cluster (mobile) */}
             <div className="flex items-center gap-0.5 md:hidden sm:gap-1">
-              <button
-                onClick={() => setIsMobileSearchOpen((prev) => !prev)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background"
-                aria-label={t("searchPlaceholder")}
-                aria-expanded={isMobileSearchOpen}
-              >
-                {isMobileSearchOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Search className="h-5 w-5" />
-                )}
-              </button>
-
               {session?.user && (
                 <div className="relative" ref={mobileNotificationsRef}>
                   <button
@@ -593,18 +543,6 @@ export default function Navigation({
               </button>
             </div>
           </div>
-
-          {/* Desktop search, only off the homepage (homepage hero has its own) */}
-          {!isHomePage && (
-            <div className="hidden pb-3 md:block">
-              <div className="mx-auto max-w-2xl">{searchPill()}</div>
-            </div>
-          )}
-
-          {/* Mobile expandable search */}
-          {isMobileSearchOpen && (
-            <div className="pb-3 md:hidden">{searchPill(true)}</div>
-          )}
         </div>
 
         {/* ====================================================
@@ -705,6 +643,14 @@ export default function Navigation({
 
             {/* Quick links */}
             <div className="mt-3 space-y-0.5 border-t border-border pt-3">
+              <Link
+                href="/listings"
+                onClick={closeMobileMenu}
+                className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
+              >
+                <LayoutList className="h-4 w-4 text-primary" />
+                {t("allListings")}
+              </Link>
               <Link
                 href="/deals"
                 onClick={closeMobileMenu}

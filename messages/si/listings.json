@@ -1,0 +1,138 @@
+{
+  "breadcrumb": {
+    "home": "මුල් පිටුව",
+    "listings": "දැන්වීම්",
+    "allListings": "සියලුම දැන්වීම්"
+  },
+  "header": {
+    "allListingsTitle": "සියලුම දැන්වීම්",
+    "categoryTitleSuffix": "දැන්වීම්",
+    "subtitle": "ශ්‍රී ලංකාව පුරා නිෂ්පාදන, දේපළ, වාහන, සේවා සහ අවස්ථා සොයාගන්න.",
+    "listingsStat": "දැන්වීම්",
+    "newOpportunities": "නව අවස්ථා, දිනපතා"
+  },
+  "search": {
+    "placeholder": "ඔබ සොයන්නේ කුමක්ද?",
+    "allCategories": "සියලුම කාණ්ඩ",
+    "allSriLanka": "සම්පූර්ණ ශ්‍රී ලංකාව",
+    "searchButton": "සොයන්න",
+    "popularSearches": "ජනප්‍රිය සෙවීම්:",
+    "popular": {
+      "toyotaAqua": "ටොයොටා ඇක්වා",
+      "houseForRent": "කුලියට නිවාස",
+      "iphone": "අයිෆෝන්",
+      "partTimeJobs": "අර්ධකාලීන රැකියා"
+    }
+  },
+  "categorySwitcher": {
+    "all": "සියල්ල"
+  },
+  "shops": {
+    "eyebrow": "විශ්වාසනීය ව්‍යාපාර",
+    "headingAll": "විශේෂාංගගත සාප්පු",
+    "headingCategory": "විශේෂාංගගත {category} සාප්පු",
+    "subheading": "SLMarket.lk හි වෘත්තීය සාප්පු පැතිකඩ ගවේෂණය කරන්න",
+    "viewAll": "සියලුම සාප්පු බලන්න",
+    "listings": "දැන්වීම්",
+    "visitShop": "සාප්පුව බලන්න",
+    "tier": {
+      "toprated": "ඉහළම ශ්‍රේණිගත",
+      "premium": "ප්‍රිමියම්",
+      "verified": "සත්‍යාපිත"
+    }
+  },
+  "filters": {
+    "location": "ස්ථානය",
+    "price": "මිල",
+    "conditionLabel": "තත්වය",
+    "sellerLabel": "විකුණුම්කරු",
+    "deals": "ගනුදෙනු",
+    "moreFilters": "තවත් පෙරහන්",
+    "locationLabel": "ස්ථානය",
+    "locationSearchPlaceholder": "ස්ථානය සොයන්න...",
+    "popular": "ජනප්‍රිය",
+    "priceRange": "මිල පරාසය (රු.)",
+    "min": "අවම",
+    "max": "උපරිම",
+    "to": "සිට",
+    "quickPicks": "ඉක්මන් තේරීම්",
+    "pricePresets": {
+      "under50k": "50,000 ට අඩු",
+      "50kTo250k": "50,000 සිට 250,000 දක්වා",
+      "250kTo1m": "250,000 සිට මිලියන 1 දක්වා",
+      "1mPlus": "මිලියන 1+"
+    },
+    "condition": {
+      "na": "ඕනෑම",
+      "new": "අලුත්",
+      "used": "පාවිච්චි කළ",
+      "like-new": "අලුත් වගේ",
+      "reconditioned": "ප්‍රතිසංස්කරණය කළ"
+    },
+    "seller": {
+      "all": "සියලුම විකුණුම්කරුවන්",
+      "individual": "පුද්ගලික",
+      "verified": "සත්‍යාපිත",
+      "shop": "සාප්පුව"
+    },
+    "deal": {
+      "coupon": "කූපන් සහ දීමනා",
+      "price-drop": "මිල අඩුවීම්",
+      "negotiable": "සාකච්ඡා කළ හැකි"
+    },
+    "active": "සක්‍රීය:",
+    "clearAll": "සියල්ල හිස් කරන්න",
+    "clear": "හිස් කරන්න",
+    "showResults": "ප්‍රතිඵල {count} පෙන්වන්න",
+    "refineResults": "ප්‍රතිඵල පිරිපහදු කරන්න",
+    "categoryFilters": "{category} පෙරහන්",
+    "close": "වසන්න"
+  },
+  "categoryFields": {
+    "vehicles": {
+      "brand": "වෙළඳ නාමය",
+      "year": "වර්ෂය",
+      "fuel": "ඉන්ධන වර්ගය",
+      "transmission": "ගියර් වර්ගය"
+    },
+    "property": {
+      "propertyType": "දේපළ වර්ගය",
+      "bedrooms": "නිදන කාමර",
+      "bathrooms": "නාන කාමර",
+      "furnished": "ගෘහභාණ්ඩ තත්වය"
+    },
+    "electronics": {
+      "brand": "වෙළඳ නාමය",
+      "storage": "ගබඩා ධාරිතාව",
+      "warranty": "වගකීම"
+    },
+    "jobs": {
+      "jobType": "රැකියා වර්ගය",
+      "experience": "පළපුරුද්ද"
+    }
+  },
+  "toolbar": {
+    "resultsFound": "දැන්වීම් {count}ක් හමු විය",
+    "sort": {
+      "newest": "අලුත්ම මුලින්",
+      "price-asc": "මිල: අඩුවේ සිට වැඩි වෙත",
+      "price-desc": "මිල: වැඩි සිට අඩු වෙත"
+    },
+    "gridView": "ග්‍රිඩ් දසුන",
+    "listView": "ලැයිස්තු දසුන"
+  },
+  "card": {
+    "featured": "විශේෂාංගගත",
+    "coupon": "කූපන් සහ දීමනා",
+    "price-drop": "මිල අඩුවීම",
+    "negotiable": "සාකච්ඡා කළ හැකි",
+    "saveListing": "දැන්වීම සුරකින්න",
+    "shop": "සාප්පුව"
+  },
+  "empty": {
+    "title": "ඔබේ පෙරහන් වලට ගැලපෙන දැන්වීම් නැත",
+    "desc": "පෙරහනක් හිස් කර හෝ වෙනත් දෙයක් සොයන්න.",
+    "clear": "සියලුම පෙරහන් හිස් කරන්න"
+  },
+  "loadMore": "තවත් දැන්වීම් පෙන්වන්න"
+}

@@ -1,0 +1,138 @@
+{
+  "breadcrumb": {
+    "home": "முகப்பு",
+    "listings": "பட்டியல்கள்",
+    "allListings": "அனைத்து பட்டியல்களும்"
+  },
+  "header": {
+    "allListingsTitle": "அனைத்து பட்டியல்களும்",
+    "categoryTitleSuffix": "பட்டியல்கள்",
+    "subtitle": "இலங்கை முழுவதும் தயாரிப்புகள், சொத்துகள், வாகனங்கள், சேவைகள் மற்றும் வாய்ப்புகளைக் கண்டறியுங்கள்.",
+    "listingsStat": "பட்டியல்கள்",
+    "newOpportunities": "புதிய வாய்ப்புகள், தினமும்"
+  },
+  "search": {
+    "placeholder": "நீங்கள் தேடுவது என்ன?",
+    "allCategories": "அனைத்து வகைகளும்",
+    "allSriLanka": "முழு இலங்கை",
+    "searchButton": "தேடு",
+    "popularSearches": "பிரபலமான தேடல்கள்:",
+    "popular": {
+      "toyotaAqua": "Toyota Aqua",
+      "houseForRent": "வாடகைக்கு வீடு",
+      "iphone": "iPhone",
+      "partTimeJobs": "பகுதி நேர வேலைகள்"
+    }
+  },
+  "categorySwitcher": {
+    "all": "அனைத்தும்"
+  },
+  "shops": {
+    "eyebrow": "நம்பகமான வணிகங்கள்",
+    "headingAll": "சிறப்பு கடைகள்",
+    "headingCategory": "சிறப்பு {category} கடைகள்",
+    "subheading": "SLMarket.lk இல் தொழில்முறை கடை சுயவிவரங்களை ஆராயுங்கள்",
+    "viewAll": "அனைத்து கடைகளையும் காண்க",
+    "listings": "பட்டியல்கள்",
+    "visitShop": "கடையைப் பார்வையிடுங்கள்",
+    "tier": {
+      "toprated": "சிறந்த மதிப்பீடு",
+      "premium": "பிரீமியம்",
+      "verified": "சரிபார்க்கப்பட்டது"
+    }
+  },
+  "filters": {
+    "location": "இடம்",
+    "price": "விலை",
+    "conditionLabel": "நிலை",
+    "sellerLabel": "விற்பனையாளர்",
+    "deals": "சலுகைகள்",
+    "moreFilters": "மேலும் வடிகட்டிகள்",
+    "locationLabel": "இடம்",
+    "locationSearchPlaceholder": "இடத்தைத் தேடுங்கள்...",
+    "popular": "பிரபலமானவை",
+    "priceRange": "விலை வரம்பு (ரூ.)",
+    "min": "குறைந்தபட்சம்",
+    "max": "அதிகபட்சம்",
+    "to": "முதல்",
+    "quickPicks": "விரைவு தேர்வுகள்",
+    "pricePresets": {
+      "under50k": "50,000க்கு கீழ்",
+      "50kTo250k": "50,000 முதல் 250,000 வரை",
+      "250kTo1m": "250,000 முதல் 10 லட்சம் வரை",
+      "1mPlus": "10 லட்சத்திற்கு மேல்"
+    },
+    "condition": {
+      "na": "ஏதேனும்",
+      "new": "புதியது",
+      "used": "பயன்படுத்தியது",
+      "like-new": "புதியது போல",
+      "reconditioned": "புதுப்பிக்கப்பட்டது"
+    },
+    "seller": {
+      "all": "அனைத்து விற்பனையாளர்களும்",
+      "individual": "தனிநபர்",
+      "verified": "சரிபார்க்கப்பட்டது",
+      "shop": "கடை"
+    },
+    "deal": {
+      "coupon": "கூப்பன்கள் & சலுகைகள்",
+      "price-drop": "விலைக் குறைப்புகள்",
+      "negotiable": "பேரம் பேசக்கூடியது"
+    },
+    "active": "செயலில்:",
+    "clearAll": "அனைத்தையும் அழி",
+    "clear": "அழி",
+    "showResults": "{count} முடிவுகளைக் காட்டு",
+    "refineResults": "முடிவுகளை சீராக்கு",
+    "categoryFilters": "{category} வடிகட்டிகள்",
+    "close": "மூடு"
+  },
+  "categoryFields": {
+    "vehicles": {
+      "brand": "பிராண்ட்",
+      "year": "ஆண்டு",
+      "fuel": "எரிபொருள்",
+      "transmission": "கியர் வகை"
+    },
+    "property": {
+      "propertyType": "சொத்து வகை",
+      "bedrooms": "படுக்கையறைகள்",
+      "bathrooms": "குளியலறைகள்",
+      "furnished": "மரச்சாமான் நிலை"
+    },
+    "electronics": {
+      "brand": "பிராண்ட்",
+      "storage": "சேமிப்பகம்",
+      "warranty": "உத்தரவாதம்"
+    },
+    "jobs": {
+      "jobType": "வேலை வகை",
+      "experience": "அனுபவம்"
+    }
+  },
+  "toolbar": {
+    "resultsFound": "{count} பட்டியல்கள் கிடைத்தன",
+    "sort": {
+      "newest": "புதியவை முதலில்",
+      "price-asc": "விலை: குறைவிலிருந்து அதிகம்",
+      "price-desc": "விலை: அதிகத்திலிருந்து குறைவு"
+    },
+    "gridView": "கட்ட காட்சி",
+    "listView": "பட்டியல் காட்சி"
+  },
+  "card": {
+    "featured": "சிறப்பு",
+    "coupon": "கூப்பன்கள் & சலுகைகள்",
+    "price-drop": "விலைக் குறைப்பு",
+    "negotiable": "பேரம் பேசக்கூடியது",
+    "saveListing": "பட்டியலை சேமி",
+    "shop": "கடை"
+  },
+  "empty": {
+    "title": "உங்கள் வடிகட்டிகளுக்குப் பொருந்தும் பட்டியல்கள் இல்லை",
+    "desc": "ஒரு வடிகட்டியை அழிக்க முயற்சிக்கவும் அல்லது வேறு ஒன்றைத் தேடவும்.",
+    "clear": "அனைத்து வடிகட்டிகளையும் அழி"
+  },
+  "loadMore": "மேலும் பட்டியல்களைக் காட்டு"
+}

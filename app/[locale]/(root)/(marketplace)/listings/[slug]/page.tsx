@@ -10,9 +10,23 @@ import MessageSellerButton from "./_components/MessageSellerButton";
 import { ListingGallery } from "@/components/listings/ListingGallery";
 import { NegotiateButton } from "@/components/listings/NegotiateButton";
 import { safeJsonLd } from "@/lib/utils/json-ld";
+import { categories as categoryConfig } from "@/config/const/navLinks";
+import {
+  buildListingsMetadata,
+  ListingsPageShell,
+} from "../../../listings/_components/ListingsPageShell";
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
+}
+
+// /listings/<slug> is shared by two very different things: a category
+// browse page (/listings/vehicles, /listings/property, ...) and a single
+// gem/jewellery listing's detail page (the legacy Lumevelo route below).
+// Category ids are a fixed, known list, so they're checked first and never
+// hit the database.
+function matchedCategoryId(slug: string): string | null {
+  return categoryConfig.find((c) => c.id === slug)?.id ?? null;
 }
 
 // cache() dedupes this within a single request — generateMetadata and the
@@ -39,7 +53,11 @@ const getListing = cache(async (slug: string) =>
 );
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+
+  const categoryId = matchedCategoryId(slug);
+  if (categoryId) return buildListingsMetadata(locale, categoryId);
+
   const listing = await getListing(slug);
 
   if (!listing) return { title: "Not Found" };
@@ -72,7 +90,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ListingPage({ params }: Props) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+
+  const categoryId = matchedCategoryId(slug);
+  if (categoryId) {
+    return <ListingsPageShell locale={locale} categoryId={categoryId} />;
+  }
 
   const listing = await getListing(slug);
 
