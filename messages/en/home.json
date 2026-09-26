@@ -36,46 +36,37 @@
     "eyebrow": "Explore"
   },
   "featured": {
-    "heading": "Featured Listings",
+    "heading": "Featured Ads",
     "subheading": "Handpicked deals from trusted sellers",
     "viewAll": "View all",
     "eyebrow": "Featured"
   },
   "shops": {
-    "eyebrow": "Featured Shops",
+    "eyebrow": "Featured Businesses",
     "heading": "Discover Local Businesses",
-    "subheading": "Explore shops from businesses across Sri Lanka.",
-    "viewAll": "View All Shops",
-    "visit": "Visit Shop",
-    "listings": "Listings",
+    "subheading": "Explore businesses across Sri Lanka.",
+    "viewAll": "View All Businesses",
+    "visit": "View Business",
+    "listings": "Ads",
     "more": "More"
   },
   "deals": {
     "eyebrow": "Deals & Offers",
-    "headingStart": "Find Great",
-    "headingHighlight": "Deals Near You",
-    "desc": "Discover seller offers, price drops and negotiable deals from trusted sellers across Sri Lanka.",
+    "headingStart": "Price Drops &",
+    "headingHighlight": "Offers Near You",
+    "desc": "Genuine price drops and offers from verified businesses across Sri Lanka.",
     "cta": "Explore All Deals",
     "coupons": {
       "title": "Coupons & Offers",
-      "desc": "Exclusive promotions from premium shops across all categories.",
-      "note": "Use coupon codes and save on your favourite items.",
+      "desc": "Exclusive promotions from verified businesses across all categories.",
       "cta": "Explore Offers",
-      "tag": "Save more today"
+      "countLabel": "{count, plural, one {# live offer now} other {# live offers now}}"
     },
     "priceDrops": {
       "title": "Price Drops",
-      "desc": "Listings that just became more affordable.",
-      "note": "Get the best value with recently reduced prices.",
+      "desc": "Ads that just became more affordable.",
       "cta": "See Price Drops",
-      "tag": "Big savings"
-    },
-    "negotiable": {
-      "title": "Negotiable Deals",
-      "desc": "Find listings where sellers are open to a better deal.",
-      "note": "Talk, negotiate and get a great price.",
-      "cta": "Explore Negotiable",
-      "tag": "Make an offer"
+      "countLabel": "{count, plural, one {# price drop this week} other {# price drops this week}}"
     }
   },
   "sell": {
@@ -83,8 +74,8 @@
     "heading": "Sell on",
     "tagline": "Turn things you no longer need into something valuable.",
     "desc": "List your property, vehicle, electronics, products, services or anything else and reach buyers across Sri Lanka.",
-    "ctaPost": "Post a Free Listing",
-    "ctaShop": "Open a Shop",
+    "ctaPost": "Post a Free Ad",
+    "ctaShop": "Create a Business Page",
     "freeTitle": "Free to list",
     "freeDesc": "No listing fees",
     "reachTitle": "Reach local buyers",
@@ -100,17 +91,17 @@
     "builtTitle": "Built for Sri Lanka",
     "builtDesc": "A marketplace designed around local buyers, sellers and businesses.",
     "discoverTitle": "More Ways to Get Discovered",
-    "discoverDesc": "Listings, shops, deals and powerful marketplace discovery.",
-    "exposureTitle": "Extra Exposure for Premium Listings",
+    "discoverDesc": "Ads, businesses, deals and powerful marketplace discovery.",
+    "exposureTitle": "Extra Exposure for Premium Ads",
     "exposureDesc": "Get additional visibility through our social media promotion channels.",
     "everyoneTitle": "For Individuals & Businesses",
-    "everyoneDesc": "Sell one item or build your business presence with a professional shop."
+    "everyoneDesc": "Sell one item or build your business presence with a professional business page."
   },
   "mobileApp": {
     "eyebrow": "Coming Soon",
     "heading": "Mobile App",
     "tagline": "Your marketplace, now in your pocket.",
-    "desc": "Browse listings, discover deals, manage favourites and connect with buyers and sellers, anytime, anywhere in Sri Lanka.",
+    "desc": "Browse ads, discover deals, manage favourites and connect with buyers and sellers, anytime, anywhere in Sri Lanka.",
     "comingSoon": "Coming soon on iOS and Android",
     "f1Title": "Easy to use",
     "f1Desc": "Clean and simple experience",

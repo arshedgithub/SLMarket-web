@@ -24,7 +24,11 @@ export default function Layout({ children, megaMenuAds }: LayoutProps) {
     <div className="flex min-h-screen flex-col bg-[var(--color-background)] text-[var(--color-text)] transition-colors duration-300">
       <Navigation megaMenuAds={megaMenuAds} />
 
-      <main className="min-h-0 flex-grow">{children}</main>
+      {/* pb clears the fixed mobile bottom tab bar (see navigation.tsx)
+          so it never covers the last bit of page content. */}
+      <main className="min-h-0 flex-grow pb-[calc(90px+env(safe-area-inset-bottom))] md:pb-0">
+        {children}
+      </main>
 
       <Footer />
 

@@ -18,13 +18,13 @@ import {
   TextArea,
   SelectInput,
   Toggle,
-} from "@/app/[locale]/(root)/dashboard/listings/new/_components/shared/FormFields";
-import { ImageUploader } from "@/app/[locale]/(root)/dashboard/listings/new/_components/shared/ImageUploader";
-import { ReelUploader } from "@/app/[locale]/(root)/dashboard/listings/new/_components/shared/ReelUploader";
-import { CertificationUploader } from "@/app/[locale]/(root)/dashboard/listings/new/_components/shared/CertificationUploader";
-import { LocationField } from "@/app/[locale]/(root)/dashboard/listings/new/_components/shared/LocationField";
-import { PriceFields } from "@/app/[locale]/(root)/dashboard/listings/new/_components/shared/PriceFields";
-import { SubmitBar } from "@/app/[locale]/(root)/dashboard/listings/new/_components/shared/SubmitBar";
+} from "@/app/[locale]/(root)/dashboard/ads/new/_components/shared/FormFields";
+import { ImageUploader } from "@/app/[locale]/(root)/dashboard/ads/new/_components/shared/ImageUploader";
+import { ReelUploader } from "@/app/[locale]/(root)/dashboard/ads/new/_components/shared/ReelUploader";
+import { CertificationUploader } from "@/app/[locale]/(root)/dashboard/ads/new/_components/shared/CertificationUploader";
+import { LocationField } from "@/app/[locale]/(root)/dashboard/ads/new/_components/shared/LocationField";
+import { PriceFields } from "@/app/[locale]/(root)/dashboard/ads/new/_components/shared/PriceFields";
+import { SubmitBar } from "@/app/[locale]/(root)/dashboard/ads/new/_components/shared/SubmitBar";
 import { COUNTRIES } from "@/lib/utils/countries";
 import { X, Phone, PhoneOff } from "lucide-react";
 import {

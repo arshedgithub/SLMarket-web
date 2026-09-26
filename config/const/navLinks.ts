@@ -27,7 +27,7 @@ export type Category = {
 const img = (name: string, ext: "webp" | "png" | "svg" = "webp") =>
   `/images/marketplace/categories/${name}.${ext}`;
 
-export const categories: Category[] = [
+const categoryData: Category[] = [
   {
     id: "vehicles",
     name: "Vehicles",
@@ -578,20 +578,32 @@ export const categories: Category[] = [
   },
 ];
 
+// Category and subcategory links point at the listings routes
+// (/ads/<category> and /ads/<category>/<subcategory>), derived
+// from the ids so the hrefs above can't drift from the routing.
+export const categories: Category[] = categoryData.map((category) => ({
+  ...category,
+  href: `/ads/${category.id}`,
+  subcategories: category.subcategories.map((sub) => ({
+    ...sub,
+    href: `/ads/${category.id}/${sub.id}`,
+  })),
+}));
+
 export const featuredLinks = [
   {
     title: "Popular",
     items: [
-      { name: "Cars for Sale", href: "/vehicles?type=cars" },
-      { name: "Houses for Rent", href: "/property?type=houses-rent" },
-      { name: "Mobile Phones", href: "/electronics?type=mobile-phones" },
-      { name: "Part Time Jobs", href: "/jobs?type=part-time" },
+      { name: "Cars for Sale", href: "/ads/vehicles/cars" },
+      { name: "Houses for Rent", href: "/ads/property/houses-rent" },
+      { name: "Mobile Phones", href: "/ads/electronics/mobile-phones" },
+      { name: "Part Time Jobs", href: "/ads/jobs/part-time" },
     ],
   },
   {
     title: "Deals & Offers",
     items: [
-      { name: "Today's Deals", href: "/deals" },
+      { name: "Today's Deals", href: "/ads/deals" },
       { name: "Best Prices", href: "/search?sort=price" },
       { name: "Local Sellers", href: "/search?filter=local" },
     ],
@@ -601,7 +613,7 @@ export const featuredLinks = [
     items: [
       { name: "Newly Listed", href: "/search?sort=newest" },
       { name: "Verified Sellers", href: "/search?filter=verified" },
-      { name: "Free to List", href: "/sell" },
+      { name: "Free to List", href: "/post-ad" },
     ],
   },
 ];

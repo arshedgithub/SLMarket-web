@@ -43,7 +43,7 @@ function StatCard({
 
 export default async function AnalyticsPage() {
   const session = await auth();
-  if (!session || session.user.role !== "SELLER") redirect("/dashboard");
+  if (!session) redirect("/dashboard");
 
   const now = new Date();
   const thirtyDaysAgo = new Date(now);
@@ -149,7 +149,7 @@ export default async function AnalyticsPage() {
           Analytics
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Performance overview for your listings and enquiries.
+          Performance overview for your ads and enquiries.
         </p>
       </div>
 
@@ -157,7 +157,7 @@ export default async function AnalyticsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Package}
-          label="Active Listings"
+          label="Active Ads"
           value={activeListings}
           sub={`${totalListings} total`}
           color="text-blue-600"
@@ -198,10 +198,10 @@ export default async function AnalyticsPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-semibold text-gray-900 dark:text-white">
-              Listing Views: Last 30 Days
+              Ad Views: Last 30 Days
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              Daily listing views tracked by the platform
+              Daily ad views tracked by the platform
             </p>
           </div>
           {!hasAnalytics && (
@@ -237,8 +237,7 @@ export default async function AnalyticsPage() {
             </div>
           ) : (
             <div className="h-32 flex items-center justify-center text-sm text-gray-400">
-              No view data yet. Views are recorded as buyers browse your
-              listings.
+              No view data yet. Views are recorded as buyers browse your ads.
             </div>
           )
         ) : (
@@ -260,16 +259,16 @@ export default async function AnalyticsPage() {
       {/* Top listings */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
         <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
-          Top Listings by Enquiries
+          Top Ads by Enquiries
         </h2>
         {topListings.length === 0 ? (
           <p className="text-sm text-gray-400">
-            No listings yet.{" "}
+            No ads yet.{" "}
             <Link
-              href="/dashboard/listings/new"
+              href="/dashboard/ads/new"
               className="text-blue-600 hover:underline"
             >
-              Create your first listing
+              Create your first ad
             </Link>
           </p>
         ) : (
@@ -292,7 +291,7 @@ export default async function AnalyticsPage() {
                   )}
                   <div className="flex-1 min-w-0">
                     <Link
-                      href={`/listings/${listing.slug}`}
+                      href={`/ad/${listing.slug}`}
                       className="text-sm font-medium text-gray-900 dark:text-white truncate hover:text-blue-600 block"
                     >
                       {listing.title}
@@ -335,10 +334,10 @@ export default async function AnalyticsPage() {
       {/* Listing status breakdown */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
         <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
-          Listings by Status
+          Ads by Status
         </h2>
         {totalListings === 0 ? (
-          <p className="text-sm text-gray-400">No listings yet.</p>
+          <p className="text-sm text-gray-400">No ads yet.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
@@ -439,8 +438,8 @@ export default async function AnalyticsPage() {
               Unlock Full Analytics
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              Get per-listing view tracking, buyer demographics, and daily
-              charts with Pro or Dealer.
+              Get per-ad view tracking, buyer demographics, and daily charts
+              with Pro or Dealer.
             </p>
           </div>
           <Link

@@ -15,7 +15,7 @@ import {
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
   {
-    href: "/dashboard/listings",
+    href: "/dashboard/ads",
     label: "My Listings",
     icon: Package,
     exact: false,

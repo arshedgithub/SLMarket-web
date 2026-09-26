@@ -1,13 +1,12 @@
-import { db } from "@/lib/db";
-
-// session.user.planName is cached in the JWT at sign-in and only refreshes on
-// re-login or an explicit client-side session.update() — so it goes stale as
-// soon as a plan changes server-side (e.g. an admin override). Anywhere that
-// needs the seller's *current* plan should read it fresh from the DB instead.
-export async function getSellerPlanName(sellerId: string): Promise<string> {
-  const subscription = await db.sellerSubscription.findUnique({
-    where: { sellerId },
-    select: { plan: { select: { name: true } } },
-  });
-  return subscription?.plan.name ?? "free";
+// Plans now attach to a BusinessProfile (BusinessSubscription), not a User
+// directly — a seller can own several businesses on different tiers, so
+// there's no longer one "the seller's plan" to read for a bare userId.
+// Business-profile paid plans aren't live yet either (see
+// BusinessSubscription), so this is a stub until both land: pass a
+// businessProfileId and look up its BusinessSubscription once that exists.
+export async function getSellerPlanName(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  sellerId: string,
+): Promise<string> {
+  return "free";
 }

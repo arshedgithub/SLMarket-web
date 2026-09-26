@@ -235,6 +235,9 @@ button {
  */
 
 .marketplace-hero {
+  /* How far the hero photo keeps going below the hero box, behind the
+     category section, before it has fully faded into the page. */
+  --hero-extend: 5rem;
   position: relative;
   isolation: isolate;
   min-height: 28rem;
@@ -282,6 +285,7 @@ button {
 .marketplace-hero-photo {
   position: absolute;
   inset: 0;
+  bottom: calc(-1 * var(--hero-extend));
   z-index: -2;
   pointer-events: none;
 }
@@ -295,6 +299,7 @@ button {
 .marketplace-hero-scrim {
   position: absolute;
   inset: 0;
+  bottom: calc(-1 * var(--hero-extend));
   z-index: -1;
   pointer-events: none;
   background:
@@ -337,6 +342,7 @@ button {
 .marketplace-hero-edges {
   position: absolute;
   inset: 0;
+  bottom: calc(-1 * var(--hero-extend));
   z-index: -1;
   pointer-events: none;
   background: linear-gradient(
@@ -350,15 +356,17 @@ button {
 }
 
 /*
- * The bottom of the photo gradually dissolves into the page background.
+ * The photo is not faded at the hero's own bottom edge: it carries on behind
+ * the section below and only dissolves into the page background across that
+ * extra stretch.
  */
 
 .marketplace-hero-basefade {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 36%;
+  bottom: calc(-1 * var(--hero-extend));
+  height: var(--hero-extend);
   z-index: -1;
   pointer-events: none;
   background: linear-gradient(

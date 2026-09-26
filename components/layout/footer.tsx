@@ -20,7 +20,7 @@ import {
   Gift,
   Bell,
 } from "lucide-react";
-import { useSellerCta } from "@/hooks/useSellerCta";
+import { SELL_CTA } from "@/lib/seller-cta";
 import { categories } from "@/config/const/navLinks";
 import { WhatsAppFollow, WHATSAPP_CHANNEL_URL } from "./WhatsAppFollow";
 
@@ -89,18 +89,18 @@ const SOCIALS: {
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
   { label: "All Categories", href: "/categories" },
-  { label: "Deals & Offers", href: "/deals" },
-  { label: "Premium Shops", href: "/sellers" },
-  { label: "Post a Free Listing", href: "/sell" },
-  { label: "How It Works", href: "/help-center" },
-  { label: "Help & Support", href: "/help-center/contact" },
+  { label: "Deals & Offers", href: "/ads/deals" },
+  { label: "Premium Businesses", href: "/businesses" },
+  { label: "Post a Free Ad", href: "/post-ad" },
+  { label: "How It Works", href: "/help" },
+  { label: "Help & Support", href: "/help/contact" },
 ];
 
 const BUSINESS_LINKS = [
-  { label: "Open a Shop", href: "/seller-registration" },
+  { label: "Create a Business Page", href: "/business/new" },
   { label: "Premium Plans", href: "/subscription" },
-  { label: "Advertising", href: "/help-center/contact" },
-  { label: "Business Solutions", href: "/help-center/contact" },
+  { label: "Advertising", href: "/help/contact" },
+  { label: "Business Solutions", href: "/help/contact" },
 ];
 
 const TRUST_ITEMS = [
@@ -124,10 +124,10 @@ const TRUST_ITEMS = [
 
 const LEGAL_LINKS = [
   { label: "About Us", href: "/about" },
-  { label: "Terms of Service", href: "/help-center/privacy-policy" },
-  { label: "Privacy Policy", href: "/help-center/privacy-policy" },
-  { label: "Listing Policy", href: "/help-center/faq" },
-  { label: "Contact Us", href: "/help-center/contact" },
+  { label: "Terms of Service", href: "/help/privacy-policy" },
+  { label: "Privacy Policy", href: "/help/privacy-policy" },
+  { label: "Listing Policy", href: "/help/faq" },
+  { label: "Contact Us", href: "/help/contact" },
 ];
 
 const WHATSAPP_PERKS = [
@@ -138,7 +138,7 @@ const WHATSAPP_PERKS = [
 
 export default function Footer() {
   const tCategories = useTranslations("categories");
-  const { href: sellerHref } = useSellerCta();
+  const sellerHref = SELL_CTA.href;
   const topCategories = categories.slice(0, 10);
 
   return (
@@ -307,40 +307,35 @@ export default function Footer() {
               title="Deals"
               subtitle="Offers, discounts and more"
             >
-              <FooterLink href="/deals">All Deals &amp; Offers</FooterLink>
-              <FooterLink href="/deals?type=coupons">
+              <FooterLink href="/ads/deals">All Deals &amp; Offers</FooterLink>
+              <FooterLink href="/ads/deals/coupons">
                 Coupons &amp; Offers
               </FooterLink>
-              <FooterLink href="/deals?type=price-drops">
-                Price Drops
-              </FooterLink>
-              <FooterLink href="/deals?type=negotiable">
-                Negotiable Deals
-              </FooterLink>
+              <FooterLink href="/ads/deals/price-drops">Price Drops</FooterLink>
             </FooterAccordion>
 
             <FooterAccordion
               title="Sell with us"
-              subtitle="List, open a shop or grow your business"
+              subtitle="Post an ad or grow your business"
             >
-              <FooterLink href="/sell">Post a Free Listing</FooterLink>
-              <FooterLink href="/seller-registration">Open a Shop</FooterLink>
-              <FooterLink href="/subscription">Premium Plans</FooterLink>
-              <FooterLink href="/help-center/contact">Advertising</FooterLink>
-              <FooterLink href="/help-center/contact">
-                Business Solutions
+              <FooterLink href="/post-ad">Post a Free Ad</FooterLink>
+              <FooterLink href="/business/new">
+                Create a Business Page
               </FooterLink>
-              <FooterLink href="/help-center">How It Works</FooterLink>
+              <FooterLink href="/subscription">Premium Plans</FooterLink>
+              <FooterLink href="/help/contact">Advertising</FooterLink>
+              <FooterLink href="/help/contact">Business Solutions</FooterLink>
+              <FooterLink href="/help">How It Works</FooterLink>
             </FooterAccordion>
 
             <FooterAccordion
               title="Help & Support"
               subtitle="Get assistance and useful information"
             >
-              <FooterLink href="/help-center">Help Centre</FooterLink>
-              <FooterLink href="/help-center/contact">Contact Us</FooterLink>
-              <FooterLink href="/help-center/faq">Listing Policy</FooterLink>
-              <FooterLink href="/help-center/faq">
+              <FooterLink href="/help">Help Centre</FooterLink>
+              <FooterLink href="/help/contact">Contact Us</FooterLink>
+              <FooterLink href="/help/faq">Listing Policy</FooterLink>
+              <FooterLink href="/help/faq">
                 Safety / Buying &amp; Selling Tips
               </FooterLink>
             </FooterAccordion>

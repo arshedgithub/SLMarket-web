@@ -8,7 +8,7 @@ interface UserListItem {
   id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "SELLER" | "BUYER";
+  role: "ADMIN" | "USER";
   isVerified: boolean;
   createdAt: string;
   listingCount: number;
@@ -34,12 +34,11 @@ function planBadgeClass(slug: string) {
   return PLAN_BADGE_CLASSES[slug] ?? "bg-slate-100 text-slate-600";
 }
 
-const ROLE_FILTERS = ["ALL", "SELLER", "BUYER", "ADMIN"] as const;
+const ROLE_FILTERS = ["ALL", "USER", "ADMIN"] as const;
 
 const ROLE_FILTER_LABELS: Record<(typeof ROLE_FILTERS)[number], string> = {
   ALL: "All",
-  SELLER: "Sellers",
-  BUYER: "Buyers",
+  USER: "Users",
   ADMIN: "Admins",
 };
 
@@ -47,8 +46,6 @@ function roleBadgeClass(role: UserListItem["role"]) {
   switch (role) {
     case "ADMIN":
       return "bg-purple-100 text-purple-700";
-    case "SELLER":
-      return "bg-blue-100 text-blue-700";
     default:
       return "bg-gray-100 text-gray-600";
   }
@@ -175,7 +172,9 @@ export function UserList({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {u.role === "SELLER" ? (
+                    {/* Plans attach to a BusinessProfile now, not a bare
+                        User, so there's no per-user plan to edit here. */}
+                    {false ? (
                       <div
                         className={`relative inline-flex items-center rounded-full font-medium text-xs ${planBadgeClass(
                           u.planSlug,

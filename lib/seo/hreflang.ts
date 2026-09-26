@@ -1,6 +1,6 @@
 import { routing } from "@/i18n/routing";
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://lumevelo.com";
+const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://slmarket.lk";
 
 // Builds the `alternates.languages` object for a page's generateMetadata,
 // given the pathname it lives at *without* a locale prefix (e.g. "/about").

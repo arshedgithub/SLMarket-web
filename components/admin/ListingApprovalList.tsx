@@ -247,7 +247,7 @@ export function ListingApprovalList({
               <div className="flex items-center gap-2 shrink-0">
                 {listing.status === "ACTIVE" && (
                   <Link
-                    href={`/listings/${listing.slug}`}
+                    href={`/ad/${listing.slug}`}
                     target="_blank"
                     className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     title="View listing"

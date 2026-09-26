@@ -123,7 +123,7 @@ export default function SettingsForm({ user, planName }: Props) {
           </label>
           <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
             <span className="px-3 py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-500 text-sm border-r border-gray-300 dark:border-gray-700">
-              lumevelo.com/shop/
+              slmarket.lk/business/
             </span>
             <input
               type="text"
@@ -185,7 +185,7 @@ export default function SettingsForm({ user, planName }: Props) {
               value={form.shopMetaTitle}
               onChange={handleChange}
               maxLength={60}
-              placeholder="Your Shop Name: Fine Gems & Jewellery | Lumevelo"
+              placeholder="Your Business Name: Electronics & Accessories | SLMarket.lk"
               className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

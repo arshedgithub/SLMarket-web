@@ -7,7 +7,7 @@ import { calculateDiscount, isCouponApplicable } from "@/lib/utils/coupon";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session || session.user.role !== "SELLER") {
+  if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
   const [firstName, ...rest] = seller.name.split(" ");
   const formData = buildPayhereFormData({
     orderId,
-    items: `Lumevelo ${plan.displayName} Plan`,
+    items: `SLMarket.lk ${plan.displayName} Plan`,
     amountLkr: finalPriceLkr,
     firstName,
     lastName: rest.join(" ") || "-",

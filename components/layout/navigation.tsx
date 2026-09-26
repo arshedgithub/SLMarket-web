@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -14,44 +14,34 @@ import {
   Menu,
   X,
   Bell,
+  BadgeCheck,
   Store,
   Settings,
-  LayoutDashboard,
   LogOut,
   MessageCircle,
   Heart,
   LayoutGrid,
-  LayoutList,
   HelpCircle,
+  Plus,
+  Search,
   Tag,
+  Package,
+  Home,
+  Languages,
 } from "lucide-react";
 import { categories } from "@/config/const/navLinks";
 import { categoryIcon } from "@/config/const/categoryIcons";
+import { POPULAR_SEARCHES } from "@/config/const/popularSearches";
+import { SAMPLE_USER_SHOPS } from "@/lib/sampleUserShops";
 import { useCategoryModalStore } from "@/store/categoryModalStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useTheme } from "next-themes";
-import { USER_ROLES } from "@/types/enums/role.enum";
-import { useSellerCta } from "@/hooks/useSellerCta";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { useMessagingStore } from "@/store/messagingStore";
 import MessagesPopover from "@/components/messaging/MessagesPopover";
 import NotificationsDropdown from "@/components/messaging/NotificationsDropdown";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import type { MegaMenuAdSlide } from "@/lib/getMegaMenuAds";
-
-// Static "popular searches" shown in the category modal footer. These are
-// search queries, not categories, so they live here rather than in the
-// category config.
-const POPULAR_SEARCHES = [
-  { label: "Toyota Aqua", href: "/search?q=Toyota%20Aqua" },
-  {
-    label: "House for rent Colombo",
-    href: "/search?q=house%20for%20rent%20Colombo",
-  },
-  { label: "iPhone", href: "/search?q=iPhone" },
-  { label: "Land for sale", href: "/search?q=land%20for%20sale" },
-  { label: "Part time jobs", href: "/search?q=part%20time%20jobs" },
-];
 
 export default function Navigation({
   megaMenuAds,
@@ -71,15 +61,23 @@ export default function Navigation({
     null,
   );
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isBottomAccountOpen, setIsBottomAccountOpen] = useState(false);
 
   const catModalRef = useRef<HTMLDivElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const tabletProfileMenuRef = useRef<HTMLDivElement | null>(null);
   const mobileProfileMenuRef = useRef<HTMLDivElement | null>(null);
+  const bottomAccountRef = useRef<HTMLDivElement | null>(null);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
+  const tabletNotificationsRef = useRef<HTMLDivElement | null>(null);
   const mobileNotificationsRef = useRef<HTMLDivElement | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const catHoverTimeout = useRef<NodeJS.Timeout | null>(null);
+  const pathname = usePathname();
+  // Listing pages carry their own one-row mobile header (logo mark +
+  // search + location), so the global top bar is desktop/tablet only there.
+  const onListingPage = pathname.startsWith("/ads");
+  const [hideBottomNav, setHideBottomNav] = useState(false);
 
   const { isDarkMode, toggleDarkMode } = useThemeStore();
   const { theme, setTheme } = useTheme();
@@ -115,10 +113,11 @@ export default function Navigation({
     () => setIsProfileMenuOpen(false),
   );
   useOutsideClick(
-    [notificationsRef, mobileNotificationsRef],
+    [notificationsRef, tabletNotificationsRef, mobileNotificationsRef],
     closeNotificationsPanel,
   );
   useOutsideClick([messagesRef], closeMessagesPopover);
+  useOutsideClick([bottomAccountRef], () => setIsBottomAccountOpen(false));
 
   // Auto-advance the modal's promo rail only while the modal is open.
   useEffect(() => {
@@ -148,6 +147,19 @@ export default function Navigation({
     setIsMenuOpen(false);
   }, [isCatModalOpen]);
 
+  // Bottom tab bar hides while scrolling down and returns on scroll up.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastY + 8 && y > 80) setHideBottomNav(true);
+      else if (y < lastY - 8 || y <= 80) setHideBottomNav(false);
+      lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const changeTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
     toggleDarkMode();
@@ -176,7 +188,6 @@ export default function Navigation({
     signOut({ redirectTo: "/" });
   };
 
-  const { href: sellHref } = useSellerCta();
   const wishlistCount = 0;
 
   const activeCategory = categories.find((c) => c.id === activeCat);
@@ -186,91 +197,157 @@ export default function Navigation({
      PROFILE DROPDOWN (shared desktop + mobile)
      ============================================================ */
 
-  const profileDropdownContent = session?.user && (
-    <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-surface shadow-lg dark:bg-[#111d30]">
-      <div className="border-b border-border px-4 py-3">
-        <p className="truncate text-sm font-semibold text-text">
-          {session.user.name}
-        </p>
-        <p className="truncate text-xs text-light-text">{session.user.email}</p>
-      </div>
-      <div className="py-1">
-        {session.user.role === USER_ROLES.SELLER ? (
+  function renderProfileDropdown(position: "below" | "above" = "below") {
+    if (!session?.user) return null;
+    return (
+      <div
+        className={`absolute right-0 z-50 w-72 overflow-hidden rounded-xl border border-border bg-surface shadow-lg dark:bg-[#111d30] ${
+          position === "below" ? "top-full mt-2" : "bottom-full mb-2"
+        }`}
+      >
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <User className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-text">
+              {session.user.name}
+            </p>
+            <p className="truncate text-xs text-light-text">
+              {session.user.email}
+            </p>
+          </div>
+        </div>
+        <div className="border-b border-border px-4 py-3">
+          <div className="mb-1.5 flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-light-text">
+              {t("yourBusinesses")}
+            </p>
+            <Link
+              href="/dashboard"
+              onClick={() => setIsProfileMenuOpen(false)}
+              className="flex items-center gap-0.5 text-[11px] font-semibold text-primary hover:underline"
+            >
+              {t("manageAll")}
+              <ChevronRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="space-y-0.5">
+            {SAMPLE_USER_SHOPS.map((shop, i) => (
+              <Link
+                key={shop.id}
+                href="/dashboard"
+                onClick={() => setIsProfileMenuOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-text hover:bg-background"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                  {shop.name.slice(0, 2).toUpperCase()}
+                </span>
+                <span className="min-w-0 flex-1 truncate">{shop.name}</span>
+                {shop.verified && (
+                  <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
+                )}
+                {i === 0 && (
+                  <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                    {t("active")}
+                  </span>
+                )}
+              </Link>
+            ))}
+            <Link
+              href="/business/new"
+              onClick={() => setIsProfileMenuOpen(false)}
+              className="mt-1.5 flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 px-2 py-2 text-sm font-semibold text-primary hover:bg-primary/5"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("createBusinessProfile")}
+            </Link>
+          </div>
+        </div>
+
+        <div className="py-1">
           <Link
             href="/dashboard"
             onClick={() => setIsProfileMenuOpen(false)}
             className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
           >
-            <LayoutDashboard className="h-4 w-4 text-light-text" />
-            {t("sellerDashboard")}
+            <User className="h-4 w-4 text-light-text" />
+            {t("viewProfile")}
           </Link>
-        ) : (
+
           <Link
-            href="/seller-registration"
+            href="/dashboard/ads"
             onClick={() => setIsProfileMenuOpen(false)}
-            className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-primary hover:bg-background"
+            className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
           >
-            <Store className="h-4 w-4" />
-            {t("startSelling")}
+            <Package className="h-4 w-4 text-light-text" />
+            {t("myListings")}
           </Link>
-        )}
 
-        <Link
-          href="/wishlist"
-          onClick={() => setIsProfileMenuOpen(false)}
-          className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
-        >
-          <Heart className="h-4 w-4 text-premium" />
-          {t("savedItems")}
-          {wishlistCount > 0 && (
-            <span className="ml-auto rounded-full bg-premium px-1.5 py-0.5 text-xs text-white">
-              {wishlistCount}
-            </span>
-          )}
-        </Link>
+          <Link
+            href="/wishlist"
+            onClick={() => setIsProfileMenuOpen(false)}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
+          >
+            <Heart className="h-4 w-4 text-premium" />
+            {t("savedItems")}
+            {wishlistCount > 0 && (
+              <span className="ml-auto rounded-full bg-premium px-1.5 py-0.5 text-xs text-white">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
 
-        <Link
-          href="/messages"
-          onClick={() => setIsProfileMenuOpen(false)}
-          className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
-        >
-          <MessageCircle className="h-4 w-4 text-primary" />
-          {t("messages")}
-          {unreadMessagesTotal > 0 && (
-            <span className="ml-auto rounded-full bg-premium px-1.5 py-0.5 text-xs text-white">
-              {unreadMessagesTotal > 9 ? "9+" : unreadMessagesTotal}
-            </span>
-          )}
-        </Link>
+          <Link
+            href="/messages"
+            onClick={() => setIsProfileMenuOpen(false)}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
+          >
+            <MessageCircle className="h-4 w-4 text-primary" />
+            {t("messages")}
+            {unreadMessagesTotal > 0 && (
+              <span className="ml-auto rounded-full bg-premium px-1.5 py-0.5 text-xs text-white">
+                {unreadMessagesTotal > 9 ? "9+" : unreadMessagesTotal}
+              </span>
+            )}
+          </Link>
 
-        <Link
-          href="/dashboard/settings"
-          onClick={() => setIsProfileMenuOpen(false)}
-          className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
-        >
-          <Settings className="h-4 w-4 text-light-text" />
-          {t("editProfile")}
-        </Link>
+          <Link
+            href="/dashboard/settings"
+            onClick={() => setIsProfileMenuOpen(false)}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-text hover:bg-background"
+          >
+            <Settings className="h-4 w-4 text-light-text" />
+            {t("editProfile")}
+          </Link>
+        </div>
+        <div className="border-t border-border py-1">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 px-4 py-2 text-sm text-premium hover:bg-background"
+          >
+            <LogOut className="h-4 w-4" />
+            {t("logout")}
+          </button>
+        </div>
       </div>
-      <div className="border-t border-border py-1">
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-3 px-4 py-2 text-sm text-premium hover:bg-background"
-        >
-          <LogOut className="h-4 w-4" />
-          {t("logout")}
-        </button>
-      </div>
-    </div>
-  );
+    );
+  }
 
   return (
     <>
-      <nav className="sticky top-0 z-40 border-b border-border bg-surface text-text transition-colors duration-300 dark:bg-[#0c1422]">
+      <nav
+        className={`sticky top-0 z-40 border-b border-border bg-surface text-text transition-colors duration-300 dark:bg-[#0c1422] ${
+          onListingPage ? "hidden md:block" : ""
+        }`}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Logo */}
-            <Link href="/" className="flex flex-shrink-0 items-center">
+            <Link
+              href="/"
+              className="flex flex-shrink-0 flex-col justify-center"
+            >
               <Image
                 src="/logo.webp"
                 alt="SLMarket.lk"
@@ -279,36 +356,32 @@ export default function Navigation({
                 priority
                 className="relative -top-1.25 h-7 w-auto sm:h-8"
               />
+              <span className="hidden -mt-0.5 text-[10px] font-medium italic text-light-text lg:block">
+                {t("tagline")}
+              </span>
             </Link>
 
-            {/* Center nav (tablet — a condensed row: no Deals, short Sell label) */}
-            <div className="hidden items-center gap-4 md:flex lg:hidden">
-              <Link
-                href="/listings"
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <LayoutList className="h-4 w-4" />
-                {t("allListings")}
-              </Link>
+            {/* Center nav (tablet — a condensed row: no Deals) */}
+            <div className="hidden items-center gap-2.5 md:flex lg:hidden">
               <button
                 type="button"
                 onClick={openCatModal}
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+                className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <LayoutGrid className="h-4 w-4" />
                 {t("categories")}
                 <ChevronDown className="h-3.5 w-3.5" />
               </button>
               <Link
-                href={sellHref}
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+                href="/businesses"
+                className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <Store className="h-4 w-4" />
-                {t("sell")}
+                {t("businesses")}
               </Link>
               <Link
-                href="/help-center/contact"
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+                href="/help/contact"
+                className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <HelpCircle className="h-4 w-4" />
                 {t("help")}
@@ -317,13 +390,6 @@ export default function Navigation({
 
             {/* Center nav (desktop) */}
             <div className="hidden items-center gap-5 lg:flex lg:gap-7">
-              <Link
-                href="/listings"
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <LayoutList className="h-4 w-4" />
-                {t("allListings")}
-              </Link>
               <button
                 type="button"
                 onClick={openCatModal}
@@ -334,21 +400,21 @@ export default function Navigation({
                 <ChevronDown className="h-3.5 w-3.5" />
               </button>
               <Link
-                href="/deals"
+                href="/ads/deals"
                 className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <Tag className="h-4 w-4" />
                 {t("deals")}
               </Link>
               <Link
-                href={sellHref}
+                href="/businesses"
                 className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <Store className="h-4 w-4" />
-                {t("sellWithUs")}
+                {t("businesses")}
               </Link>
               <Link
-                href="/help-center/contact"
+                href="/help/contact"
                 className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
               >
                 <HelpCircle className="h-4 w-4" />
@@ -357,7 +423,7 @@ export default function Navigation({
             </div>
 
             {/* Right cluster (tablet) */}
-            <div className="hidden items-center gap-2 md:flex lg:hidden">
+            <div className="hidden items-center gap-1 md:flex lg:hidden">
               <LanguageSwitcher compact />
 
               <button
@@ -372,7 +438,37 @@ export default function Navigation({
                 )}
               </button>
 
-              <div className="mx-1 h-5 w-px bg-border" />
+              {session?.user && (
+                <div className="relative" ref={tabletNotificationsRef}>
+                  <button
+                    onClick={toggleNotificationsPanel}
+                    className="relative flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background hover:text-primary"
+                    aria-label={t("notifications")}
+                  >
+                    <Bell className="h-5 w-5" />
+                    {unreadNotificationsTotal > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-premium text-[10px] text-white">
+                        {unreadNotificationsTotal > 9
+                          ? "9+"
+                          : unreadNotificationsTotal}
+                      </span>
+                    )}
+                  </button>
+                  {isNotificationsPanelOpen && <NotificationsDropdown />}
+                </div>
+              )}
+
+              {session?.user && (
+                <Link
+                  href="/post-ad"
+                  className="btn-solid flex items-center gap-1 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("postAd")}
+                </Link>
+              )}
+
+              <div className="mx-0.5 h-5 w-px bg-border" />
 
               {session?.user ? (
                 <div className="relative" ref={tabletProfileMenuRef}>
@@ -383,21 +479,28 @@ export default function Navigation({
                   >
                     <User className="h-5 w-5" />
                   </button>
-                  {isProfileMenuOpen && profileDropdownContent}
+                  {isProfileMenuOpen && renderProfileDropdown("below")}
                 </div>
               ) : (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                   <Link
                     href="/login"
-                    className="whitespace-nowrap px-2 py-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
+                    className="whitespace-nowrap px-1.5 py-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
                   >
                     {t("signIn")}
                   </Link>
                   <Link
                     href="/register"
-                    className="btn-solid whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold"
+                    className="btn-outline whitespace-nowrap rounded-xl px-2 py-2 text-sm font-semibold"
                   >
                     {t("register")}
+                  </Link>
+                  <Link
+                    href="/post-ad"
+                    aria-label={t("postFreeAd")}
+                    className="btn-solid flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                  >
+                    <Plus className="h-4 w-4" />
                   </Link>
                 </div>
               )}
@@ -421,14 +524,6 @@ export default function Navigation({
 
               {session?.user && (
                 <>
-                  <Link
-                    href="/wishlist"
-                    aria-label={t("savedItems")}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background hover:text-primary"
-                  >
-                    <Heart className="h-5 w-5" />
-                  </Link>
-
                   <div className="relative" ref={notificationsRef}>
                     <button
                       onClick={toggleNotificationsPanel}
@@ -449,6 +544,16 @@ export default function Navigation({
                 </>
               )}
 
+              {session?.user && (
+                <Link
+                  href="/post-ad"
+                  className="btn-solid flex items-center gap-1.5 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("postAd")}
+                </Link>
+              )}
+
               <div className="mx-1 h-5 w-px bg-border" />
 
               {session?.user ? (
@@ -460,19 +565,16 @@ export default function Navigation({
                     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <User className="h-5 w-5" />
                     </div>
-                    <span className="hidden max-w-[110px] truncate text-sm font-semibold text-text lg:block">
-                      {session.user.name}
-                    </span>
                     <ChevronDown
                       className={`h-4 w-4 text-light-text transition-transform ${
                         isProfileMenuOpen ? "rotate-180" : ""
                       }`}
                     />
                   </button>
-                  {isProfileMenuOpen && profileDropdownContent}
+                  {isProfileMenuOpen && renderProfileDropdown("below")}
                 </div>
               ) : (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <Link
                     href="/login"
                     className="whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
@@ -481,51 +583,32 @@ export default function Navigation({
                   </Link>
                   <Link
                     href="/register"
-                    className="btn-solid whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold"
+                    className="btn-outline whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold"
                   >
                     {t("register")}
+                  </Link>
+                  <Link
+                    href="/post-ad"
+                    className="btn-solid flex items-center gap-1.5 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {t("postFreeAd")}
                   </Link>
                 </div>
               )}
             </div>
 
-            {/* Right cluster (mobile) */}
+            {/* Right cluster (mobile) — Chats/Account/Favourites now live
+                in the bottom tab bar, so this stays a slim search +
+                secondary-links trigger. */}
             <div className="flex items-center gap-0.5 md:hidden sm:gap-1">
-              {session?.user && (
-                <div className="relative" ref={mobileNotificationsRef}>
-                  <button
-                    onClick={toggleNotificationsPanel}
-                    className="relative flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background"
-                    aria-label={t("notifications")}
-                  >
-                    <Bell className="h-5 w-5" />
-                    {unreadNotificationsTotal > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-premium text-[10px] text-white">
-                        {unreadNotificationsTotal > 9
-                          ? "9+"
-                          : unreadNotificationsTotal}
-                      </span>
-                    )}
-                  </button>
-                  {isNotificationsPanelOpen && <NotificationsDropdown />}
-                </div>
-              )}
-
-              {session?.user && (
-                <div className="relative" ref={mobileProfileMenuRef}>
-                  <button
-                    onClick={() => {
-                      setIsProfileMenuOpen((prev) => !prev);
-                      closeMobileMenu();
-                    }}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary"
-                    aria-label={t("accountMenu")}
-                  >
-                    <User className="h-5 w-5" />
-                  </button>
-                  {isProfileMenuOpen && profileDropdownContent}
-                </div>
-              )}
+              <Link
+                href="/ads"
+                aria-label={t("searchPlaceholder")}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background"
+              >
+                <Search className="h-5 w-5" />
+              </Link>
 
               <button
                 onClick={() => {
@@ -588,6 +671,14 @@ export default function Navigation({
             <p className="px-2 pt-1 text-xs font-semibold uppercase tracking-wider text-light-text">
               {t("categories")}
             </p>
+            <Link
+              href="/ads"
+              onClick={closeMobileMenu}
+              className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-semibold text-primary hover:bg-surface"
+            >
+              <LayoutGrid className="h-4 w-4 flex-shrink-0" />
+              {t("megaMenu.allListings")}
+            </Link>
             {categories.map((category) => {
               const Icon = categoryIcon(category.icon);
               const isOpen = expandedMobileCat === category.id;
@@ -644,15 +735,7 @@ export default function Navigation({
             {/* Quick links */}
             <div className="mt-3 space-y-0.5 border-t border-border pt-3">
               <Link
-                href="/listings"
-                onClick={closeMobileMenu}
-                className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
-              >
-                <LayoutList className="h-4 w-4 text-primary" />
-                {t("allListings")}
-              </Link>
-              <Link
-                href="/deals"
+                href="/ads/deals"
                 onClick={closeMobileMenu}
                 className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
               >
@@ -660,15 +743,15 @@ export default function Navigation({
                 {t("deals")}
               </Link>
               <Link
-                href={sellHref}
+                href="/businesses"
                 onClick={closeMobileMenu}
                 className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
               >
                 <Store className="h-4 w-4 text-primary" />
-                {t("sellWithUs")}
+                {t("businesses")}
               </Link>
               <Link
-                href="/help-center/contact"
+                href="/help/contact"
                 onClick={closeMobileMenu}
                 className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
               >
@@ -676,90 +759,16 @@ export default function Navigation({
                 {t("help")}
               </Link>
             </div>
-
-            {/* Account */}
-            <div className="mt-3 border-t border-border pt-3">
-              {session?.user ? (
-                <div className="space-y-0.5">
-                  <Link
-                    href="/wishlist"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
-                  >
-                    <Heart className="h-4 w-4 text-premium" />
-                    {t("savedItems")}
-                  </Link>
-                  <Link
-                    href="/messages"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
-                  >
-                    <MessageCircle className="h-4 w-4 text-primary" />
-                    {t("messages")}
-                  </Link>
-                  {session.user.role === USER_ROLES.SELLER ? (
-                    <Link
-                      href="/dashboard"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
-                    >
-                      <LayoutDashboard className="h-4 w-4 text-light-text" />
-                      {t("sellerDashboard")}
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/seller-registration"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-semibold text-primary hover:bg-surface"
-                    >
-                      <Store className="h-4 w-4" />
-                      {t("startSelling")}
-                    </Link>
-                  )}
-                  <Link
-                    href="/dashboard/settings"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-light-text hover:bg-surface"
-                  >
-                    <Settings className="h-4 w-4 text-light-text" />
-                    {t("editProfile")}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      closeMobileMenu();
-                      handleLogout();
-                    }}
-                    className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-sm font-medium text-premium hover:bg-surface"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    {t("logout")}
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 px-2">
-                  <Link
-                    href="/login"
-                    onClick={closeMobileMenu}
-                    className="btn-outline flex-1 rounded-full py-2.5 text-center text-sm font-semibold"
-                  >
-                    {t("signIn")}
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={closeMobileMenu}
-                    className="btn-solid flex-1 rounded-full py-2.5 text-center text-sm font-semibold"
-                  >
-                    {t("register")}
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
-        {/* Floating message button */}
+        {/* Floating message button — desktop/tablet only; mobile uses the
+            bottom tab bar's Chats tab instead. */}
         {session?.user && (
-          <div className="fixed bottom-6 right-6 z-[100]" ref={messagesRef}>
+          <div
+            className="fixed bottom-6 right-6 z-[100] hidden md:block"
+            ref={messagesRef}
+          >
             <button
               onClick={toggleMessagesPopover}
               className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-colors hover:bg-primary-dark"
@@ -775,6 +784,124 @@ export default function Navigation({
             {isMessagesPopoverOpen && <MessagesPopover />}
           </div>
         )}
+      </nav>
+
+      {/* ======================================================
+          MOBILE BOTTOM TAB BAR — the real mobile nav: Chats,
+          Account and Favourites all live here instead of the top
+          bar, so nothing is duplicated between the two.
+          ====================================================== */}
+      <nav
+        aria-label="Mobile navigation"
+        className={`fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] transition-transform duration-200 dark:bg-[#0c1422] md:hidden ${
+          hideBottomNav && !isBottomAccountOpen ? "translate-y-full" : ""
+        }`}
+      >
+        <div className="grid grid-cols-5 items-end">
+          <Link
+            href="/"
+            aria-current={pathname === "/" ? "page" : undefined}
+            className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+              pathname === "/" ? "text-primary" : "text-light-text"
+            }`}
+          >
+            <Home className="h-5 w-5" />
+            {t("bottomNav.home")}
+          </Link>
+
+          <Link
+            href="/ads"
+            aria-current={pathname.startsWith("/ads") ? "page" : undefined}
+            className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+              pathname.startsWith("/ads") ? "text-primary" : "text-light-text"
+            }`}
+          >
+            <LayoutGrid className="h-5 w-5" />
+            {t("bottomNav.browse")}
+          </Link>
+
+          <Link
+            href="/post-ad"
+            aria-label={t("bottomNav.post")}
+            className="flex flex-col items-center gap-0.5 py-1.5"
+          >
+            <span className="btn-solid flex h-11 w-11 -translate-y-2 items-center justify-center rounded-full shadow-lg">
+              <Plus className="h-5 w-5" />
+            </span>
+          </Link>
+
+          <Link
+            href="/messages"
+            aria-current={pathname.startsWith("/messages") ? "page" : undefined}
+            className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+              pathname.startsWith("/messages")
+                ? "text-primary"
+                : "text-light-text"
+            }`}
+          >
+            <span className="relative">
+              <MessageCircle className="h-5 w-5" />
+              {unreadMessagesTotal > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-premium text-[9px] text-white">
+                  {unreadMessagesTotal > 9 ? "9+" : unreadMessagesTotal}
+                </span>
+              )}
+            </span>
+            {t("bottomNav.chats")}
+          </Link>
+
+          <div className="relative" ref={bottomAccountRef}>
+            <button
+              type="button"
+              onClick={() => setIsBottomAccountOpen((prev) => !prev)}
+              aria-expanded={isBottomAccountOpen}
+              className={`flex w-full flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+                isBottomAccountOpen ||
+                pathname.startsWith("/dashboard") ||
+                pathname.startsWith("/account")
+                  ? "text-primary"
+                  : "text-light-text"
+              }`}
+            >
+              <User className="h-5 w-5" />
+              {t("bottomNav.account")}
+            </button>
+
+            {isBottomAccountOpen &&
+              (session?.user ? (
+                renderProfileDropdown("above")
+              ) : (
+                <div className="absolute bottom-full right-0 z-50 mb-2 w-64 space-y-3 rounded-xl border border-border bg-surface p-4 shadow-lg dark:bg-[#111d30]">
+                  <p className="text-xs text-light-text">
+                    {t("bottomNav.guestPrompt")}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href="/login"
+                      onClick={() => setIsBottomAccountOpen(false)}
+                      className="btn-outline flex-1 rounded-xl py-2 text-center text-sm font-semibold"
+                    >
+                      {t("signIn")}
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setIsBottomAccountOpen(false)}
+                      className="btn-solid flex-1 rounded-xl py-2 text-center text-sm font-semibold"
+                    >
+                      {t("register")}
+                    </Link>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-border pt-3">
+                    <span className="flex items-center gap-1.5 text-sm text-text">
+                      <Languages className="h-4 w-4 text-primary" />
+                      {t("language")}
+                    </span>
+                    <LanguageSwitcher />
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
       </nav>
 
       {/* ======================================================
@@ -811,6 +938,17 @@ export default function Navigation({
             <div className="flex max-h-[calc(82vh-118px)] flex-col lg:h-[440px] lg:flex-row">
               {/* Rail */}
               <div className="w-full flex-shrink-0 overflow-y-auto border-b border-border p-2 lg:w-56 lg:border-b-0 lg:border-r">
+                <Link
+                  href="/ads"
+                  onClick={() => closeCatModal()}
+                  className="mb-1 flex w-full items-center gap-3 rounded-lg border-l-[3px] border-transparent px-3 py-2.5 text-left text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+                >
+                  <LayoutGrid className="h-4 w-4 flex-shrink-0" />
+                  <span className="flex-1 truncate">
+                    {t("megaMenu.allListings")}
+                  </span>
+                  <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
+                </Link>
                 {categories.map((category) => {
                   const Icon = categoryIcon(category.icon);
                   const isActive = activeCat === category.id;

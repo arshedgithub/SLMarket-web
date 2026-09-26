@@ -5,13 +5,13 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useThemeStore } from "@/store/themeStore";
-import { useSellerCta } from "@/hooks/useSellerCta";
+import { SELL_CTA } from "@/lib/seller-cta";
 
 export default function About() {
   const t = useTranslations("nav");
   const { isDarkMode } = useThemeStore();
-  const { href: sellerHref, labelKey: sellerLabelKey } = useSellerCta();
-  const sellerLabel = t(sellerLabelKey);
+  const sellerHref = SELL_CTA.href;
+  const sellerLabel = t(SELL_CTA.labelKey);
 
   return (
     <div
@@ -21,14 +21,14 @@ export default function About() {
         <h1
           className={`text-4xl font-bold mb-6 ${isDarkMode ? "text-white" : ""}`}
         >
-          About Lumevelo
+          About SLMarket.lk
         </h1>
         <p
           className={`text-xl mb-8 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
         >
-          Lumevelo is a global online marketplace for certified gems, precious
-          metals, and fine jewellery, connecting buyers with verified sellers
-          worldwide, anytime.
+          SLMarket.lk is Sri Lanka&apos;s trusted online marketplace for
+          vehicles, property, electronics, fashion, jobs, services and everyday
+          essentials, connecting buyers with sellers across the island, anytime.
         </p>
         <div className="relative w-full h-64 rounded-lg mb-8 overflow-hidden">
           <Image
@@ -51,22 +51,20 @@ export default function About() {
           className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-white"} shadow-md`}
         >
           <p className="mb-4">
-            Lumevelo was founded to bring the centuries-old trade in gems,
-            precious metals, and fine jewellery online, making it easier for
-            buyers and sellers to connect, trade, and build trust in a single
-            marketplace.
+            SLMarket.lk was founded to give Sri Lankans a single, trusted place
+            to buy and sell almost anything, from vehicles and property to
+            electronics, fashion, jobs and services, making it easier for buyers
+            and sellers to connect, trade, and build trust.
           </p>
           <p className="mb-4">
-            What started as an idea to digitise the local gem trade has grown
-            into a marketplace that brings together verified gem dealers,
-            jewellers, and precious metal traders with buyers and collectors
-            from around the world.
+            What started as an idea to bring local classifieds online has grown
+            into a marketplace that brings together everyday sellers and growing
+            businesses with buyers across every district of the island.
           </p>
           <p>
-            Our team combines expertise in gemology, jewellery craftsmanship,
-            and online marketplaces, and that knowledge shapes everything we do,
-            from our seller verification process to the resources we provide to
-            help buyers shop with confidence.
+            Our team combines local market knowledge with online marketplace
+            experience, and that shapes everything we do, from how listings are
+            reviewed to the tools we build to help buyers shop with confidence.
           </p>
         </div>
       </section>
@@ -105,8 +103,8 @@ export default function About() {
               Connect
             </h3>
             <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-              Bringing together buyers and verified sellers of gems, precious
-              metals, and jewellery in a transparent marketplace.
+              Bringing together buyers and sellers across Sri Lanka in one
+              transparent, easy-to-use marketplace.
             </p>
           </div>
 
@@ -137,8 +135,8 @@ export default function About() {
               Verify
             </h3>
             <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-              Building trust through seller verification and encouraging
-              certified, authenticated listings.
+              Building trust through admin-reviewed listings and verified
+              business profiles you can rely on.
             </p>
           </div>
 
@@ -169,8 +167,8 @@ export default function About() {
               Educate
             </h3>
             <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-              Providing guides on gemstones, precious metals, and jewellery care
-              to help buyers and sellers make informed decisions.
+              Providing guides and support to help buyers and sellers make
+              informed decisions, from pricing to safe meetups.
             </p>
           </div>
         </div>
@@ -203,14 +201,14 @@ export default function About() {
               </svg>
               <div>
                 <h3 className={`font-medium ${isDarkMode ? "text-white" : ""}`}>
-                  Verified Sellers
+                  Reviewed Listings
                 </h3>
                 <p
                   className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                 >
-                  Gem dealers, jewellers, and precious metal traders go through
-                  a verification process before they can list on Lumevelo, so
-                  buyers know who they&apos;re dealing with.
+                  Every listing is reviewed before it goes live on SLMarket.lk,
+                  and businesses can apply for a verified badge, so buyers know
+                  who they&apos;re dealing with.
                 </p>
               </div>
             </li>
@@ -237,9 +235,8 @@ export default function About() {
                 <p
                   className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                 >
-                  From rare gemstones and precious metals to handcrafted
-                  jewellery and related services such as certification,
-                  valuation, and repair.
+                  From vehicles and property to electronics, fashion, food, jobs
+                  and everyday services, all in one place.
                 </p>
               </div>
             </li>
@@ -261,13 +258,13 @@ export default function About() {
               </svg>
               <div>
                 <h3 className={`font-medium ${isDarkMode ? "text-white" : ""}`}>
-                  Certified & Authenticated Listings
+                  Business Profiles
                 </h3>
                 <p
                   className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                 >
-                  Many sellers provide certification or grading reports from
-                  recognised gemological laboratories alongside their listings.
+                  Growing sellers can set up a dedicated business profile with
+                  its own page for all their listings.
                 </p>
               </div>
             </li>
@@ -289,13 +286,13 @@ export default function About() {
               </svg>
               <div>
                 <h3 className={`font-medium ${isDarkMode ? "text-white" : ""}`}>
-                  Expert Resources & Guidance
+                  Local Support
                 </h3>
                 <p
                   className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                 >
-                  Guides on gemstones, precious metals, and jewellery to help
-                  you understand quality, value, and care.
+                  Guides and a local help centre to support you through buying
+                  and selling safely.
                 </p>
               </div>
             </li>
@@ -315,9 +312,9 @@ export default function About() {
           <p
             className={`mb-6 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
           >
-            Whether you&apos;re looking to buy certified gems and jewellery,
-            list your own items as a verified seller, or simply learn more about
-            the trade, we invite you to become part of our growing community.
+            Whether you&apos;re looking to buy something specific, list your own
+            items, or grow a business with a dedicated profile, we invite you to
+            become part of our growing community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -333,7 +330,7 @@ export default function About() {
               {sellerLabel}
             </Link>
             <Link
-              href="/help-center/contact"
+              href="/help/contact"
               className={`px-6 py-2 rounded-md ${isDarkMode ? "bg-gray-600 hover:bg-gray-500" : "bg-gray-200 hover:bg-gray-300"} ${isDarkMode ? "text-white" : "text-gray-800"} transition-colors`}
             >
               Contact Us

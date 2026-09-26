@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { signIn, getSession } from "next-auth/react";
 import Image from "next/image";
-import { Eye, EyeOff, Lock, ChevronDown } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AuthMethodSwitch } from "@/components/auth/AuthMethodSwitch";
-import { COUNTRIES, getDialCode } from "@/lib/utils/countries";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { colors } from "@/lib/theme/colors";
@@ -27,19 +26,12 @@ export default function LoginPage() {
   const router = useRouter();
   const [method, setMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
-  const [country, setCountry] = useState("LK");
-  const [dialCode, setDialCode] = useState("+94");
   const [phoneLocal, setPhoneLocal] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const code = getDialCode(country);
-    if (code) setDialCode(code);
-  }, [country]);
 
   const handleMethodChange = (next: "email" | "phone") => {
     setMethod(next);
@@ -49,9 +41,15 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    const identifier = method === "email" ? email : `${dialCode} ${phoneLocal}`;
+    const identifier = method === "email" ? email : phoneLocal.trim();
+
+    if (method === "phone" && !/^0\d{9}$/.test(identifier)) {
+      setError(t("invalidPhone"));
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const result = await signIn("credentials", {
@@ -78,8 +76,6 @@ export default function LoginPage() {
         router.push(redirectTarget);
       } else if (role === "ADMIN") {
         router.push("/admin");
-      } else if (role === "SELLER") {
-        router.push("/dashboard");
       } else {
         router.push("/");
       }
@@ -156,33 +152,20 @@ export default function LoginPage() {
                 <label className="block text-sm font-medium text-[var(--color-luxury-text-secondary)] mb-1.5">
                   {t("phoneNumber")}
                 </label>
-                <div className="flex gap-2">
-                  <div className="relative">
-                    <select
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="h-full appearance-none border border-[var(--color-luxury-border)] rounded-lg pl-3 pr-8 py-2.5 text-sm bg-[var(--color-luxury-bg)] text-[var(--color-luxury-text)] font-medium focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      {COUNTRIES.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.dialCode}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-luxury-text-body)] pointer-events-none" />
-                  </div>
-                  <input
-                    type="tel"
-                    required
-                    autoComplete="tel"
-                    value={phoneLocal}
-                    onChange={(e) =>
-                      setPhoneLocal(e.target.value.replace(/[^0-9\s\-()]/g, ""))
-                    }
-                    placeholder={t("phonePlaceholder")}
-                    className="flex-1 border border-[var(--color-luxury-border)] rounded-lg px-3 py-2.5 text-sm bg-[var(--color-luxury-surface)] text-[var(--color-luxury-text)] focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  required
+                  autoComplete="tel"
+                  value={phoneLocal}
+                  onChange={(e) =>
+                    setPhoneLocal(
+                      e.target.value.replace(/\D/g, "").slice(0, 10),
+                    )
+                  }
+                  placeholder={t("phonePlaceholder")}
+                  className="w-full border border-[var(--color-luxury-border)] rounded-lg px-3 py-2.5 text-sm bg-[var(--color-luxury-surface)] text-[var(--color-luxury-text)] focus:outline-none focus:ring-2 focus:ring-primary"
+                />
               </div>
             )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { signIn } from "next-auth/react";
@@ -10,7 +10,7 @@ import { colors } from "@/lib/theme/colors";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { OtpVerifyModal } from "@/components/auth/OtpVerifyModal";
-import { COUNTRIES, getDialCode } from "@/lib/utils/countries";
+import { SRI_LANKA_DISTRICTS } from "@/config/const/sriLankaLocations";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 function getRedirectTarget(): string | null {
@@ -43,9 +43,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [country, setCountry] = useState("LK");
-  const [locationCity, setLocationCity] = useState("");
-  const [dialCode, setDialCode] = useState("+94");
+  const [district, setDistrict] = useState("");
   const [phoneLocal, setPhoneLocal] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -56,11 +54,8 @@ export default function RegisterPage() {
   const [topError, setTopError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  const [verifyChannel, setVerifyChannel] = useState<"email" | "phone" | null>(
-    null,
-  );
+  const [emailOtpOpen, setEmailOtpOpen] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
 
   // Refs for scroll-to-error
   const fullNameRef = useRef<HTMLInputElement>(null);
@@ -70,17 +65,6 @@ export default function RegisterPage() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const termsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const code = getDialCode(country);
-    if (code) setDialCode(code);
-  }, [country]);
-
-  const handleCountryChange = (code: string) => {
-    setCountry(code);
-    setPhoneLocal("");
-    setPhoneVerified(false);
-  };
 
   const clearError = (key: keyof FieldErrors) => {
     if (fieldErrors[key]) {
@@ -92,8 +76,8 @@ export default function RegisterPage() {
     }
   };
 
-  const fullPhone = `${dialCode} ${phoneLocal}`;
   const isEmailValid = EMAIL_PATTERN.test(email);
+  const isPhoneValid = /^0\d{9}$/.test(phoneLocal.trim());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,8 +88,8 @@ export default function RegisterPage() {
     if (!email.trim()) errors.email = t("errors.emailRequired");
     else if (!isEmailValid) errors.email = t("errors.emailInvalid");
     if (!phoneLocal.trim()) errors.phone = t("errors.phoneRequired");
-    if (!emailVerified && !phoneVerified)
-      errors.verify = t("errors.verifyRequired");
+    else if (!isPhoneValid) errors.phone = t("errors.phoneInvalid");
+    if (!emailVerified) errors.verify = t("errors.verifyRequired");
     if (!password) errors.password = t("errors.passwordRequired");
     else if (password.length < 8)
       errors.password = t("errors.passwordTooShort");
@@ -150,9 +134,8 @@ export default function RegisterPage() {
           name: fullName,
           email,
           password,
-          phone: fullPhone,
-          country,
-          locationCity: locationCity || undefined,
+          phone: phoneLocal.trim(),
+          district: district || undefined,
         }),
       });
 
@@ -267,191 +250,109 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* ── Verification card ── */}
-            <div
-              ref={verifyCardRef}
-              className="rounded-xl border border-gray-200 overflow-hidden"
-            >
-              {/* Card sub-header */}
-              <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  {t("verifyIdentity")}
-                </p>
-                <p className="text-[11px] text-gray-400 mt-0.5">
-                  {t("verifyIdentityHint")}
-                </p>
-              </div>
-
-              {/* Email */}
-              <div className="px-4 py-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t("emailAddress")} <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    ref={emailRef}
-                    type="email"
-                    id="email-address"
-                    name="email"
-                    autoComplete="email"
-                    required
-                    placeholder={t("emailPlaceholder")}
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setEmailVerified(false);
-                      clearError("email");
-                      clearError("verify");
-                    }}
-                    className={`${fieldCls} ${
-                      emailVerified
-                        ? `${fieldVerifiedCls} pr-28`
-                        : fieldErrors.email
-                          ? fieldErrorCls
-                          : ""
-                    }`}
-                  />
-                  {emailVerified && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 text-xs font-semibold text-green-600 pointer-events-none">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      {t("verified")}
-                    </span>
-                  )}
-                </div>
-                {fieldErrors.email && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {fieldErrors.email}
-                  </p>
-                )}
-                {!emailVerified && (
-                  <button
-                    type="button"
-                    onClick={() => setVerifyChannel("email")}
-                    disabled={!isEmailValid}
-                    className="mt-1.5 cursor-pointer text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:underline"
-                    style={{ color: colors.primary.main }}
-                  >
-                    {t("sendEmailCode")}
-                  </button>
+            {/* Email */}
+            <div ref={verifyCardRef}>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t("emailAddress")} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  ref={emailRef}
+                  type="email"
+                  id="email-address"
+                  name="email"
+                  autoComplete="email"
+                  required
+                  placeholder={t("emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailVerified(false);
+                    clearError("email");
+                    clearError("verify");
+                  }}
+                  className={`${fieldCls} ${
+                    emailVerified
+                      ? `${fieldVerifiedCls} pr-28`
+                      : fieldErrors.email
+                        ? fieldErrorCls
+                        : ""
+                  }`}
+                />
+                {emailVerified && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 text-xs font-semibold text-green-600 pointer-events-none">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    {t("verified")}
+                  </span>
                 )}
               </div>
-
-              {/* OR divider */}
-              <div className="flex items-center gap-3 px-4 py-2.5 bg-gray-50 border-y border-gray-100">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-[11px] text-gray-400 font-medium">
-                  {t("orVerifyPhone")}
-                </span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-
-              {/* Country */}
-              <div className="px-4 pt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t("country")}
-                </label>
-                <div className="relative">
-                  <select
-                    value={country}
-                    onChange={(e) => handleCountryChange(e.target.value)}
-                    className={`${fieldCls} pr-10 appearance-none cursor-pointer`}
-                  >
-                    {COUNTRIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.name} ({c.dialCode})
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="px-4 pt-3 pb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t("phoneNumber")} <span className="text-red-500">*</span>
-                </label>
-                <div className="flex gap-2">
-                  <div className="flex items-center px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 whitespace-nowrap select-none">
-                    {dialCode}
-                  </div>
-                  <input
-                    ref={phoneRef}
-                    type="tel"
-                    value={phoneLocal}
-                    onChange={(e) => {
-                      setPhoneLocal(
-                        e.target.value.replace(/[^0-9\s\-()]/g, ""),
-                      );
-                      setPhoneVerified(false);
-                      clearError("phone");
-                      clearError("verify");
-                    }}
-                    placeholder={t("phonePlaceholder")}
-                    required
-                    className={`flex-1 ${fieldCls} ${
-                      phoneVerified
-                        ? fieldVerifiedCls
-                        : fieldErrors.phone
-                          ? fieldErrorCls
-                          : ""
-                    }`}
-                  />
-                  {phoneVerified && (
-                    <div className="flex items-center gap-1 text-xs font-semibold text-green-600 whitespace-nowrap pl-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      {t("verified")}
-                    </div>
-                  )}
-                </div>
-                {fieldErrors.phone && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {fieldErrors.phone}
-                  </p>
-                )}
-                {!phoneVerified && (
-                  <button
-                    type="button"
-                    onClick={() => setVerifyChannel("phone")}
-                    disabled={!phoneLocal.trim()}
-                    className="mt-1.5 cursor-pointer text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:underline"
-                    style={{ color: colors.primary.main }}
-                  >
-                    {t("sendSmsCode")}
-                  </button>
-                )}
-              </div>
-
-              {/* Verify error, shown at bottom of card */}
+              {fieldErrors.email && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>
+              )}
+              {!emailVerified && (
+                <button
+                  type="button"
+                  onClick={() => setEmailOtpOpen(true)}
+                  disabled={!isEmailValid}
+                  className="mt-1.5 cursor-pointer text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:underline"
+                  style={{ color: colors.primary.main }}
+                >
+                  {t("sendEmailCode")}
+                </button>
+              )}
               {fieldErrors.verify && (
-                <div className="mx-4 mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-600">
+                <p className="mt-1.5 text-xs text-red-600">
                   {fieldErrors.verify}
-                </div>
+                </p>
               )}
             </div>
-            {/* ── end verification card ── */}
 
-            {/* City / Region */}
+            {/* Phone */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("cityRegion")}
+                {t("phoneNumber")} <span className="text-red-500">*</span>
+              </label>
+              <input
+                ref={phoneRef}
+                type="tel"
+                inputMode="numeric"
+                value={phoneLocal}
+                onChange={(e) => {
+                  setPhoneLocal(e.target.value.replace(/\D/g, "").slice(0, 10));
+                  clearError("phone");
+                }}
+                placeholder={t("phonePlaceholder")}
+                required
+                className={`${fieldCls} ${fieldErrors.phone ? fieldErrorCls : ""}`}
+              />
+              {fieldErrors.phone && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.phone}</p>
+              )}
+            </div>
+
+            {/* District */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t("district")}
                 <span className="ml-1.5 text-xs font-normal text-gray-400">
                   {t("optional")}
                 </span>
               </label>
-              <input
-                type="text"
-                value={locationCity}
-                onChange={(e) => setLocationCity(e.target.value)}
-                placeholder={
-                  country === "LK"
-                    ? t("cityPlaceholderLK")
-                    : country === "IN"
-                      ? t("cityPlaceholderIN")
-                      : t("cityPlaceholderDefault")
-                }
-                className={fieldCls}
-              />
+              <div className="relative">
+                <select
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className={`${fieldCls} pr-10 appearance-none cursor-pointer`}
+                >
+                  <option value="">{t("districtPlaceholder")}</option>
+                  {SRI_LANKA_DISTRICTS.map((d) => (
+                    <option key={d.name} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
             </div>
 
             {/* Password */}
@@ -593,15 +494,14 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {verifyChannel && (
+      {emailOtpOpen && (
         <OtpVerifyModal
-          channel={verifyChannel}
-          value={verifyChannel === "email" ? email : fullPhone}
-          onClose={() => setVerifyChannel(null)}
+          channel="email"
+          value={email}
+          onClose={() => setEmailOtpOpen(false)}
           onVerified={() => {
-            if (verifyChannel === "email") setEmailVerified(true);
-            else setPhoneVerified(true);
-            setVerifyChannel(null);
+            setEmailVerified(true);
+            setEmailOtpOpen(false);
             clearError("verify");
           }}
         />

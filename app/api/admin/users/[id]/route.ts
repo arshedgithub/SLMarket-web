@@ -29,12 +29,6 @@ export async function PATCH(
   if (!user) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
-  if (user.role !== "SELLER") {
-    return NextResponse.json(
-      { message: "Only sellers can have a plan" },
-      { status: 400 },
-    );
-  }
   if (!plan) {
     return NextResponse.json({ message: "Plan not found" }, { status: 404 });
   }

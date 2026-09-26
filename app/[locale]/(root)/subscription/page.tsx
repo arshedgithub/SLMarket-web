@@ -17,7 +17,8 @@ import {
 
 export const metadata: Metadata = {
   title: "Subscription Plans",
-  description: "Compare seller subscription plans and pricing for Lumevelo.",
+  description:
+    "Compare business subscription plans and pricing on SLMarket.lk.",
 };
 
 interface Props {
@@ -28,39 +29,25 @@ export default async function SubscriptionPage({ searchParams }: Props) {
   const { couponCode, price } = await searchParams;
 
   const session = await auth();
-  let isSriLankanSeller = false;
-  let currentSubscriptionPlanId: string | null = null;
+  let isFromSriLanka = false;
   if (session?.user?.id) {
-    const [user, subscription] = await Promise.all([
-      db.user.findUnique({
-        where: { id: session.user.id },
-        select: { locationCity: true },
-      }),
-      session.user.role === "SELLER"
-        ? db.sellerSubscription.findUnique({
-            where: { sellerId: session.user.id },
-            select: { planId: true },
-          })
-        : null,
-    ]);
-    isSriLankanSeller = !!user?.locationCity;
-    currentSubscriptionPlanId = subscription?.planId ?? null;
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { district: true },
+    });
+    isFromSriLanka = !!user?.district;
   }
   const currency: "usd" | "lkr" =
-    price === "lkr" && isSriLankanSeller ? "lkr" : "usd";
+    price === "lkr" && isFromSriLanka ? "lkr" : "usd";
 
   const plans = await db.subscriptionPlan.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
   });
 
-  // No SellerSubscription row means they're implicitly on the free plan
-  const currentPlanId =
-    session?.user?.role === "SELLER"
-      ? (currentSubscriptionPlanId ??
-        plans.find((p) => p.name === "free")?.id ??
-        null)
-      : null;
+  // Plans now attach to a BusinessProfile, not a bare account, so there's no
+  // single "current plan" to read here without knowing which business.
+  const currentPlanId: string | null = null;
 
   let couponInfo: CouponInfo | null = null;
   let couponForDiscount: CouponForDiscount | null = null;

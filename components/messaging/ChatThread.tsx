@@ -145,7 +145,7 @@ export default function ChatThread({
           {enquiredListings.map((listing) => (
             <Link
               key={listing.id}
-              href={`/listings/${listing.slug}`}
+              href={`/ad/${listing.slug}`}
               target="_blank"
               className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-2 py-1 opacity-80 hover:opacity-100 transition-opacity"
             >
@@ -220,7 +220,7 @@ export default function ChatThread({
                       just pointing at a listing instead of an earlier message. */}
                   {message.listingContext && (
                     <Link
-                      href={`/listings/${message.listingContext.slug}`}
+                      href={`/ad/${message.listingContext.slug}`}
                       target="_blank"
                       className={`mb-1.5 flex items-center gap-1.5 border-l-2 pl-2 text-xs hover:underline ${
                         isOwn

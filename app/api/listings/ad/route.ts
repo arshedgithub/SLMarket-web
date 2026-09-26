@@ -1,25 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { redis } from "@/lib/redis";
+import { db } from "@/lib/db";
 import { categories } from "@/config/const/navLinks";
+import { getImageLimits } from "@/components/post-ad/types";
+import slugify from "@/lib/utils/slugify";
+import { recordInitialPrice } from "@/lib/deals/priceDrops";
+import type { Prisma } from "@prisma/client";
 
-/*
- * Ad-posting endpoint for the general marketplace flow (/sell).
- *
- * The Listing model is still gem/jewellery-shaped (ListingCategory enum =
- * GEM | JEWELLERY | PRECIOUS_METAL | SERVICE), so a general-category ad
- * cannot be written to `listings` yet without a schema migration. Until
- * that lands, a submitted ad is:
- *   1. validated,
- *   2. stashed in Redis under `pending-ad:<userId>:<id>` (30-day TTL) so
- *      nothing is lost and an admin/cron can process the queue,
- *   3. acknowledged with 202 so the poster's flow completes.
- *
- * When the schema is migrated, replace the Redis stash with a
- * `db.listing.create({ data: { ...mapped, attributes, status: "PENDING_REVIEW" } })`.
- */
+// Ad-posting endpoint for the general marketplace flow (/sell). Every
+// submission is created straight into `listings` with status
+// PENDING_REVIEW — admin review happens afterwards, not here.
 
 const VALID_CATEGORY_IDS = new Set(categories.map((c) => c.id));
+
+const PRICING_TYPE_MAP = {
+  fixed: "FIXED",
+  startingFrom: "STARTING_FROM",
+  contact: "CONTACT",
+  free: "FREE",
+} as const;
+
+const PROMOTION_TYPE_MAP = {
+  none: "NONE",
+  discount: "DISCOUNT",
+  coupon: "COUPON",
+} as const;
+
+const LOCATION_TYPE_MAP = {
+  single: "SINGLE",
+  branches: "BRANCHES",
+  islandwide: "ISLANDWIDE",
+} as const;
 
 type AdPayload = {
   categoryId?: string;
@@ -29,10 +40,19 @@ type AdPayload = {
   attributes?: Record<string, unknown>;
   images?: string[];
   videoUrl?: string;
+  pricingType?: keyof typeof PRICING_TYPE_MAP;
+  price?: string;
+  negotiable?: boolean;
+  promotionType?: keyof typeof PROMOTION_TYPE_MAP;
+  promotionDetail?: string;
+  locationType?: keyof typeof LOCATION_TYPE_MAP;
   district?: string;
   city?: string;
-  priceMode?: string;
-  price?: string;
+  area?: string;
+  deliveryAvailable?: boolean;
+  islandwideDelivery?: boolean;
+  sellerMode?: "personal" | "shop";
+  shopId?: string;
   contactPhone?: string;
   showPhone?: boolean;
   whatsapp?: boolean;
@@ -54,6 +74,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Invalid request." }, { status: 400 });
   }
 
+  const images = Array.isArray(body.images) ? body.images : [];
+  const minImages = body.categoryId ? getImageLimits(body.categoryId).min : 1;
+
   const errors: Record<string, string> = {};
   if (!body.categoryId || !VALID_CATEGORY_IDS.has(body.categoryId))
     errors.category = "Choose a valid category.";
@@ -62,11 +85,12 @@ export async function POST(req: NextRequest) {
     errors.title = "Add a clear title.";
   if (!body.description || body.description.trim().length < 20)
     errors.description = "Add a description.";
-  if (!Array.isArray(body.images) || body.images.length < 1)
-    errors.images = "Add at least one photo.";
+  if (images.length < minImages) errors.images = "Add at least one photo.";
   if (!body.city) errors.city = "Choose a location.";
+
+  const pricingType = PRICING_TYPE_MAP[body.pricingType ?? "fixed"] ?? "FIXED";
   if (
-    (body.priceMode === "fixed" || body.priceMode === "negotiable") &&
+    (pricingType === "FIXED" || pricingType === "STARTING_FROM") &&
     !(Number(body.price) > 0)
   )
     errors.price = "Enter a price.";
@@ -78,26 +102,68 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const record = {
-    id,
-    sellerId: session.user.id,
-    submittedAt: new Date().toISOString(),
-    status: "PENDING_REVIEW",
-    ...body,
-  };
-
-  try {
-    await redis.set(`pending-ad:${session.user.id}:${id}`, record, {
-      ex: 60 * 60 * 24 * 30,
+  // A business-mode ad only attaches to a BusinessProfile this user actually
+  // owns — a stale/sample shop id (or one from another account) quietly
+  // falls back to posting under the personal account instead of erroring.
+  let businessProfileId: string | null = null;
+  if (body.sellerMode === "shop" && body.shopId) {
+    const business = await db.businessProfile.findFirst({
+      where: { id: body.shopId, ownerId: session.user.id },
+      select: { id: true },
     });
-  } catch (err) {
-    // Even the stash is best-effort — never block the poster on infra.
-    console.error("[listings/ad] failed to stash pending ad:", err);
+    businessProfileId = business?.id ?? null;
+  }
+
+  const slug = `${slugify(body.title!) || "listing"}-${Date.now().toString(36)}${Math.random()
+    .toString(36)
+    .slice(2, 6)}`;
+
+  const listing = await db.listing.create({
+    data: {
+      sellerId: session.user.id,
+      businessProfileId,
+      title: body.title!.trim(),
+      slug,
+      description: body.description!.trim(),
+      categoryId: body.categoryId!,
+      subcategoryId: body.subcategoryId!,
+      attributes: (body.attributes ?? {}) as Prisma.InputJsonValue,
+      images,
+      videoUrl: body.videoUrl || null,
+      pricingType,
+      price:
+        pricingType === "CONTACT" || pricingType === "FREE"
+          ? null
+          : Number(body.price),
+      negotiable: Boolean(body.negotiable),
+      promotionType: PROMOTION_TYPE_MAP[body.promotionType ?? "none"] ?? "NONE",
+      promotionDetail: body.promotionDetail || null,
+      locationType:
+        LOCATION_TYPE_MAP[body.locationType ?? "single"] ?? "SINGLE",
+      district: body.district || null,
+      city: body.city || null,
+      area: body.area || null,
+      deliveryAvailable: Boolean(body.deliveryAvailable),
+      islandwideDelivery: Boolean(body.islandwideDelivery),
+      contactPhone: body.contactPhone || null,
+      showContactPhone: body.showPhone ?? true,
+      allowWhatsapp: body.whatsapp ?? true,
+      status: "PENDING_REVIEW",
+    },
+    select: { id: true, slug: true, price: true },
+  });
+
+  if (listing.price != null) {
+    await recordInitialPrice(listing.id, Number(listing.price));
   }
 
   return NextResponse.json(
-    { message: "received", id, persisted: false },
-    { status: 202 },
+    {
+      message: "submitted",
+      id: listing.id,
+      slug: listing.slug,
+      persisted: true,
+    },
+    { status: 201 },
   );
 }

@@ -101,7 +101,7 @@ export default async function EnquiriesPage() {
                           </a>
                         )}
                         <a
-                          href={`https://wa.me/${enquiry.buyerPhone.replace(/\D/g, "")}?text=Hi ${enquiry.buyerName}, thank you for your enquiry on Lumevelo!`}
+                          href={`https://wa.me/${enquiry.buyerPhone.replace(/\D/g, "")}?text=Hi ${enquiry.buyerName}, thank you for your enquiry on SLMarket.lk!`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-green-600 hover:underline"
@@ -113,7 +113,7 @@ export default async function EnquiriesPage() {
                   </div>
                 </div>
                 <Link
-                  href={`/listings/${enquiry.listing.slug}`}
+                  href={`/ad/${enquiry.listing.slug}`}
                   target="_blank"
                   className="text-gray-400 hover:text-gray-600 shrink-0"
                 >

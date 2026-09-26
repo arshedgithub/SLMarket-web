@@ -14,12 +14,15 @@ export async function GET(req: NextRequest) {
   }
 
   const counts = await db.listing.groupBy({
-    by: ["category"],
+    by: ["categoryId"],
     where: { status: "ACTIVE", createdAt: { gt: sinceDate } },
     _count: true,
   });
 
   return NextResponse.json({
-    categories: counts.map((c) => ({ category: c.category, count: c._count })),
+    categories: counts.map((c) => ({
+      category: c.categoryId,
+      count: c._count,
+    })),
   });
 }

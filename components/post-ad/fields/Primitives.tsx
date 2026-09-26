@@ -239,6 +239,97 @@ export function TextAreaField(
 }
 
 /* ============================================================
+   Radio card  (exclusive single-select, full-width row)
+   ============================================================ */
+
+export function RadioRow({
+  label,
+  hint,
+  badge,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  hint?: string;
+  badge?: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-all ${
+        selected
+          ? "border-primary bg-primary/[0.06]"
+          : "border-border bg-surface hover:border-primary/30"
+      }`}
+    >
+      <span
+        className={`mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border-2 ${
+          selected
+            ? "border-primary"
+            : "border-[var(--color-market-border-strong)]"
+        }`}
+      >
+        {selected && <span className="h-2 w-2 rounded-full bg-primary" />}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-[var(--color-market-text)]">
+            {label}
+          </span>
+          {badge && (
+            <span className="rounded-full bg-[var(--color-market-danger)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--color-market-danger)]">
+              {badge}
+            </span>
+          )}
+        </span>
+        {hint && (
+          <span className="mt-0.5 block text-xs text-[var(--color-market-text-muted)]">
+            {hint}
+          </span>
+        )}
+      </span>
+    </button>
+  );
+}
+
+/* ============================================================
+   Native-styled select
+   ============================================================ */
+
+export function SelectField({
+  value,
+  onChange,
+  children,
+  placeholder,
+  disabled,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+  placeholder?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <select
+      value={value}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
+      className={`${baseInput} appearance-none bg-[url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%2394a3b8%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_0.75rem_center] bg-no-repeat pr-9 disabled:cursor-not-allowed disabled:opacity-50`}
+    >
+      {placeholder && (
+        <option value="" disabled>
+          {placeholder}
+        </option>
+      )}
+      {children}
+    </select>
+  );
+}
+
+/* ============================================================
    Toggle row
    ============================================================ */
 

@@ -1,15 +1,26 @@
 {
   "breadcrumb": {
     "home": "Home",
-    "listings": "Listings",
-    "allListings": "All Listings"
+    "listings": "Ads",
+    "allListings": "All Ads",
+    "deals": "Deals & Offers"
   },
   "header": {
-    "allListingsTitle": "All Listings",
-    "categoryTitleSuffix": "Listings",
+    "allListingsTitle": "All ads",
+    "dealsTitle": "Deals & Offers",
+    "dealsSubtitle": "Coupons and price drops from sellers across Sri Lanka.",
+    "categoryTitleSuffix": "Ads",
     "subtitle": "Discover products, properties, vehicles, services and opportunities across Sri Lanka.",
-    "listingsStat": "listings",
+    "listingsStat": "ads",
+    "statsLine": "{total} ads · {postedToday} posted today",
     "newOpportunities": "New opportunities, every day"
+  },
+  "marketplaceToday": {
+    "label": "SLMarket Live",
+    "newAds": "new ads, last 24 hours",
+    "acrossDistricts": "across {count} districts nationwide",
+    "otherDistricts": "Other",
+    "weekAbbr": "7d"
   },
   "search": {
     "placeholder": "What are you looking for?",
@@ -28,13 +39,19 @@
     "all": "All"
   },
   "shops": {
-    "eyebrow": "Trusted Businesses",
-    "headingAll": "Featured Shops",
-    "headingCategory": "Featured {category} Shops",
-    "subheading": "Explore professional shop portfolios on SLMarket.lk",
-    "viewAll": "View all shops",
-    "listings": "listings",
-    "visitShop": "Visit Shop",
+    "heading": "Featured Businesses",
+    "subheading": "Discover trusted businesses featured on SLMarket.lk.",
+    "exploreAll": "Explore all businesses",
+    "exploreAllShort": "Explore all",
+    "sponsored": "Sponsored",
+    "feedAll": "Recommended Businesses",
+    "feedCategory": "{category} businesses you may like",
+    "feedSearch": "Businesses related to your search",
+    "feedLocation": "Businesses serving {location}",
+    "feedSub": "Businesses relevant to what you're exploring on SLMarket.lk.",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right",
+    "listings": "ads",
     "tier": {
       "toprated": "Top Rated",
       "premium": "Premium",
@@ -48,6 +65,7 @@
     "sellerLabel": "Seller",
     "deals": "Deals",
     "moreFilters": "More Filters",
+    "allFilters": "All Filters",
     "locationLabel": "Location",
     "locationSearchPlaceholder": "Search location...",
     "popular": "Popular",
@@ -73,12 +91,11 @@
       "all": "All Sellers",
       "individual": "Individual",
       "verified": "Verified",
-      "shop": "Shop"
+      "shop": "Business"
     },
     "deal": {
       "coupon": "Coupons & Offers",
-      "price-drop": "Price Drops",
-      "negotiable": "Negotiable"
+      "price-drop": "Price Drops"
     },
     "active": "Active:",
     "clearAll": "Clear all",
@@ -86,7 +103,9 @@
     "showResults": "Show {count} Results",
     "refineResults": "Refine Results",
     "categoryFilters": "{category} filters",
-    "close": "Close"
+    "close": "Close",
+    "category": "Category",
+    "filters": "Filters"
   },
   "categoryFields": {
     "vehicles": {
@@ -112,27 +131,77 @@
     }
   },
   "toolbar": {
-    "resultsFound": "{count} listings found",
+    "resultsFound": "{count} ads found",
     "sort": {
       "newest": "Newest First",
       "price-asc": "Price: Low to High",
       "price-desc": "Price: High to Low"
     },
     "gridView": "Grid view",
-    "listView": "List view"
+    "listView": "List view",
+    "sortShort": "Sort"
   },
   "card": {
     "featured": "Featured",
     "coupon": "Coupons & Offers",
     "price-drop": "Price Drop",
     "negotiable": "Negotiable",
-    "saveListing": "Save listing",
-    "shop": "Shop"
+    "saveListing": "Save ad",
+    "shop": "Business",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "apply": "Apply",
+    "individual": "Individual",
+    "viewBusiness": "View business",
+    "sponsoredIn": "Sponsored",
+    "viewAll": "View all",
+    "nearYou": "{category} businesses near you",
+    "adsCount": "{count} ads",
+    "reviews": "{count} reviews",
+    "exploreNear": "Explore businesses near you",
+    "photos": "{count} photos",
+    "latest": "Latest",
+    "nearYouShort": "{category} near you",
+    "exploreBusinesses": "Explore businesses"
   },
   "empty": {
-    "title": "No listings match your filters",
+    "title": "No ads match your filters",
     "desc": "Try clearing a filter or searching for something else.",
     "clear": "Clear all filters"
   },
-  "loadMore": "Load More Listings"
+  "loadMore": "Load More Ads",
+  "pagination": {
+    "showing": "Showing {from} to {to} of {total} ads",
+    "showingCount": "Showing {shown} of {total} ads",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page}",
+    "label": "Pagination",
+    "showMore": "Show more ads",
+    "narrowTitle": "Narrow your search to see more ads",
+    "narrowDesc": "Try a specific category, location or keyword."
+  },
+  "business": {
+    "openNow": "Open now",
+    "closed": "Closed",
+    "responseTooltip": "Based on replies to buyers' messages during business hours in the last 30 days.",
+    "response": {
+      "within-hour": "Usually replies within 1 hour",
+      "within-few-hours": "Usually replies within a few hours",
+      "within-day": "Usually replies within a day"
+    },
+    "highlights": {
+      "delivery": "Islandwide delivery",
+      "warranty": "1 year warranty",
+      "easyPayments": "Easy payment plans",
+      "cod": "Cash on delivery",
+      "returns": "Easy returns",
+      "inspection": "Vehicle inspection",
+      "leasing": "Leasing available",
+      "consultation": "Property consultation",
+      "siteVisits": "Site visits available",
+      "assembly": "Assembly service",
+      "freshness": "Freshness guaranteed"
+    }
+  }
 }

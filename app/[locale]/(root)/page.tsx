@@ -15,13 +15,11 @@ import {
   ChevronRight,
   Clock,
   Crown,
-  Gem,
   GraduationCap,
   Heart,
   Home,
   Leaf,
   MapPin,
-  MessageCircle,
   PawPrint,
   Search,
   Shirt,
@@ -44,6 +42,8 @@ import {
 import { HeroSearch } from "./_components/HeroSearch";
 import { Rail } from "./_components/Rail";
 import { SectionEyebrow } from "./_components/SectionHeader";
+import { getPriceDropCount } from "@/lib/deals/priceDrops";
+import { getActiveOfferCount } from "@/lib/deals/offers";
 
 /*
  * ============================================================
@@ -97,7 +97,6 @@ const DEAL_ICON_DIR = "/images/marketplace/deals/icons";
 const DEAL_ICON = {
   gift: `${DEAL_ICON_DIR}/gift.webp`,
   trendingUp: `${DEAL_ICON_DIR}/trending-up.webp`,
-  handshake: `${DEAL_ICON_DIR}/handshake.webp`,
   percent: `${DEAL_ICON_DIR}/percent.webp`,
 };
 
@@ -427,7 +426,11 @@ export async function generateMetadata({
   });
 
   return {
-    title: t("title") || "SLMarket.lk: Sri Lanka's Marketplace for Every Need",
+    title: {
+      absolute:
+        t("title") ||
+        "SLMarket.lk: Sri Lanka's Trusted Marketplace to Buy & Sell",
+    },
 
     description:
       t("description") ||
@@ -647,6 +650,11 @@ export default async function HomePage({
   const t = await getTranslations({ locale, namespace: "home" });
   const tCat = await getTranslations({ locale, namespace: "categories" });
 
+  const [priceDropCount, offerCount] = await Promise.all([
+    getPriceDropCount(),
+    getActiveOfferCount(),
+  ]);
+
   const catItems: CategoryRailItem[] = categoryConfig.map((category) => ({
     id: category.id,
     name: tCat(`${category.id}.name`),
@@ -671,7 +679,7 @@ export default async function HomePage({
             fill
             priority
             sizes="(max-width: 1320px) 100vw, 1280px"
-            className="object-cover object-center"
+            className="object-cover object-[center_top]"
           />
         </div>
 
@@ -749,7 +757,7 @@ export default async function HomePage({
           POPULAR SEARCHES — mobile / tablet
           ====================================================== */}
 
-      <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:hidden">
+      <section className="relative z-10 mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:hidden">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
@@ -785,7 +793,7 @@ export default async function HomePage({
           CATEGORY RAIL — one horizontal row, overlaps the hero fade
           ====================================================== */}
 
-      <section className="relative z-10 mx-auto mt-2 max-w-7xl px-4 sm:mt-3 sm:px-6">
+      <section className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:mt-5 sm:px-6">
         <CategoryRail
           items={catItems}
           heading={t("browse.heading")}
@@ -799,6 +807,8 @@ export default async function HomePage({
           ====================================================== */}
 
       <DealsSection
+        priceDropCount={priceDropCount}
+        offerCount={offerCount}
         t={{
           eyebrow: t("deals.eyebrow"),
           headingStart: t("deals.headingStart"),
@@ -807,19 +817,14 @@ export default async function HomePage({
           cta: t("deals.cta"),
           couponsTitle: t("deals.coupons.title"),
           couponsDesc: t("deals.coupons.desc"),
-          couponsNote: t("deals.coupons.note"),
           couponsCta: t("deals.coupons.cta"),
-          couponsTag: t("deals.coupons.tag"),
+          couponsCount: t("deals.coupons.countLabel", { count: offerCount }),
           priceTitle: t("deals.priceDrops.title"),
           priceDesc: t("deals.priceDrops.desc"),
-          priceNote: t("deals.priceDrops.note"),
           priceCta: t("deals.priceDrops.cta"),
-          priceTag: t("deals.priceDrops.tag"),
-          negTitle: t("deals.negotiable.title"),
-          negDesc: t("deals.negotiable.desc"),
-          negNote: t("deals.negotiable.note"),
-          negCta: t("deals.negotiable.cta"),
-          negTag: t("deals.negotiable.tag"),
+          priceCount: t("deals.priceDrops.countLabel", {
+            count: priceDropCount,
+          }),
         }}
       />
 
@@ -854,7 +859,7 @@ export default async function HomePage({
         <Rail
           heading={t("shops.heading")}
           subheading={t("shops.subheading")}
-          viewAllHref="/sellers"
+          viewAllHref="/businesses"
           viewAllLabel={t("shops.viewAll")}
           dotsCount={featuredShops.length}
         >
@@ -913,14 +918,14 @@ export default async function HomePage({
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/sell"
+                href="/post-ad"
                 className="btn-solid inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
               >
                 {t("sell.ctaPost")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/seller-registration"
+                href="/business/new"
                 className="btn-outline inline-flex items-center gap-2 rounded-xl bg-white/70 px-5 py-3 text-sm font-semibold backdrop-blur"
               >
                 {t("sell.ctaShop")}
@@ -955,7 +960,7 @@ export default async function HomePage({
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-14">
         <div className="mb-8 max-w-2xl">
-          <SectionEyebrow icon={Gem}>{t("whyUs.eyebrow")}</SectionEyebrow>
+          <SectionEyebrow icon={Sparkles}>{t("whyUs.eyebrow")}</SectionEyebrow>
           <h2 className="font-heading mt-3 text-3xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-4xl">
             {t("whyUs.heading")}{" "}
             <span className="text-[#1557d6]">SLMarket.lk?</span>
@@ -1173,19 +1178,12 @@ type DealsCopy = {
   cta: string;
   couponsTitle: string;
   couponsDesc: string;
-  couponsNote: string;
   couponsCta: string;
-  couponsTag: string;
+  couponsCount: string;
   priceTitle: string;
   priceDesc: string;
-  priceNote: string;
   priceCta: string;
-  priceTag: string;
-  negTitle: string;
-  negDesc: string;
-  negNote: string;
-  negCta: string;
-  negTag: string;
+  priceCount: string;
 };
 
 function DealFeatureCard({
@@ -1264,7 +1262,40 @@ function DealFeatureCard({
   );
 }
 
-function DealsSection({ t }: { t: DealsCopy }) {
+function DealsSection({
+  t,
+  priceDropCount,
+  offerCount,
+}: {
+  t: DealsCopy;
+  priceDropCount: number;
+  offerCount: number;
+}) {
+  // Genuine data only — an empty tile looks broken, so it's hidden rather
+  // than shown with a "0" count, and the whole section disappears once
+  // there's nothing real to show in either tile. See lib/deals/priceDrops.ts
+  // and lib/deals/offers.ts for what "genuine" means here.
+  if (priceDropCount === 0 && offerCount === 0) return null;
+
+  const tiles = [
+    offerCount > 0 && {
+      tint: "bg-[#fdf4e7] dark:bg-[#2a2418]",
+      iconWrap: "bg-orange-500",
+      icon: DEAL_ICON.gift,
+      title: t.couponsTitle,
+      tag: t.couponsCount,
+      href: "/ads/deals/coupons",
+    },
+    priceDropCount > 0 && {
+      tint: "bg-[#eef4fd] dark:bg-[#17263c]",
+      iconWrap: "bg-blue-500",
+      icon: DEAL_ICON.trendingUp,
+      title: t.priceTitle,
+      tag: t.priceCount,
+      href: "/ads/deals/price-drops",
+    },
+  ].filter((tile): tile is Exclude<typeof tile, false> => Boolean(tile));
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="relative isolate overflow-hidden rounded-3xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] p-4 shadow-[0_20px_55px_-24px_rgba(16,33,63,0.2)] sm:p-7 lg:p-9">
@@ -1299,40 +1330,15 @@ function DealsSection({ t }: { t: DealsCopy }) {
               </div>
             </div>
             <Link
-              href="/deals"
+              href="/ads/deals"
               className="shrink-0 whitespace-nowrap pt-1 text-sm font-semibold text-blue-600"
             >
               {t.cta}
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              {
-                tint: "bg-[#fdf4e7] dark:bg-[#2a2418]",
-                iconWrap: "bg-orange-500",
-                icon: DEAL_ICON.gift,
-                title: t.couponsTitle,
-                tag: t.couponsTag,
-                href: "/deals?type=coupons",
-              },
-              {
-                tint: "bg-[#eef4fd] dark:bg-[#17263c]",
-                iconWrap: "bg-blue-500",
-                icon: DEAL_ICON.trendingUp,
-                title: t.priceTitle,
-                tag: t.priceTag,
-                href: "/deals?type=price-drops",
-              },
-              {
-                tint: "bg-[#eef7ef] dark:bg-[#172a1d]",
-                iconWrap: "bg-green-500",
-                icon: DEAL_ICON.handshake,
-                title: t.negTitle,
-                tag: t.negTag,
-                href: "/deals?type=negotiable",
-              },
-            ].map((c) => (
+          <div className="grid grid-cols-2 gap-2">
+            {tiles.map((c) => (
               <Link
                 key={c.title}
                 href={c.href}
@@ -1375,7 +1381,7 @@ function DealsSection({ t }: { t: DealsCopy }) {
             </p>
 
             <Link
-              href="/deals"
+              href="/ads/deals"
               className="btn-solid mt-6 inline-flex w-fit items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
             >
               {t.cta}
@@ -1383,43 +1389,35 @@ function DealsSection({ t }: { t: DealsCopy }) {
             </Link>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <DealFeatureCard
-              image="/images/marketplace/deals/coupons.webp"
-              tint="bg-[#fdf4e7] dark:bg-[#2a2418]"
-              iconWrap="bg-orange-500"
-              icon={DEAL_ICON.gift}
-              title={t.couponsTitle}
-              description={t.couponsDesc}
-              noteIcon={Store}
-              note={t.couponsNote}
-              cta={t.couponsCta}
-              href="/deals?type=coupons"
-            />
-            <DealFeatureCard
-              image="/images/marketplace/deals/price-drops.webp"
-              tint="bg-[#eef4fd] dark:bg-[#17263c]"
-              iconWrap="bg-blue-500"
-              icon={DEAL_ICON.trendingUp}
-              title={t.priceTitle}
-              description={t.priceDesc}
-              noteIcon={Clock}
-              note={t.priceNote}
-              cta={t.priceCta}
-              href="/deals?type=price-drops"
-            />
-            <DealFeatureCard
-              image="/images/marketplace/deals/negotiable.webp"
-              tint="bg-[#eef7ef] dark:bg-[#172a1d]"
-              iconWrap="bg-green-500"
-              icon={DEAL_ICON.handshake}
-              title={t.negTitle}
-              description={t.negDesc}
-              noteIcon={MessageCircle}
-              note={t.negNote}
-              cta={t.negCta}
-              href="/deals?type=negotiable"
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {offerCount > 0 && (
+              <DealFeatureCard
+                image="/images/marketplace/deals/coupons.webp"
+                tint="bg-[#fdf4e7] dark:bg-[#2a2418]"
+                iconWrap="bg-orange-500"
+                icon={DEAL_ICON.gift}
+                title={t.couponsTitle}
+                description={t.couponsDesc}
+                noteIcon={Store}
+                note={t.couponsCount}
+                cta={t.couponsCta}
+                href="/ads/deals/coupons"
+              />
+            )}
+            {priceDropCount > 0 && (
+              <DealFeatureCard
+                image="/images/marketplace/deals/price-drops.webp"
+                tint="bg-[#eef4fd] dark:bg-[#17263c]"
+                iconWrap="bg-blue-500"
+                icon={DEAL_ICON.trendingUp}
+                title={t.priceTitle}
+                description={t.priceDesc}
+                noteIcon={Clock}
+                note={t.priceCount}
+                cta={t.priceCta}
+                href="/ads/deals/price-drops"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -1548,7 +1546,7 @@ function ShopCard({
 
       {/* Visit — full-width bar, flush to the card edges */}
       <Link
-        href="/sellers"
+        href="/businesses"
         className="mt-auto flex items-center justify-center gap-1.5 bg-blue-50 py-3.5 text-sm font-bold text-blue-600 transition hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
       >
         {visitLabel}

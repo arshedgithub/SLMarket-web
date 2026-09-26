@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Search, ChevronDown, LayoutGrid, Check } from "lucide-react";
+import { useRouter } from "@/i18n/navigation";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { categoryIcon } from "@/config/const/categoryIcons";
 import type { CategoryRailItem } from "./CategoryRail";
@@ -27,6 +28,7 @@ export function HeroSearch({
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<CategoryRailItem | null>(null);
+  const [query, setQuery] = useState("");
   const [pos, setPos] = useState<{
     top: number;
     left: number;
@@ -35,7 +37,15 @@ export function HeroSearch({
   const ref = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const router = useRouter();
   useOutsideClick([ref, panelRef], () => setOpen(false));
+
+  function submitSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const base = selected ? `/ads/${selected.id}` : "/ads";
+    const trimmed = query.trim();
+    router.push(trimmed ? `${base}?q=${encodeURIComponent(trimmed)}` : base);
+  }
 
   const SelectedIcon = selected ? categoryIcon(selected.iconName) : LayoutGrid;
 
@@ -61,7 +71,7 @@ export function HeroSearch({
   return (
     <form
       className="marketplace-search mt-6 max-w-2xl sm:mt-7"
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={submitSearch}
     >
       {/* Category dropdown — row 1 on phones, middle segment on desktop */}
       <div
@@ -158,6 +168,8 @@ export function HeroSearch({
           <Search className="mr-2.5 h-5 w-5 shrink-0 text-slate-400" />
           <input
             type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
             aria-label={searchLabel}
             className="h-11 min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 sm:h-12 dark:text-white"

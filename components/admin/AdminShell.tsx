@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   Users,
-  Gem,
+  Package,
   Settings,
   BarChart3,
   FileText,
@@ -43,7 +43,7 @@ export default function AdminShell({ children }: AdminShellProps) {
     {
       label: "Listings",
       href: "/admin/listings",
-      icon: <Gem className="w-5 h-5" />,
+      icon: <Package className="w-5 h-5" />,
     },
     {
       label: "Analytics",
@@ -85,13 +85,13 @@ export default function AdminShell({ children }: AdminShellProps) {
                   background: `linear-gradient(135deg, ${colors.primary.main}, ${colors.accent.features})`,
                 }}
               >
-                <Gem className="h-5 w-5 text-white" />
+                <Package className="h-5 w-5 text-white" />
               </div>
               <span
                 className="font-semibold text-lg"
                 style={{ color: colors.primary.main }}
               >
-                Lumevelo
+                SLMarket.lk
               </span>
             </Link>
           )}

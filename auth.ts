@@ -34,14 +34,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { identifier, method, password } = parsed.data;
         const user =
           method === "phone"
-            ? await db.user.findUnique({
-                where: { phone: identifier },
-                include: { subscription: { include: { plan: true } } },
-              })
-            : await db.user.findUnique({
-                where: { email: identifier },
-                include: { subscription: { include: { plan: true } } },
-              });
+            ? await db.user.findUnique({ where: { phone: identifier } })
+            : await db.user.findUnique({ where: { email: identifier } });
 
         if (!user || !user.passwordHash) return null;
 
@@ -56,9 +50,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
-          isVerified: user.isVerified,
-          shopSlug: user.shopSlug,
-          planName: user.subscription?.plan.name ?? "free",
+          isVerified: false,
+          shopSlug: null,
+          planName: "free",
           _deviceName: deviceName,
           _deviceType: deviceType,
           _ip: ip ?? null,
@@ -93,18 +87,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (trigger === "update") {
         const fresh = await db.user.findUnique({
           where: { id: token.id as string },
-          select: {
-            role: true,
-            shopSlug: true,
-            isVerified: true,
-            subscription: { include: { plan: true } },
-          },
+          select: { role: true },
         });
         if (fresh) {
           token.role = fresh.role;
-          token.shopSlug = fresh.shopSlug;
-          token.isVerified = fresh.isVerified;
-          token.planName = fresh.subscription?.plan.name ?? "free";
         }
       }
       return token;

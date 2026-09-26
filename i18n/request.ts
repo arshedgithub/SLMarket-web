@@ -14,6 +14,7 @@ const NAMESPACES = [
   "home",
   "categories",
   "listings",
+  "businesses",
 ] as const;
 
 export default getRequestConfig(async ({ requestLocale }) => {

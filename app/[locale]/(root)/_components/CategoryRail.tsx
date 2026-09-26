@@ -5,28 +5,8 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCategoryModalStore } from "@/store/categoryModalStore";
+import { categoryAccent, categoryGlyphSrc } from "@/config/const/categoryIcons";
 import { SectionHeader } from "./SectionHeader";
-
-// Solid accent per category for the icon badge. The white glyphs live in
-// public/images/marketplace/categories/icons/<id>.webp
-const CATEGORY_ACCENT: Record<string, string> = {
-  vehicles: "bg-blue-600",
-  property: "bg-orange-500",
-  electronics: "bg-violet-600",
-  "home-garden": "bg-green-600",
-  fashion: "bg-pink-600",
-  food: "bg-amber-500",
-  agriculture: "bg-lime-600",
-  education: "bg-sky-500",
-  "animals-pets": "bg-red-500",
-  services: "bg-slate-600",
-  jobs: "bg-indigo-600",
-  "health-beauty": "bg-rose-500",
-  hobbies: "bg-teal-600",
-  other: "bg-gray-500",
-};
-
-const accentOf = (id: string) => CATEGORY_ACCENT[id] ?? "bg-blue-600";
 
 /*
  * Concentric badge: the outer ring is the same translucent surface as the
@@ -51,10 +31,10 @@ function CategoryBadge({
     >
       <span
         style={{ width: inner, height: inner }}
-        className={`flex items-center justify-center rounded-full ${accentOf(id)}`}
+        className={`flex items-center justify-center rounded-full ${categoryAccent(id)}`}
       >
         <Image
-          src={`/images/marketplace/categories/icons/${id}.webp`}
+          src={categoryGlyphSrc(id)}
           alt=""
           width={64}
           height={64}
@@ -144,7 +124,7 @@ export function CategoryRail({
     "flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text)] transition hover:border-blue-300 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
-    <div className="rounded-3xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] p-4 shadow-[0_20px_55px_-24px_rgba(16,33,63,0.25)] sm:p-5">
+    <div className="rounded-3xl border border-[var(--color-market-border)] bg-[color-mix(in_srgb,var(--color-market-surface)_90%,transparent)] p-4 shadow-[0_20px_55px_-24px_rgba(16,33,63,0.25)] sm:p-5">
       <SectionHeader
         heading={heading}
         subheading={subheading}

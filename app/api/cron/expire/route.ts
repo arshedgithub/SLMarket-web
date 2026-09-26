@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
       try {
         await sendEmail({
           to: sub.seller.email,
-          subject: "Your Lumevelo subscription has expired",
+          subject: "Your SLMarket.lk subscription has expired",
           html: `
             <h2>Subscription Expired</h2>
             <p>Hi ${escapeHtml(sub.seller.name)},</p>
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
               Renew Now
             </a>
             <p style="color:#6b7280;font-size:12px;margin-top:16px;">
-              Lumevelo: The Global Gem &amp; Jewellery Marketplace
+              SLMarket.lk: Sri Lanka's Trusted Marketplace to Buy &amp; Sell
             </p>
           `,
         });
@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
     try {
       await sendEmail({
         to: sub.seller.email,
-        subject: `Your Lumevelo ${sub.plan.displayName} plan expires in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}`,
+        subject: `Your SLMarket.lk ${sub.plan.displayName} plan expires in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}`,
         html: `
           <h2>Subscription Renewal Reminder</h2>
           <p>Hi ${escapeHtml(sub.seller.name)},</p>

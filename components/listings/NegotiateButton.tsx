@@ -72,9 +72,7 @@ export function NegotiateButton({
     e.stopPropagation();
 
     if (!session?.user) {
-      router.push(
-        `/login?next=${encodeURIComponent(`/listings/${listingSlug}`)}`,
-      );
+      router.push(`/login?next=${encodeURIComponent(`/ad/${listingSlug}`)}`);
       return;
     }
 

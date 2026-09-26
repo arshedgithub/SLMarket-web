@@ -1,35 +1,17 @@
-import { db } from "@/lib/db";
-
 export interface ReelQuotaStatus {
   allowed: boolean;
   remaining: number | null; // null = unlimited
   maxPerMonth: number | null; // null = unlimited
 }
 
+// Reels/short videos are a paid-plan feature, and business-profile plans
+// don't exist yet (see BusinessSubscription) — so every seller is disabled
+// for now, regardless of account. Once plans launch, this should look up
+// the seller's active BusinessSubscription and its plan's reel allowance
+// the same way ReelUpload usage used to be counted here.
 export async function getReelQuotaStatus(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   sellerId: string,
 ): Promise<ReelQuotaStatus> {
-  const subscription = await db.sellerSubscription.findUnique({
-    where: { sellerId },
-    include: { plan: true },
-  });
-  const maxPerMonth = subscription ? subscription.plan.maxReelsPerMonth : 0;
-
-  if (maxPerMonth === null) {
-    return { allowed: true, remaining: null, maxPerMonth: null };
-  }
-  if (maxPerMonth === 0) {
-    return { allowed: false, remaining: 0, maxPerMonth: 0 };
-  }
-
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
-
-  const usedThisMonth = await db.reelUpload.count({
-    where: { sellerId, createdAt: { gte: startOfMonth } },
-  });
-
-  const remaining = Math.max(0, maxPerMonth - usedThisMonth);
-  return { allowed: remaining > 0, remaining, maxPerMonth };
+  return { allowed: false, remaining: 0, maxPerMonth: 0 };
 }

@@ -9,53 +9,37 @@ datasource db {
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
+// A personal account. Selling under a business name is a separate
+// BusinessProfile owned by this user (a user can own several) — business
+// branding, verification and billing live there, not here.
 
 model User {
-  id                  String    @id @default(cuid())
-  email               String    @unique
-  emailVerified       DateTime?
-  phone               String?   @unique
-  phoneVerified       Boolean   @default(false)
-  name                String
-  passwordHash        String?
-  role                Role      @default(BUYER)
-  isVerified          Boolean   @default(false)
-  verifiedAt          DateTime?
-  avatarUrl           String?
-  // Location
-  country             String?   // ISO 3166-1 alpha-2 code, e.g. "LK"
-  locationCity        String?   // free-text city / region
-  // Seller-specific fields
-  shopSlug            String?   @unique
-  shopBio             String?
-  shopBannerUrl       String?
-  whatsappNumber      String?
-  specialties         String[]
-  // Social / SEO (Dealer plan)
-  shopMetaTitle       String?
-  shopMetaDescription String?
-  // Timestamps
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  phone         String?   @unique
+  phoneVerified Boolean   @default(false)
+  name          String
+  passwordHash  String?
+  role          Role      @default(USER)
+  avatarUrl     String?
+  district      String? // one of the 25 Sri Lanka districts
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  subscription           SellerSubscription?
-  userSessions           UserSession[]
-  listings               Listing[]
-  enquiriesReceived      Enquiry[]              @relation("SellerEnquiries")
-  enquiriesSent          Enquiry[]              @relation("BuyerEnquiries")
-  verificationRequest    VerificationRequest?
-  boosts                 ListingBoost[]
-  metalPriceAlerts       MetalPriceAlert[]
-  blogPostsAuthored      BlogPost[]             @relation("BlogAuthor")
-  blogPostsSponsored     BlogPost[]             @relation("BlogSponsor")
-  analyticsDaily         SellerAnalyticsDaily[]
-  referralsMade          Referral[]             @relation("ReferrerSeller")
-  referralReceived       Referral?              @relation("ReferredSeller")
-  couponRedemptions      CouponRedemption[]
-  socialShareQueue       SocialShareQueue[]
+  businessProfiles        BusinessProfile[]
+  userSessions            UserSession[]
+  listings                Listing[]
+  enquiriesReceived       Enquiry[]                @relation("SellerEnquiries")
+  enquiriesSent           Enquiry[]                @relation("BuyerEnquiries")
+  boosts                  ListingBoost[]
+  analyticsDaily          SellerAnalyticsDaily[]
+  referralsMade           Referral[]               @relation("ReferrerSeller")
+  referralReceived        Referral?                @relation("ReferredSeller")
+  couponRedemptions       CouponRedemption[]
+  socialShareQueue        SocialShareQueue[]
   whatsappBroadcastOptIns WhatsappBroadcastOptIn[] @relation("SellerOptIns")
-  whatsappBroadcastSubs  WhatsappBroadcastOptIn[] @relation("BuyerOptIns")
-  reelUploads             ReelUpload[]
+  whatsappBroadcastSubs   WhatsappBroadcastOptIn[] @relation("BuyerOptIns")
   fcmTokens               FcmToken[]
   accounts                Account[]
 
@@ -105,52 +89,194 @@ model Account {
 
 enum Role {
   ADMIN
-  SELLER
-  BUYER
+  USER
+}
+
+// ─── Global phone uniqueness ───────────────────────────────────────────────────
+// Postgres unique constraints only apply within one table, but a contact
+// number must be unique across every profile on the platform — a personal
+// User account, or any of their BusinessProfiles. This is the shared
+// registry that actually enforces that: the app must insert/move a row here
+// (in the same transaction as the User/BusinessProfile write) whenever a
+// phone number is claimed or released, before it ever writes the denormalized
+// User.phone / BusinessProfile.contactPhone columns used for display/queries.
+
+model PhoneRegistry {
+  phone     String         @id
+  ownerType PhoneOwnerType
+  ownerId   String
+  createdAt DateTime       @default(now())
+
+  @@index([ownerId])
+  @@map("phone_registry")
+}
+
+enum PhoneOwnerType {
+  USER
+  BUSINESS_PROFILE
+}
+
+// ─── Business Profiles ─────────────────────────────────────────────────────────
+// A paid-in-future storefront a user opts into on top of their personal
+// account. Owns its own listings, branches and (eventually) a subscription.
+
+model BusinessProfile {
+  id             String              @id @default(cuid())
+  ownerId        String
+  name           String
+  slug           String              @unique
+  categoryId     String // primary category, e.g. "electronics" — see config/const/navLinks.ts
+  bio            String?
+  logoUrl        String?
+  bannerUrl      String?
+  contactPhone   String              @unique // see PhoneRegistry — must also be reserved there
+  whatsappNumber String?
+  district       String?
+  city           String?
+  tags           String[]            @default([])
+  isVerified     Boolean             @default(false)
+  tier           BusinessProfileTier @default(STANDARD)
+  businessType   BusinessType?
+
+  // Suspension: an admin (or an automated abuse check) can suspend a profile.
+  // While SUSPENDED, the public business page and every one of its listings are
+  // hidden but nothing is deleted — the owner has until gracePeriodEndsAt
+  // (default: 14 days from suspendedAt) to resolve the issue, after which an
+  // admin manually moves it to DISABLED. There is no automatic deletion;
+  // every transition here is an explicit admin action.
+  status            BusinessProfileStatus @default(ACTIVE)
+  suspendedAt       DateTime?
+  suspensionReason  String?
+  gracePeriodEndsAt DateTime?
+
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  owner        User                  @relation(fields: [ownerId], references: [id])
+  subscription BusinessSubscription?
+  branches     Branch[]
+  listings     Listing[]
+  verification VerificationRequest?
+  offers       BusinessOffer[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@map("business_profiles")
+}
+
+enum BusinessProfileTier {
+  STANDARD
+  VERIFIED
+  PREMIUM
+  TOP_RATED
+}
+
+enum BusinessProfileStatus {
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+// Business type shown as a small tag on business cards — kept separate from
+// categoryId (a marketplace category like "electronics" says what they sell;
+// this says what kind of business they are).
+enum BusinessType {
+  STORE
+  DEALER
+  AGENCY
+  INSTITUTE
+  SERVICE_PROVIDER
+  FARM
+  OTHER
+}
+
+// ─── Branches ───────────────────────────────────────────────────────────────
+// A business profile's physical locations, managed once under
+// Business Profile → Locations & Branches and then picked per-listing
+// (see ListingBranch) instead of re-typed on every ad.
+
+model Branch {
+  id                String   @id @default(cuid())
+  businessProfileId String
+  label             String // e.g. "Colombo - Bambalapitiya"
+  district          String
+  city              String
+  createdAt         DateTime @default(now())
+
+  businessProfile BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  listings        ListingBranch[]
+
+  @@index([businessProfileId])
+  @@map("branches")
+}
+
+// ─── Offers ─────────────────────────────────────────────────────────────────
+// A merchant-facing coupon/offer shown in the homepage deals panel and on
+// the business page. Only verified business profiles may create these (an
+// admin check, not a schema constraint) — every offer must carry its own
+// expiresAt, and queries filter on it directly rather than a cron job, so
+// an expired offer simply stops being returned instead of needing cleanup.
+
+model BusinessOffer {
+  id                String   @id @default(cuid())
+  businessProfileId String
+  title             String // e.g. "10% off everything"
+  code              String? // coupon code, e.g. "SAVE10" — optional, some offers need none
+  expiresAt         DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  businessProfile BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+
+  @@index([businessProfileId])
+  @@index([expiresAt])
+  @@map("business_offers")
 }
 
 // ─── Subscriptions ────────────────────────────────────────────────────────────
+// Billing attaches to a BusinessProfile, not a User — a seller can run
+// several businesses and only some of them may be on a paid plan. Personal
+// (non-business) listings are always free and need no subscription row.
 
 model SubscriptionPlan {
-  id                     String   @id @default(cuid())
-  name                   String   @unique // free | basic | pro | dealer
-  displayName            String
-  priceUsd               Decimal  @db.Decimal(8, 2)
-  priceLkr               Decimal  @db.Decimal(10, 2)
-  priceUsdAnnual         Decimal? @db.Decimal(8, 2) // null = fall back to priceUsd * 12
-  priceLkrAnnual         Decimal? @db.Decimal(10, 2) // null = fall back to priceLkr * 12
-  maxListings            Int?     // null = unlimited
-  maxReelsPerMonth       Int?     // null = unlimited
-  maxImagesPerListing    Int?     // null = unlimited
-  maxCertificationImages Int?     // null = unlimited
-  hasShopProfile         Boolean  @default(false)
-  hasAnalytics           Boolean  @default(false)
-  hasRealtimeAlerts      Boolean  @default(false)
-  hasDigitalMarketing    Boolean  @default(false)  // auto social share queue
-  hasWhatsappBroadcast   Boolean  @default(false)  // Phase 4
-  hasPrioritySearch      Boolean  @default(false)
-  hasApiAccess           Boolean  @default(false)
-  hasWholesaleListings   Boolean  @default(false)
-  listingDurationDays    Int?     // null = never expires (Dealer). Free=30, Basic=90, Pro=180
-  monthlyFreeBoosts      Int      @default(0)
-  freeBoostsRemaining    Int      @default(0)
-  supportLevel           String   @default("community") // community | email | priority | dedicated
-  badgeFastTrack         Boolean  @default(false)
-  badgeFree              Boolean  @default(false) // Dealer gets free badge
-  homepageFeatureWeekly  Boolean  @default(false) // Dealer weekly rotation
-  isActive               Boolean  @default(true)
-  sortOrder              Int      @default(0)
-  createdAt              DateTime @default(now())
+  id                    String   @id @default(cuid())
+  name                  String   @unique // free | basic | pro | premium
+  displayName           String
+  priceUsd              Decimal  @db.Decimal(8, 2)
+  priceLkr              Decimal  @db.Decimal(10, 2)
+  priceUsdAnnual        Decimal? @db.Decimal(8, 2) // null = fall back to priceUsd * 12
+  priceLkrAnnual        Decimal? @db.Decimal(10, 2) // null = fall back to priceLkr * 12
+  maxListings           Int? // null = unlimited
+  maxImagesPerListing   Int? // null = unlimited
+  maxBranches           Int? // null = unlimited
+  hasBusinessProfile    Boolean  @default(false)
+  hasAnalytics          Boolean  @default(false)
+  hasRealtimeAlerts     Boolean  @default(false)
+  hasDigitalMarketing   Boolean  @default(false) // auto social share queue
+  hasWhatsappBroadcast  Boolean  @default(false)
+  hasPrioritySearch     Boolean  @default(false)
+  hasApiAccess          Boolean  @default(false)
+  listingDurationDays   Int? // null = never expires
+  monthlyFreeBoosts     Int      @default(0)
+  supportLevel          String   @default("community") // community | email | priority | dedicated
+  badgeFastTrack        Boolean  @default(false)
+  badgeFree             Boolean  @default(false)
+  homepageFeatureWeekly Boolean  @default(false)
+  isActive              Boolean  @default(true)
+  sortOrder             Int      @default(0)
+  createdAt             DateTime @default(now())
 
-  subscriptions SellerSubscription[]
-  coupons       CouponCode[]          @relation("PlanCoupons")
+  subscriptions BusinessSubscription[]
+  coupons       CouponCode[]           @relation("PlanCoupons")
 
   @@map("subscription_plans")
 }
 
-model SellerSubscription {
+model BusinessSubscription {
   id                   String             @id @default(cuid())
-  sellerId             String             @unique
+  businessProfileId    String             @unique
   planId               String
   status               SubscriptionStatus @default(ACTIVE)
   currentPeriodStart   DateTime
@@ -163,11 +289,11 @@ model SellerSubscription {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 
-  seller           User             @relation(fields: [sellerId], references: [id])
-  plan             SubscriptionPlan @relation(fields: [planId], references: [id])
+  businessProfile  BusinessProfile   @relation(fields: [businessProfileId], references: [id])
+  plan             SubscriptionPlan  @relation(fields: [planId], references: [id])
   couponRedemption CouponRedemption? @relation(fields: [couponRedemptionId], references: [id])
 
-  @@map("seller_subscriptions")
+  @@map("business_subscriptions")
 }
 
 enum SubscriptionStatus {
@@ -181,20 +307,20 @@ enum SubscriptionStatus {
 // ─── Coupon Codes ─────────────────────────────────────────────────────────────
 
 model CouponCode {
-  id                 String       @id @default(cuid())
-  code               String       @unique
-  description        String?
-  discountType       DiscountType
-  discountValue      Decimal      @db.Decimal(8, 2) // % (0-100), USD amount, or months
-  applicablePlanIds  String[]     // empty = all plans
-  billingCycle       BillingCycle? // null = applies to monthly and annual billing
-  maxUses            Int?         // null = unlimited
-  usesCount          Int          @default(0)
-  maxUsesPerUser     Int          @default(1)
-  validFrom          DateTime?
-  validUntil         DateTime?
-  isActive           Boolean      @default(true)
-  createdAt          DateTime     @default(now())
+  id                String        @id @default(cuid())
+  code              String        @unique
+  description       String?
+  discountType      DiscountType
+  discountValue     Decimal       @db.Decimal(8, 2) // % (0-100), USD amount, or months
+  applicablePlanIds String[] // empty = all plans
+  billingCycle      BillingCycle? // null = applies to monthly and annual billing
+  maxUses           Int? // null = unlimited
+  usesCount         Int           @default(0)
+  maxUsesPerUser    Int           @default(1)
+  validFrom         DateTime?
+  validUntil        DateTime?
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
 
   redemptions CouponRedemption[]
   plans       SubscriptionPlan[] @relation("PlanCoupons")
@@ -214,126 +340,156 @@ enum BillingCycle {
 }
 
 model CouponRedemption {
-  id                  String   @id @default(cuid())
-  couponId            String
-  userId              String
-  discountAppliedUsd  Decimal  @db.Decimal(8, 2)
-  discountAppliedLkr  Decimal  @db.Decimal(10, 2)
-  redeemedAt          DateTime @default(now())
+  id                 String   @id @default(cuid())
+  couponId           String
+  userId             String
+  discountAppliedUsd Decimal  @db.Decimal(8, 2)
+  discountAppliedLkr Decimal  @db.Decimal(10, 2)
+  redeemedAt         DateTime @default(now())
 
-  coupon       CouponCode          @relation(fields: [couponId], references: [id])
-  user         User                @relation(fields: [userId], references: [id])
-  subscription SellerSubscription?
+  coupon       CouponCode            @relation(fields: [couponId], references: [id])
+  user         User                  @relation(fields: [userId], references: [id])
+  subscription BusinessSubscription?
 
   @@unique([couponId, userId])
   @@map("coupon_redemptions")
 }
 
 // ─── Listings ─────────────────────────────────────────────────────────────────
+// General-marketplace listing: one canonical category/subcategory plus a
+// flexible attributes bag for the fields that only apply to that category
+// (see config/const/listingFields.ts) — no more gem/jewellery/metal columns.
 
 model Listing {
-  id                  String        @id @default(cuid())
-  sellerId            String
-  title               String
-  slug                String        @unique
-  description         String
-  price               Decimal       @db.Decimal(12, 2)
-  currency            String        @default("USD")
-  images              String[]
-  reelUrl             String?
-  category            ListingCategory
-  gemType             String?
-  gemOrigin           String?       @default("Sri Lanka")
-  caratWeight         Decimal?      @db.Decimal(8, 3)
-  treatmentStatus     String?       // unheated | heated | beryllium | fracture-filled
-  certificationBody   String?       // GIA | AGL | Gübelin | SSEF | GIT | NGJA
-  certificationNumber String?
-  metalType           String?
-  metalPurity         String?
-  weightGrams         Decimal?      @db.Decimal(8, 3)
-  weightSovereigns    Decimal?      @db.Decimal(8, 4) // 1 sovereign ≈ 7.9881 g (gold)
-  currentLocation     String?       // SRI_LANKA_CITY value — where the item physically is
-  certificationImages String[]      @default([]) // certificate / hallmark photos
-  // Gem dimensions (mm)
-  dimensionL          Decimal?      @db.Decimal(6, 2) // length in mm
-  dimensionW          Decimal?      @db.Decimal(6, 2) // width in mm
-  dimensionH          Decimal?      @db.Decimal(6, 2) // height/depth in mm
-  // Gem parcel / lot
-  isLotSale           Boolean       @default(false)
-  lotSize             Int?          // number of stones when isLotSale = true
-  // Contact preference
-  contactPhone        String?       // listing contact override (editable from seller's phone)
-  hideContactPhone    Boolean       @default(false) // route buyers through site messages only
-  whatsappEnabled     Boolean       @default(true)  // show a WhatsApp button on this listing
-  whatsappNumber      String?       // listing WhatsApp override — can differ from seller's profile number
-  // Jewellery
-  jewelleryType       String?
-  ringSize            String?
-  // Services
-  serviceType         String?
-  pricingType         String?       // fixed | starting from | negotiable | per hour | per item
-  serviceArea         String[]      @default([]) // cities served, or ["Island-wide"]
-  turnaroundTime      String?
-  // Status
-  status              ListingStatus @default(ACTIVE)
-  rejectionReason     String?       @db.Text
-  isWholesale         Boolean       @default(false)
-  // Boost
-  isBoosted           Boolean       @default(false)
-  boostEndAt          DateTime?
-  // SEO
-  metaTitle           String?
-  metaDescription     String?
-  schemaMarkup        Json?
-  // Homepage feature (Dealer)
-  isFeaturedHomepage  Boolean       @default(false)
-  homepageFeatureEnd  DateTime?
-  expiresAt           DateTime?     // null = never expires
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  id                String  @id @default(cuid())
+  sellerId          String // the User who created it, even for business listings
+  businessProfileId String? // set when posted under a business profile
+  title             String
+  slug              String  @unique
+  description       String
+  categoryId        String // e.g. "vehicles" — see config/const/navLinks.ts
+  subcategoryId     String
+  attributes        Json    @default("{}")
 
-  seller      User           @relation(fields: [sellerId], references: [id])
-  enquiries   Enquiry[]
-  boosts      ListingBoost[]
-  analytics   ListingView[]
-  reelUploads ReelUpload[]
+  images   String[]
+  videoUrl String?
+
+  pricingType     PricingType   @default(FIXED)
+  price           Decimal?      @db.Decimal(12, 2)
+  currency        String        @default("LKR")
+  negotiable      Boolean       @default(false)
+  promotionType   PromotionType @default(NONE) // business listings only
+  promotionDetail String?
+
+  locationType       ListingLocationType @default(SINGLE)
+  district           String?
+  city               String?
+  area               String?
+  deliveryAvailable  Boolean             @default(false)
+  islandwideDelivery Boolean             @default(false)
+
+  contactPhone     String?
+  showContactPhone Boolean @default(true) // off = buyers can only reach the seller via in-app chat
+  allowWhatsapp    Boolean @default(true)
+
+  // Every listing is reviewed before it goes live.
+  status          ListingStatus @default(PENDING_REVIEW)
+  rejectionReason String?       @db.Text
+  reviewedAt      DateTime?
+  reviewedBy      String? // admin User id
+
+  isBoosted  Boolean   @default(false)
+  boostEndAt DateTime?
+
+  metaTitle       String?
+  metaDescription String?
+  schemaMarkup    Json?
+
+  isFeaturedHomepage Boolean   @default(false)
+  homepageFeatureEnd DateTime?
+
+  shareCount Int @default(0)
+
+  expiresAt DateTime? // null = never expires
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  seller          User             @relation(fields: [sellerId], references: [id])
+  businessProfile BusinessProfile? @relation(fields: [businessProfileId], references: [id])
+  branches        ListingBranch[]
+  enquiries       Enquiry[]
+  boosts          ListingBoost[]
+  analytics       ListingView[]
+  priceHistory    PriceHistory[]
 
   @@index([sellerId])
-  @@index([status, category, createdAt])
+  @@index([businessProfileId])
+  @@index([status, categoryId, createdAt])
   @@index([status, isFeaturedHomepage, isBoosted, createdAt])
   @@index([status, createdAt])
   @@map("listings")
 }
 
-// ─── Reel Uploads (monthly quota log) ─────────────────────────────────────────
+// A listing posted with locationType = BRANCHES can be available at several
+// of its business's branches at once.
+model ListingBranch {
+  id        String @id @default(cuid())
+  listingId String
+  branchId  String
 
-model ReelUpload {
-  id        String   @id @default(cuid())
-  sellerId  String
-  listingId String?
-  createdAt DateTime @default(now())
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  branch  Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
-  seller  User     @relation(fields: [sellerId], references: [id])
-  listing Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
-
-  @@map("reel_uploads")
+  @@unique([listingId, branchId])
+  @@map("listing_branches")
 }
 
-enum ListingCategory {
-  GEM
-  JEWELLERY
-  PRECIOUS_METAL
-  SERVICE
+// One row per price the listing has ever had. endedAt = null marks the
+// current price. This is what lets the homepage "price drops" count be
+// genuine: a drop only counts once the price it replaced was live for at
+// least 7 days (see lib/deals/priceDrops.ts), which a single "previous
+// price" field can't express and can't resist a seller raising then
+// re-lowering the price to keep re-triggering the badge.
+model PriceHistory {
+  id        String    @id @default(cuid())
+  listingId String
+  price     Decimal   @db.Decimal(12, 2)
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, endedAt])
+  @@map("price_history")
+}
+
+enum PricingType {
+  FIXED
+  STARTING_FROM
+  CONTACT
+  FREE
+}
+
+enum PromotionType {
+  NONE
+  DISCOUNT
+  COUPON
+}
+
+enum ListingLocationType {
+  SINGLE
+  BRANCHES
+  ISLANDWIDE
 }
 
 enum ListingStatus {
+  PENDING_REVIEW
   ACTIVE
+  CHANGES_REQUESTED
+  REJECTED
   SOLD
   PAUSED
   EXPIRED
-  PENDING_REVIEW
-  CHANGES_REQUESTED
-  REJECTED
 }
 
 // ─── Enquiries ────────────────────────────────────────────────────────────────
@@ -349,7 +505,7 @@ model Enquiry {
   buyerEmail         String?
   message            String
   isRead             Boolean  @default(false)
-  conversationId     String?  // Firestore conversation id, set once a chat thread exists
+  conversationId     String? // Firestore conversation id, set once a chat thread exists
   createdAt          DateTime @default(now())
 
   listing Listing @relation(fields: [listingId], references: [id])
@@ -403,22 +559,23 @@ enum BoostType {
 }
 
 // ─── Verification ─────────────────────────────────────────────────────────────
+// Verifies a business profile (the blue check shown on shop cards), not a
+// personal account.
 
 model VerificationRequest {
-  id                 String             @id @default(cuid())
-  sellerId           String             @unique
-  status             VerificationStatus @default(PENDING)
-  nicOrPassportUrl   String?
-  businessRegUrl     String?
-  gemCertUrl         String?
-  adminNotes         String?
-  amountPaidUsd      Decimal            @db.Decimal(8, 2) @default(0)
-  paymentRef         String?
-  submittedAt        DateTime           @default(now())
-  reviewedAt         DateTime?
-  reviewedBy         String?
+  id                String             @id @default(cuid())
+  businessProfileId String             @unique
+  status            VerificationStatus @default(PENDING)
+  nicOrPassportUrl  String?
+  businessRegUrl    String?
+  adminNotes        String?
+  amountPaidUsd     Decimal            @default(0) @db.Decimal(8, 2)
+  paymentRef        String?
+  submittedAt       DateTime           @default(now())
+  reviewedAt        DateTime?
+  reviewedBy        String?
 
-  seller User @relation(fields: [sellerId], references: [id])
+  businessProfile BusinessProfile @relation(fields: [businessProfileId], references: [id])
 
   @@map("verification_requests")
 }
@@ -427,84 +584,6 @@ enum VerificationStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-// ─── Metal Prices ─────────────────────────────────────────────────────────────
-
-model MetalPrice {
-  id              String   @id @default(cuid())
-  metal           Metal
-  priceUsdPerGram Decimal  @db.Decimal(12, 4)
-  priceLkrPerGram Decimal  @db.Decimal(12, 2)
-  changePercent24h Decimal? @db.Decimal(6, 3)
-  source          String?
-  fetchedAt       DateTime @default(now())
-
-  @@map("metal_prices")
-}
-
-enum Metal {
-  GOLD_24K
-  GOLD_22K
-  SILVER
-  PLATINUM
-}
-
-model MetalPriceAlert {
-  id             String    @id @default(cuid())
-  userId         String
-  metal          Metal
-  alertType      AlertType
-  thresholdUsd   Decimal?  @db.Decimal(12, 4)
-  notifyVia      String    @default("push") // push | email
-  fcmToken       String?
-  isActive       Boolean   @default(true)
-  lastTriggeredAt DateTime?
-  createdAt      DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("metal_price_alerts")
-}
-
-enum AlertType {
-  ABOVE
-  BELOW
-  DAILY_DIGEST
-}
-
-// ─── Blog ─────────────────────────────────────────────────────────────────────
-
-model BlogPost {
-  id               String     @id @default(cuid())
-  title            String
-  slug             String     @unique
-  content          String
-  excerpt          String?
-  authorId         String
-  isSponsored      Boolean    @default(false)
-  sponsorSellerId  String?
-  sponsorAmountUsd Decimal?   @db.Decimal(8, 2)
-  featuredImageUrl String?
-  metaTitle        String?
-  metaDescription  String?
-  focusKeyword     String?
-  schemaMarkup     Json?
-  status           PostStatus @default(DRAFT)
-  publishedAt      DateTime?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-
-  author  User  @relation("BlogAuthor", fields: [authorId], references: [id])
-  sponsor User? @relation("BlogSponsor", fields: [sponsorSellerId], references: [id])
-
-  @@map("blog_posts")
-}
-
-enum PostStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
 }
 
 // ─── Analytics ────────────────────────────────────────────────────────────────
@@ -542,7 +621,7 @@ model Referral {
   referredSellerId String         @unique
   referralCode     String         @unique
   status           ReferralStatus @default(PENDING)
-  rewardType       String?        // free_month | free_boost
+  rewardType       String? // free_month | free_boost
   convertedAt      DateTime?
   rewardedAt       DateTime?
   createdAt        DateTime       @default(now())
@@ -560,18 +639,21 @@ enum ReferralStatus {
 }
 
 // ─── Social Share Queue (Pro+ digital marketing) ──────────────────────────────
+// Automated cross-posting for subscribed sellers. The plain "share this
+// listing" button any buyer can use is unauthenticated and just increments
+// Listing.shareCount — it doesn't need a queue row.
 
 model SocialShareQueue {
-  id        String          @id @default(cuid())
-  sellerId  String
-  listingId String?
-  platform  String          // instagram | facebook | twitter
-  status    SocialShareStatus @default(PENDING)
+  id          String            @id @default(cuid())
+  sellerId    String
+  listingId   String?
+  platform    String // instagram | facebook | twitter
+  status      SocialShareStatus @default(PENDING)
   scheduledAt DateTime?
-  postedAt  DateTime?
-  postUrl   String?
-  errorMsg  String?
-  createdAt DateTime        @default(now())
+  postedAt    DateTime?
+  postUrl     String?
+  errorMsg    String?
+  createdAt   DateTime          @default(now())
 
   seller User @relation(fields: [sellerId], references: [id])
 
@@ -585,7 +667,7 @@ enum SocialShareStatus {
   SKIPPED
 }
 
-// ─── WhatsApp Broadcast Opt-ins (Dealer — Phase 4) ───────────────────────────
+// ─── WhatsApp Broadcast Opt-ins ────────────────────────────────────────────────
 
 model WhatsappBroadcastOptIn {
   id        String   @id @default(cuid())
@@ -603,18 +685,18 @@ model WhatsappBroadcastOptIn {
 // ─── Payment Transactions ─────────────────────────────────────────────────────
 
 model PaymentTransaction {
-  id              String        @id @default(cuid())
-  userId          String
-  type            PaymentType
-  amountUsd       Decimal       @db.Decimal(8, 2)
-  amountLkr       Decimal       @db.Decimal(10, 2)
-  currency        String        @default("LKR")
-  gateway         PaymentGateway
-  gatewayRef      String?       // PayHere order_id or Stripe payment_intent_id
-  status          PaymentStatus @default(PENDING)
-  metadata        Json?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id         String         @id @default(cuid())
+  userId     String
+  type       PaymentType
+  amountUsd  Decimal        @db.Decimal(8, 2)
+  amountLkr  Decimal        @db.Decimal(10, 2)
+  currency   String         @default("LKR")
+  gateway    PaymentGateway
+  gatewayRef String? // PayHere order_id or Stripe payment_intent_id
+  status     PaymentStatus  @default(PENDING)
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 
   @@map("payment_transactions")
 }
@@ -623,7 +705,6 @@ enum PaymentType {
   SUBSCRIPTION
   BOOST
   VERIFICATION_BADGE
-  SPONSORED_POST
 }
 
 enum PaymentGateway {

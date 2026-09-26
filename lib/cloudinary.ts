@@ -18,7 +18,7 @@ export function buildUploadFolder(
   folder: UploadFolder,
   userId: string,
 ): string {
-  return `lumevelo/${folder}/${userId}`;
+  return `slmarket/${folder}/${userId}`;
 }
 
 // Cloudinary signed uploads: the browser uploads straight to Cloudinary,
@@ -41,7 +41,7 @@ export async function deleteAsset(
   await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
 }
 
-// Cloudinary delivery URLs: https://res.cloudinary.com/{cloud}/image/upload/v169.../lumevelo/listings/{userId}/{name}.jpg
+// Cloudinary delivery URLs: https://res.cloudinary.com/{cloud}/image/upload/v169.../slmarket/listings/{userId}/{name}.jpg
 // The public_id is everything after the optional version segment, minus the extension.
 function extractPublicId(url: string): string | null {
   const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+(?:\?.*)?$/);
