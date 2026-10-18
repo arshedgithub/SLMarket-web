@@ -46,3 +46,8 @@ next-env.d.ts
 
 .claude
 memory
+# Local dev basemap (36 MB). Production serves it from object storage (see docs in lib/business/directory/map.ts).
+/public/tiles/*.pmtiles
+
+# Copied from node_modules by scripts/copy-maplibre-worker.mjs
+/public/vendor/maplibre/

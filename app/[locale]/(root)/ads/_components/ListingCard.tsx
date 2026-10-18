@@ -6,6 +6,7 @@ import {
   BadgeCheck,
   Briefcase,
   Camera,
+  Crown,
   Heart,
   MapPin,
   MessageCircle,
@@ -17,23 +18,11 @@ import {
 import { Link } from "@/i18n/navigation";
 import { categories } from "@/config/const/navLinks";
 import { categoryIcon } from "@/config/const/categoryIcons";
+import { businessHref } from "@/lib/business/slug";
 import { sampleShops, type SampleListing } from "./data";
+import { AVATAR_TONE } from "./avatarTone";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://slmarket.lk";
-
-const LOGO_COLORS = [
-  "bg-[#0c1f5e]",
-  "bg-blue-600",
-  "bg-[#1557d6]",
-  "bg-pink-600",
-  "bg-[#0b5bd3]",
-];
-
-export function logoColorFor(name: string) {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-  return LOGO_COLORS[h % LOGO_COLORS.length];
-}
 
 // Sample data has no photo count, so derive a stable one per ad.
 function photoCount(id: string) {
@@ -46,14 +35,11 @@ function shortAgo(s: string) {
   return s.replace(/ hours?/, "h").replace(/ days?/, "d");
 }
 
-// Full digits everywhere — never "Rs. 18.5M". Salary ranges use an en
-// dash and always say "/ month".
+// Full digits everywhere, never "Rs. 18.5M". Salary ranges keep their
+// "from to to" label and always say "/ month".
 function priceParts(l: SampleListing): { main: string; suffix: string } {
   if (l.priceLabel.includes(" to ")) {
-    return {
-      main: l.priceLabel.replace(" to ", " \u2013 "),
-      suffix: "/ month",
-    };
+    return { main: l.priceLabel, suffix: "/ month" };
   }
   const monthly = l.priceLabel.includes("/ month");
   return {
@@ -67,6 +53,26 @@ export function dropPercent(l: SampleListing) {
   const old = Number(l.originalPriceLabel.replace(/[^\d]/g, ""));
   if (!old || old <= l.price) return null;
   return Math.round(((old - l.price) / old) * 100);
+}
+
+type Tier = "premium" | "featured";
+
+// One tier badge per card: Premium outranks Featured.
+function tierFor(l: SampleListing): Tier | null {
+  if (l.premium) return "premium";
+  if (l.featured) return "featured";
+  return null;
+}
+
+type Cue = "job" | "rent" | "sale";
+
+// What kind of ad this is, where it isn't obvious from the photo.
+function cueFor(l: SampleListing): Cue | null {
+  if (l.categoryId === "jobs") return "job";
+  if (l.categoryId === "property") {
+    return l.priceLabel.includes("/ month") ? "rent" : "sale";
+  }
+  return null;
 }
 
 function categoryIconFor(categoryId: string) {
@@ -84,53 +90,132 @@ function detailHrefFor(listing: SampleListing) {
   return `/ads/${listing.categoryId}?q=${encodeURIComponent(listing.title)}`;
 }
 
+function TierBadge({ tier, className }: { tier: Tier; className: string }) {
+  const t = useTranslations("listings");
+  if (tier === "premium") {
+    return (
+      <span
+        className={`inline-flex items-center gap-1 rounded-full bg-[image:var(--premium-gold)] px-2.5 py-1 text-[11px] font-bold leading-none text-[color:var(--premium-navy-1)] shadow-sm ${className}`}
+      >
+        <Crown aria-hidden className="h-3 w-3" />
+        {t("premiumCard.premium")}
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`rounded-full bg-amber-500 px-2.5 py-1 text-[11px] font-bold leading-none text-amber-950 shadow-sm ${className}`}
+    >
+      {t("card.featured")}
+    </span>
+  );
+}
+
+function CueLabel({ cue, className }: { cue: Cue; className: string }) {
+  const t = useTranslations("listings");
+  return (
+    <span
+      className={`rounded-md bg-white px-1.5 py-0.5 text-[11px] font-semibold leading-4 text-slate-800 shadow-sm ${className}`}
+    >
+      {t(`card.cue.${cue}`)}
+    </span>
+  );
+}
+
+function PhotoCount({ id, className }: { id: string; className: string }) {
+  return (
+    <span
+      className={`flex items-center gap-1 rounded-md bg-slate-900/85 px-1.5 py-0.5 text-[11px] font-semibold leading-4 text-white ${className}`}
+    >
+      <Camera aria-hidden className="h-3 w-3" />
+      {photoCount(id)}
+    </span>
+  );
+}
+
+const isRange = (l: SampleListing) => l.priceLabel.includes(" to ");
+
+// `rangeSuffixBelow`: grid cards move a salary range's "/ month" into the
+// deal row (jobs never carry a deal) so the price stays on one line.
 function PriceLine({
   listing,
   size,
+  rangeSuffixBelow = false,
 }: {
   listing: SampleListing;
   size: "sm" | "lg";
+  rangeSuffixBelow?: boolean;
 }) {
-  const t = useTranslations("listings");
-  const pct = dropPercent(listing);
+  const { main, suffix: rawSuffix } = priceParts(listing);
+  const suffix = rangeSuffixBelow && isRange(listing) ? "" : rawSuffix;
   return (
     <p
-      className={`flex flex-wrap items-baseline gap-x-1.5 gap-y-0 font-bold text-[#1557d6] ${
+      className={`flex flex-wrap items-baseline gap-x-1.5 font-bold leading-6 text-[color:var(--color-market-price)] ${
         size === "lg" ? "text-xl" : "text-base"
       }`}
     >
-      <span className="whitespace-nowrap">{priceParts(listing).main}</span>
-      {priceParts(listing).suffix && (
-        <span className="whitespace-nowrap text-xs font-medium text-[var(--color-market-text-muted)]">
-          {priceParts(listing).suffix}
-        </span>
-      )}
-      {listing.originalPriceLabel && (
-        <span className="text-xs font-medium text-[var(--color-market-text-muted)] line-through">
-          {listing.originalPriceLabel}
-        </span>
-      )}
-      {pct && (
-        <span className="text-xs font-bold text-emerald-600">
-          &minus;{pct}%
-        </span>
-      )}
-      {listing.negotiable && (
-        <span className="text-xs font-medium text-[var(--color-market-text-muted)]">
-          {t("card.negotiable")}
+      <span className="whitespace-nowrap">{main}</span>
+      {suffix && (
+        <span className="whitespace-nowrap text-xs font-medium text-[color:var(--color-market-text-muted)]">
+          {suffix}
         </span>
       )}
     </p>
   );
 }
 
-// Attribute line: category icon in its own fixed slot, then text that is
-// only ever cut off at the END (most important attribute first).
+// Under the price: the one discount pattern (old price struck through plus
+// a percentage chip) and/or the promo code as a small tag. `reserve` keeps
+// the row's height on cards without a deal so grid cards line up.
+function DealLine({
+  listing,
+  reserve,
+}: {
+  listing: SampleListing;
+  reserve: boolean;
+}) {
+  const t = useTranslations("listings");
+  const pct = dropPercent(listing);
+  const promo = listing.deal === "coupon";
+  if (!pct && !promo) {
+    if (!reserve) return null;
+    return isRange(listing) ? (
+      <p className="h-5 text-xs font-medium leading-5 text-[color:var(--color-market-text-muted)]">
+        {priceParts(listing).suffix}
+      </p>
+    ) : (
+      <div aria-hidden className="h-5" />
+    );
+  }
+  return (
+    <div className="flex h-5 min-w-0 items-center gap-1.5">
+      {pct && (
+        <>
+          <span className="whitespace-nowrap text-xs text-[color:var(--color-market-text-muted)] line-through">
+            {listing.originalPriceLabel}
+          </span>
+          <span className="shrink-0 rounded bg-emerald-50 px-1 text-[11px] font-bold leading-4 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+            &minus;{pct}%
+          </span>
+        </>
+      )}
+      {promo && (
+        <span className="flex min-w-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-1.5 text-[11px] font-semibold leading-4 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+          <Tag aria-hidden className="h-3 w-3 shrink-0" />
+          <span className="truncate">{listing.offer ?? t("card.coupon")}</span>
+        </span>
+      )}
+    </div>
+  );
+}
+
+// Attribute row: category icon in its own fixed slot, then text that is
+// only ever cut off at the END (attrs are stored most important first).
 function AttrLine({ listing, max }: { listing: SampleListing; max: number }) {
   const Icon = categoryIconFor(listing.categoryId);
   return (
-    <p className="flex min-w-0 items-center gap-1.5 text-[13px] text-[var(--color-market-text-secondary)]">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+    <p className="flex h-5 min-w-0 items-center gap-1.5 text-[13px] text-[color:var(--color-market-text-secondary)]">
+      <Icon aria-hidden className="h-3.5 w-3.5 shrink-0 text-slate-400" />
       <span className="min-w-0 flex-1 truncate">
         {listing.attrs
           .filter((a) => a.toLowerCase() !== listing.location.toLowerCase())
@@ -141,22 +226,18 @@ function AttrLine({ listing, max }: { listing: SampleListing; max: number }) {
   );
 }
 
-function OfferLine({ listing }: { listing: SampleListing }) {
+// Location row, with the Negotiable chip on the right where it applies.
+function MetaLine({ listing, text }: { listing: SampleListing; text: string }) {
   const t = useTranslations("listings");
-  if (listing.deal !== "coupon") return null;
   return (
-    <p className="flex min-w-0 items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-      <Tag className="h-3 w-3 shrink-0" />
-      <span className="truncate">{listing.offer ?? t("card.coupon")}</span>
-    </p>
-  );
-}
-
-function MetaLine({ text }: { text: string }) {
-  return (
-    <p className="flex min-w-0 items-center gap-1 text-xs text-[var(--color-market-text-muted)]">
-      <MapPin className="h-3 w-3 shrink-0" />
-      <span className="truncate">{text}</span>
+    <p className="flex h-5 min-w-0 items-center gap-1 text-xs text-[color:var(--color-market-text-muted)]">
+      <MapPin aria-hidden className="h-3 w-3 shrink-0" />
+      <span className="min-w-0 flex-1 truncate">{text}</span>
+      {listing.negotiable && (
+        <span className="shrink-0 rounded bg-slate-100 px-1.5 text-[11px] font-medium leading-4 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          {t("card.negotiable")}
+        </span>
+      )}
     </p>
   );
 }
@@ -166,41 +247,60 @@ function SellerLine({ listing }: { listing: SampleListing }) {
   if (listing.sellerName) {
     return (
       <Link
-        href="/businesses"
-        className="relative z-10 flex min-w-0 items-center gap-2 text-[13px] font-medium leading-5 text-[var(--color-market-text)] hover:text-blue-600"
+        href={businessHref(listing.sellerName)}
+        className="relative z-10 flex min-w-0 items-center gap-2 text-[color:var(--color-market-text-muted)] hover:text-blue-600"
       >
         <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${logoColorFor(listing.sellerName)}`}
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${AVATAR_TONE}`}
         >
           {listing.sellerName.slice(0, 2).toUpperCase()}
         </span>
-        <span className="truncate">{listing.sellerName}</span>
+        {/* Sized on the span: the global `a { font: inherit }` reset in
+            globals.css is unlayered and overrides size utilities on links. */}
+        <span className="truncate text-[13px] leading-5">
+          {listing.sellerName}
+        </span>
         <BadgeCheck className="h-4 w-4 shrink-0 fill-blue-600 text-white" />
       </Link>
     );
   }
   return (
-    <span className="flex min-w-0 items-center gap-2 text-[13px] text-[var(--color-market-text-secondary)]">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-500 dark:bg-slate-700">
-        <User className="h-4 w-4" />
+    <span className="flex min-w-0 items-center gap-2 text-[13px] leading-5 text-[color:var(--color-market-text-muted)]">
+      <span
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${AVATAR_TONE}`}
+      >
+        <User aria-hidden className="h-4 w-4" />
       </span>
       <span className="truncate">{t("card.individual")}</span>
     </span>
   );
 }
 
+// 44px hit area; the dark translucent disc stays visible on white photos.
 function HeartButton({ className = "" }: { className?: string }) {
   const t = useTranslations("listings");
   return (
     <button
       type="button"
       aria-label={t("card.saveListing")}
-      className={`z-10 flex h-11 w-11 items-center justify-center text-slate-500 transition hover:text-rose-500 ${className}`}
+      className={`group/heart z-10 flex h-11 w-11 items-center justify-center ${className}`}
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow-sm dark:bg-slate-900/90">
+      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900/45 text-white shadow-sm backdrop-blur-sm transition group-hover/heart:bg-slate-900/60 group-hover/heart:text-rose-300">
         <Heart className="h-4 w-4" />
       </span>
     </button>
+  );
+}
+
+// Jobs have no photo: a tinted header with a briefcase keeps the card's
+// top edge defined (the company name is already in the seller row).
+function JobHeader({ iconClass }: { iconClass: string }) {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-[var(--color-market-blue-light)] dark:bg-[#132038]">
+      <span className="flex items-center justify-center rounded-2xl bg-white p-3 text-slate-600 shadow-sm dark:bg-slate-800 dark:text-slate-300">
+        <Briefcase aria-hidden className={iconClass} />
+      </span>
+    </div>
   );
 }
 
@@ -257,15 +357,19 @@ export function ListingCard({
   listing: SampleListing;
   view?: "grid" | "list";
 }) {
-  const t = useTranslations("listings");
   const detailHref = detailHrefFor(listing);
   const stretched =
     "after:absolute after:inset-0 after:content-[''] focus-visible:outline-none";
   const isJob = listing.categoryId === "jobs";
+  const tier = tierFor(listing);
+  const cue = cueFor(listing);
 
   if (view === "list") {
     return (
-      <article className="market-listing-card group relative overflow-hidden p-3 md:p-4">
+      <article
+        data-tier={tier ?? undefined}
+        className="market-listing-card group relative overflow-hidden p-3 md:p-4"
+      >
         <div
           className={`grid gap-3 md:gap-5 ${
             isJob
@@ -281,9 +385,7 @@ export function ListingCard({
             }`}
           >
             {isJob ? (
-              <div className="flex h-full w-full items-center justify-center bg-blue-50 text-blue-500 dark:bg-blue-950">
-                <Briefcase className="h-6 w-6 md:h-10 md:w-10" />
-              </div>
+              <JobHeader iconClass="h-5 w-5 md:h-8 md:w-8" />
             ) : (
               <Image
                 src={listing.image}
@@ -293,41 +395,53 @@ export function ListingCard({
                 className="object-cover transition duration-500 group-hover:scale-105"
               />
             )}
-            {listing.featured && (
-              <span className="absolute left-1.5 top-1.5 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-                {t("card.featured")}
-              </span>
+            {tier && (
+              <TierBadge
+                tier={tier}
+                className="absolute left-1.5 top-1.5 hidden md:inline-flex"
+              />
             )}
             {!isJob && (
-              <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-                <Camera className="h-3 w-3" />
-                {photoCount(listing.id)}
-              </span>
+              <PhotoCount
+                id={listing.id}
+                className="absolute bottom-1.5 left-1.5"
+              />
+            )}
+            {cue && (
+              <CueLabel
+                cue={cue}
+                className="absolute bottom-1.5 right-1.5 hidden md:block"
+              />
             )}
           </div>
 
           <div className="flex min-w-0 flex-col gap-1">
-            <h3 className="truncate pr-10 text-[15px] font-semibold text-[var(--color-market-text)] md:text-base">
+            {tier && <TierBadge tier={tier} className="self-start md:hidden" />}
+            <h3 className="line-clamp-2 pr-10 text-[15px] font-semibold leading-5 text-[color:var(--color-market-text)] md:text-base">
               <Link href={detailHref} className={stretched}>
                 {listing.title}
               </Link>
             </h3>
             <div className="md:hidden">
               <PriceLine listing={listing} size="sm" />
+              <DealLine listing={listing} reserve={false} />
             </div>
             <AttrLine listing={listing} max={3} />
-            <OfferLine listing={listing} />
             {listing.description && (
-              <p className="hidden line-clamp-2 text-sm text-[var(--color-market-text-secondary)] md:block">
+              <p className="hidden line-clamp-2 text-sm text-[color:var(--color-market-text-secondary)] md:block">
                 {listing.description}
               </p>
             )}
-            <MetaLine text={`${listing.location} · ${listing.postedAgo}`} />
+            <MetaLine
+              listing={listing}
+              text={`${listing.location} · ${listing.postedAgo}`}
+            />
           </div>
 
           <div className="col-span-2 flex items-center justify-between gap-3 border-t border-[var(--color-market-border)] pt-2 md:col-span-1 md:flex-col md:items-end md:justify-between md:border-0 md:pt-0">
-            <div className="hidden text-right md:block md:pr-10">
+            <div className="hidden flex-col items-end text-right md:flex md:pr-10">
               <PriceLine listing={listing} size="lg" />
+              <DealLine listing={listing} reserve={false} />
             </div>
             <div className="flex min-w-0 flex-1 items-center justify-between gap-3 md:flex-none md:flex-col md:items-end md:gap-2">
               <SellerLine listing={listing} />
@@ -341,22 +455,13 @@ export function ListingCard({
   }
 
   return (
-    <article className="market-listing-card group relative flex flex-col">
-      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
+    <article
+      data-tier={tier ?? undefined}
+      className="market-listing-card group relative flex h-full flex-col"
+    >
+      <div className="relative aspect-[4/3] overflow-hidden border-b border-[var(--color-market-border)] bg-slate-100 dark:bg-slate-800">
         {isJob ? (
-          <div className="flex h-full w-full items-center justify-center bg-blue-50 dark:bg-blue-950">
-            {listing.sellerName ? (
-              <span
-                className={`flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-bold text-white ${logoColorFor(listing.sellerName)}`}
-              >
-                {listing.sellerName.slice(0, 2).toUpperCase()}
-              </span>
-            ) : (
-              <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 text-blue-500 dark:bg-blue-900">
-                <Briefcase className="h-7 w-7" />
-              </span>
-            )}
-          </div>
+          <JobHeader iconClass="h-7 w-7" />
         ) : (
           <Image
             src={listing.image}
@@ -366,34 +471,37 @@ export function ListingCard({
             className="object-cover transition duration-500 group-hover:scale-105"
           />
         )}
-        {listing.featured && (
-          <span className="absolute left-2.5 top-2.5 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
-            {t("card.featured")}
-          </span>
+        {tier && (
+          <TierBadge tier={tier} className="absolute left-2.5 top-2.5" />
         )}
         {!isJob && (
-          <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-            <Camera className="h-3 w-3" />
-            {photoCount(listing.id)}
-          </span>
+          <PhotoCount id={listing.id} className="absolute bottom-2 left-2" />
         )}
+        {cue && <CueLabel cue={cue} className="absolute bottom-2 right-2" />}
         <HeartButton className="absolute right-1 top-1" />
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        <h3 className="truncate text-[15px] font-semibold text-[var(--color-market-text)]">
+      <div className="flex flex-1 flex-col p-3">
+        <h3 className="line-clamp-2 h-10 text-[15px] font-semibold leading-5 text-[color:var(--color-market-text)]">
           <Link href={detailHref} className={stretched}>
             {listing.title}
           </Link>
         </h3>
-        <PriceLine listing={listing} size="sm" />
-        <OfferLine listing={listing} />
-        <AttrLine listing={listing} max={3} />
-        <MetaLine
-          text={`${listing.location} · ${shortAgo(listing.postedAgo)}`}
-        />
-        <div className="mt-auto pt-2">
-          <SellerLine listing={listing} />
+        <div className="mt-1.5">
+          <PriceLine listing={listing} size="sm" rangeSuffixBelow />
+          <DealLine listing={listing} reserve />
+        </div>
+        <div className="mt-1.5 flex flex-col gap-0.5">
+          <AttrLine listing={listing} max={3} />
+          <MetaLine
+            listing={listing}
+            text={`${listing.location} · ${shortAgo(listing.postedAgo)}`}
+          />
+        </div>
+        <div className="mt-auto pt-3">
+          <div className="border-t border-[var(--color-market-border)] pt-2.5">
+            <SellerLine listing={listing} />
+          </div>
         </div>
       </div>
     </article>

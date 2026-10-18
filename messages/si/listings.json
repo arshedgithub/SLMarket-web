@@ -162,7 +162,19 @@
     "photos": "ඡායාරූප {count}",
     "latest": "නවතම",
     "nearYouShort": "ඔබ අසල {category}",
-    "exploreBusinesses": "ව්‍යාපාර බලන්න"
+    "exploreBusinesses": "ව්‍යාපාර බලන්න",
+    "cue": {
+      "job": "රැකියාව",
+      "rent": "කුලියට",
+      "sale": "විකිණීමට"
+    }
+  },
+  "premiumCard": {
+    "premium": "ප්‍රිමියම්",
+    "ad": "දැන්වීම",
+    "verified": "තහවුරු කළ ව්‍යාපාරය",
+    "visitShop": "සාප්පුවට පිවිසෙන්න · දැන්වීම් {count}",
+    "logoAlt": "{name} ලාංඡනය"
   },
   "empty": {
     "title": "ඔබේ පෙරහන් වලට ගැලපෙන දැන්වීම් නැත",
@@ -190,6 +202,11 @@
       "within-few-hours": "සාමාන්‍යයෙන් පැය කිහිපයක් ඇතුළත පිළිතුරු දෙයි",
       "within-day": "සාමාන්‍යයෙන් දිනක් ඇතුළත පිළිතුරු දෙයි"
     },
+    "responseShort": {
+      "within-hour": "පැයක් ඇතුළත පිළිතුරු",
+      "within-few-hours": "පැය කිහිපයකින් පිළිතුරු",
+      "within-day": "දිනක් ඇතුළත පිළිතුරු"
+    },
     "highlights": {
       "delivery": "දිවයින පුරා බෙදාහැරීම",
       "warranty": "වසරක වගකීම",
@@ -203,5 +220,15 @@
       "assembly": "එකලස් කිරීමේ සේවාව",
       "freshness": "නැවුම්බව සහතිකයි"
     }
+  },
+  "adPage": {
+    "breadcrumb": "සංචාලන මාර්ගය",
+    "allAds": "සියලු දැන්වීම්",
+    "free": "නොමිලේ",
+    "contactForPrice": "මිල සඳහා අමතන්න",
+    "from": "{price} සිට",
+    "posted": "පළ කළේ {date}",
+    "delivery": "බෙදාහැරීම ඇත",
+    "description": "විස්තරය"
   }
 }

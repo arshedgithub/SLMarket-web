@@ -10,8 +10,6 @@ import {
   LayoutGrid,
   List as ListIcon,
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
   MapPin,
   Search,
 } from "lucide-react";
@@ -44,6 +42,7 @@ import {
 import { ListingCard } from "./ListingCard";
 import { FeaturedBusinessesStrip } from "./BusinessCards";
 import { CategoryRow } from "./CategoryRow";
+import { Pagination } from "./Pagination";
 import {
   SponsoredPlaceholder,
   SponsoredUnit,
@@ -51,9 +50,7 @@ import {
   sponsoredContainerClass,
   sponsoredLayoutFor,
   sponsoredUnitShops,
-  useIsLgUp,
   useIsMdUp,
-  useIsXlUp,
   useSponsoredOrder,
 } from "./SponsoredUnit";
 
@@ -351,8 +348,8 @@ function MarketplaceTodayPanel({
 
 /* ============================================================
  * Page rules: 28 ads per page, in every view and on every device.
- *  - Two sponsored units per page, after the 8th and the 20th ad. Desktop
- *    grid: cells 9 and 22. Only the unit's width adapts (see SponsoredUnit).
+ *  - Two sponsored units per page, after the 8th and the 20th ad. Grid:
+ *    the unit spans 2 cells, dense flow closes any gap (see SponsoredUnit).
  *  - Featured ads: positions 1 and 2, then at most one per 8 ads.
  *  - A slot needs its ads: the first unit shows only when 8 ads come
  *    before it, the second only when 20 do.
@@ -409,80 +406,6 @@ function buildPageEntries(
     }
   });
   return entries;
-}
-
-// At most 7 numbers: first, last, current with neighbours, gaps as "...".
-function pageNumbers(current: number, total: number): (number | "gap")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-  if (current <= 4) return [1, 2, 3, 4, 5, "gap", total];
-  if (current >= total - 3)
-    return [1, "gap", total - 4, total - 3, total - 2, total - 1, total];
-  return [1, "gap", current - 1, current, current + 1, "gap", total];
-}
-
-function Pagination({
-  page,
-  totalPages,
-  onChange,
-}: {
-  page: number;
-  totalPages: number;
-  onChange: (page: number) => void;
-}) {
-  const t = useTranslations("listings");
-  const base =
-    "flex h-10 min-w-10 items-center justify-center rounded-xl px-2 text-sm font-semibold transition";
-  return (
-    <nav
-      aria-label={t("pagination.label")}
-      className="flex flex-wrap items-center justify-center gap-1.5"
-    >
-      <button
-        type="button"
-        disabled={page <= 1}
-        onClick={() => onChange(page - 1)}
-        className={`${base} gap-1 px-3 text-[var(--color-market-text-secondary)] hover:bg-[var(--color-market-surface)] disabled:pointer-events-none disabled:opacity-40`}
-      >
-        <ChevronLeft className="h-4 w-4" />
-        {t("pagination.previous")}
-      </button>
-      {pageNumbers(page, totalPages).map((n, i) =>
-        n === "gap" ? (
-          <span
-            key={`gap-${i}`}
-            aria-hidden
-            className="flex h-10 w-6 items-center justify-center text-[var(--color-market-text-muted)]"
-          >
-            &hellip;
-          </span>
-        ) : (
-          <button
-            key={n}
-            type="button"
-            aria-label={t("pagination.page", { page: n })}
-            aria-current={n === page ? "page" : undefined}
-            onClick={() => n !== page && onChange(n)}
-            className={`${base} ${
-              n === page
-                ? "bg-blue-600 text-white shadow-sm"
-                : "border border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text-secondary)] hover:border-blue-300 hover:text-blue-600"
-            }`}
-          >
-            {n}
-          </button>
-        ),
-      )}
-      <button
-        type="button"
-        disabled={page >= totalPages}
-        onClick={() => onChange(page + 1)}
-        className={`${base} gap-1 px-3 text-[var(--color-market-text-secondary)] hover:bg-[var(--color-market-surface)] disabled:pointer-events-none disabled:opacity-40`}
-      >
-        {t("pagination.next")}
-        <ChevronRight className="h-4 w-4" />
-      </button>
-    </nav>
-  );
 }
 
 /* ============================================================
@@ -641,8 +564,6 @@ export function ListingsExperience({
   const totalPages = Math.max(1, Math.ceil(cappedTotal / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const isMdUp = useIsMdUp();
-  const isLgUp = useIsLgUp();
-  const isXlUp = useIsXlUp();
   // Desktop and tablet show one page; mobile appends pages.
   const startPage = isMdUp ? currentPage : Math.min(firstPage, currentPage);
   const pageNumbersShown = Array.from(
@@ -719,7 +640,7 @@ export function ListingsExperience({
   }, [arranged, categoryId, search, startPage, currentPage]);
 
   const sponsoredOrder = useSponsoredOrder(chunks, `${pathname}|${listKey}`);
-  const sponsoredLayout = sponsoredLayoutFor(view, isMdUp, isLgUp, isXlUp);
+  const sponsoredLayout = sponsoredLayoutFor(view, isMdUp);
 
   const singleDealScope = dealScope?.length === 1 ? dealScope[0] : null;
   const heading = dealScope
@@ -772,7 +693,7 @@ export function ListingsExperience({
       key={chunk.page}
       className={`${
         view === "grid"
-          ? "grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5"
+          ? "grid grid-flow-dense grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5"
           : "flex flex-col gap-3"
       } ${chunk.page > startPage ? "mt-3 md:mt-4" : ""}`}
     >
@@ -791,18 +712,15 @@ export function ListingsExperience({
           sponsoredOrder?.get(chunk.page)?.[entry.slot] ?? [],
           sponsoredLayout,
         );
-        // Row layouts drop out when there is nobody relevant; the cell
-        // layouts keep a fallback so every grid row stays full.
+        // Row layouts drop out when there is nobody relevant; the premium
+        // card keeps a fallback so every grid row stays full.
         if (!single && (sponsoredOrder === null || shops.length === 0))
           return null;
         const categoryName =
           categories.find((c) => c.id === chunk.categoryIds[entry.slot])
             ?.name ?? "";
         return (
-          <div
-            key={entry.key}
-            className={sponsoredContainerClass(view, sponsoredLayout)}
-          >
+          <div key={entry.key} className={sponsoredContainerClass(view)}>
             {sponsoredOrder === null ? (
               <SponsoredPlaceholder />
             ) : (
@@ -905,7 +823,7 @@ export function ListingsExperience({
   );
 
   return (
-    <div className="marketplace-page">
+    <div className="marketplace-page ads-page">
       {/* ================= Hero: plain background, no stock photo — the
           search bar and Marketplace Today panel carry the section on
           their own now. ================= */}

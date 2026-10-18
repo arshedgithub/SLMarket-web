@@ -1,0 +1,237 @@
+{
+  "kind": {
+    "products": "නිෂ්පාදන",
+    "services": "සේවා",
+    "vehicles": "වාහන",
+    "properties": "දේපළ",
+    "courses": "පාඨමාලා"
+  },
+  "sections": {
+    "offers": "දීමනා",
+    "brands": "වෙළඳ නාම",
+    "reviews": "සමාලෝචන",
+    "questions": "ප්‍රශ්න",
+    "about": "පිළිබඳව",
+    "location": "ස්ථානය"
+  },
+  "breadcrumb": {
+    "home": "මුල් පිටුව",
+    "businesses": "ව්‍යාපාර"
+  },
+  "hero": {
+    "verified": "තහවුරු කළ ව්‍යාපාරය",
+    "followers": "අනුගාමිකයන් {count}",
+    "since": "SLMarket හි {year} සිට",
+    "whatsapp": "WhatsApp",
+    "showNumber": "අංකය පෙන්වන්න",
+    "call": "අමතන්න",
+    "enquire": "විමසීමක් යවන්න",
+    "chat": "කතාබහ",
+    "follow": "අනුගමනය",
+    "following": "අනුගමනය කරයි",
+    "share": "බෙදාගන්න",
+    "closesAt": "{time} වසයි",
+    "opensAt": "{time} විවෘත වේ",
+    "opensTomorrow": "හෙට {time} විවෘත වේ",
+    "signInToSeeNumber": "අංකය බැලීමට පුරන්න",
+    "tryLater": "පසුව නැවත උත්සාහ කරන්න"
+  },
+  "share": {
+    "title": "මෙම පිටුව බෙදාගන්න",
+    "whatsapp": "WhatsApp",
+    "facebook": "Facebook",
+    "copy": "සබැඳිය පිටපත් කරන්න",
+    "copied": "සබැඳිය පිටපත් කළා"
+  },
+  "new": {
+    "badge": "SLMarket හි අලුත්"
+  },
+  "collections": {
+    "title": "විශේෂාංගගත එකතු",
+    "subtitle": "ඔබට අවශ්‍ය දේ සොයාගැනීමට {name} විසින් තෝරාගත් දේ",
+    "count": "{count, plural, one {භාණ්ඩ #} other {භාණ්ඩ #}}",
+    "autoNew": "අලුත් පැමිණීම්",
+    "autoDrops": "මිල අඩු කිරීම්"
+  },
+  "topPicks": {
+    "title": "{name} වෙතින් ඉහළම තේරීම්",
+    "viewAll": "සියලු {kind} {count} බලන්න"
+  },
+  "offers": {
+    "title": "විශේෂ දීමනා",
+    "subtitle": "{name} වෙතින් සීමිත කාලීන දීමනා",
+    "copy": "පිටපත් කරන්න",
+    "copied": "පිටපත් කළා",
+    "endsInDays": "{count, plural, one {දින #කින් අවසන් වේ} other {දින #කින් අවසන් වේ}}",
+    "endsInHours": "{count, plural, one {පැය #කින් අවසන් වේ} other {පැය #කින් අවසන් වේ}}",
+    "endsSoon": "පැයකට අඩු කාලයකින් අවසන් වේ",
+    "shop": "දීමනාව භාවිතා කරන්න"
+  },
+  "brands": {
+    "title": "වෙළඳ නාම",
+    "authorisedTitle": "බලයලත් වෙළඳ නාම",
+    "subtitle": "තහවුරු කළ බලයලත් නිල හවුල්කරුවන්",
+    "authorised": "බලයලත් අලෙවිකරු",
+    "proof": "සාක්ෂි තහවුරු කළ දිනය {date}",
+    "also": "තවත් ලබාගත හැක"
+  },
+  "catalogue": {
+    "title": "සියලු {kind} ({count})",
+    "search": "{name} තුළ සොයන්න",
+    "sort": "පෙළගස්වන්න",
+    "sortNewest": "අලුත්ම",
+    "sortPriceAsc": "මිල: අඩු සිට වැඩි",
+    "sortPriceDesc": "මිල: වැඩි සිට අඩු",
+    "all": "සියල්ල",
+    "noResults": "මෙම පෙරහන්වලට ගැළපෙන {kind} නැත.",
+    "emptyShop": "තවම {kind} ලැයිස්තුගත කර නැත. {name} පළ කරන විට දැනගැනීමට අනුගමනය කරන්න.",
+    "showing": "{total} න් {from} සිට {to} දක්වා පෙන්වයි",
+    "showingCount": "{total} න් {shown} ක් පෙන්වයි",
+    "showMore": "තවත් පෙන්වන්න"
+  },
+  "filters": {
+    "title": "පෙරහන්",
+    "any": "ඕනෑම",
+    "condition": "තත්ත්වය",
+    "price": "මිල (රු.)",
+    "min": "අවම",
+    "max": "උපරිම",
+    "to": "සිට",
+    "availability": "ලබාගත හැකි බව",
+    "warranty": "වගකීම",
+    "brand": "වෙළඳ නාමය",
+    "clear": "පෙරහන් ඉවත් කරන්න",
+    "close": "වසන්න",
+    "show": "ප්‍රතිඵල {count} ක් පෙන්වන්න"
+  },
+  "condition": {
+    "new": "අලුත්",
+    "used": "පාවිච්චි කළ",
+    "reconditioned": "ප්‍රතිසංස්කරණය කළ"
+  },
+  "warranty": {
+    "company": "සමාගම් වගකීම",
+    "shop": "අලෙවිසැල් වගකීම"
+  },
+  "duration": {
+    "years": "{count, plural, one {වසර #} other {වසර #}}",
+    "months": "{count, plural, one {මාස #} other {මාස #}}"
+  },
+  "availability": {
+    "in-stock": "තොගයේ ඇත",
+    "few-left": "ස්වල්පයක් ඉතිරියි",
+    "pre-order": "කල්තියා ඇණවුම",
+    "sold": "අලෙවි වී ඇත"
+  },
+  "product": {
+    "save": "සුරකින්න",
+    "negotiable": "සාකච්ඡා කළ හැක",
+    "instalment": "හෝ මසකට {amount} බැගින් මාස {months} ක් ({provider})",
+    "delivery": "බෙදාහැරීම දින {min} සිට {max} දක්වා",
+    "whatsappAbout": "{title} ගැන WhatsApp කරන්න"
+  },
+  "reviews": {
+    "title": "පාරිභෝගික සමාලෝචන ({count})",
+    "subtitle": "{name} වෙත SLMarket හරහා සම්බන්ධ වූ ගැනුම්කරුවන්ට පමණක් සමාලෝචනය කළ හැක.",
+    "outOf": "5 න්",
+    "count": "සමාලෝචන {count}",
+    "write": "සමාලෝචනයක් ලියන්න",
+    "contactFirst": "සමාලෝචනයක් ලිවීමට පළමුව {name} අමතන්න",
+    "signIn": "සමාලෝචනයක් ලිවීමට පුරන්න",
+    "filterAll": "සියල්ල",
+    "withPhotos": "ඡායාරූප සහිත",
+    "sortHelpful": "වඩාත් ප්‍රයෝජනවත්",
+    "contacted": "SLMarket හරහා සම්බන්ධ විය",
+    "reply": "{name} පිළිතුරු දුන්නා",
+    "helpful": "ප්‍රයෝජනවත් ({count})",
+    "seeAll": "සමාලෝචන {count} ම බලන්න",
+    "empty": "තවම සමාලෝචන නැත",
+    "emptyDesc": "{name} අමතා ඇති ගැනුම්කරුවන්ගේ සමාලෝචන මෙහි පෙන්වයි.",
+    "noMatch": "මෙම පෙරහන්වලට ගැළපෙන සමාලෝචන නැත.",
+    "about": "මේ ගැන: {product}",
+    "starsOf": "තරු 5 න් {stars}"
+  },
+  "qa": {
+    "title": "ප්‍රශ්න සහ පිළිතුරු",
+    "ask": "ප්‍රශ්නයක් අසන්න",
+    "empty": "තවම ප්‍රශ්න නැත. {name} ගෙන් පළමුව අසන්න.",
+    "seeAll": "ප්‍රශ්න {count} ම බලන්න"
+  },
+  "about": {
+    "title": "{name} පිළිබඳව",
+    "established": "ආරම්භ කළ වර්ෂය",
+    "teamSize": "කණ්ඩායමේ ප්‍රමාණය",
+    "team": "කණ්ඩායම හමුවන්න",
+    "languages": "භාෂා",
+    "payments": "ගෙවීම් ක්‍රම",
+    "instalments": "වාරික සැපයුම්කරුවන්",
+    "deliveryAreas": "බෙදාහැරීමේ ප්‍රදේශ",
+    "deliveryFee": "බෙදාහැරීමේ ගාස්තු සහ කාලය",
+    "warranty": "වගකීම් ප්‍රතිපත්තිය",
+    "returns": "ආපසු භාරදීමේ ප්‍රතිපත්තිය",
+    "faq": "නිතර අසන ප්‍රශ්න",
+    "social": "අපව අනුගමනය කරන්න"
+  },
+  "location": {
+    "title": "ස්ථානය සහ ශාඛා",
+    "mainBranch": "ප්‍රධාන ශාඛාව",
+    "hours": "විවෘත වේලාවන්",
+    "today": "අද",
+    "directions": "මාර්ගය බලන්න",
+    "branches": "ශාඛා {count}"
+  },
+  "trust": {
+    "title": "තහවුරු කළ ව්‍යාපාරය",
+    "notVerified": "තවම තහවුරු කර නැත",
+    "phone": "දුරකථන අංකය තහවුරු කළා",
+    "registration": "ව්‍යාපාර ලියාපදිංචිය තහවුරු කළා",
+    "address": "ලිපිනය තහවුරු කළා",
+    "authorised": "බලයලත් අලෙවිකරු සත්‍යාපනය",
+    "how": "අපි තහවුරු කරන්නේ කෙසේද"
+  },
+  "visit": {
+    "title": "පැමිණීම සහ සම්බන්ධ වීම",
+    "today": "අද: {hours}",
+    "seeHours": "සියලු වේලාවන් බලන්න",
+    "hideHours": "වේලාවන් සඟවන්න",
+    "hoursNotSet": "විවෘත වේලාවන් තවම එක් කර නැත"
+  },
+  "enquiry": {
+    "title": "{name} වෙත විමසන්න",
+    "subtitle": "ඔබ සොයන දේ පවසන්න, අපි ඔබ වෙත පිළිතුරු දෙන්නෙමු.",
+    "what": "ඔබ සොයන්නේ කුමක්ද?",
+    "whatPlaceholder": "උදා: iPhone 15",
+    "budget": "අයවැය (අත්‍යවශ්‍ය නොවේ)",
+    "method": "කැමති සම්බන්ධ වීමේ ක්‍රමය",
+    "methods": {
+      "whatsapp": "WhatsApp",
+      "call": "ඇමතුම",
+      "chat": "කතාබහ"
+    },
+    "phone": "ඔබේ දුරකථන අංකය",
+    "message": "පණිවිඩයක් එක් කරන්න (අත්‍යවශ්‍ය නොවේ)",
+    "errWhat": "ඔබ සොයන දේ පවසන්න.",
+    "errPhone": "වලංගු ශ්‍රී ලාංකික ජංගම අංකයක් ඇතුළත් කරන්න.",
+    "consent": "යැවීමෙන්, ඔබේ නම සහ අංකය {name} සමඟ බෙදාගැනීමට ඔබ එකඟ වේ.",
+    "privacy": "රහස්‍යතා ප්‍රතිපත්තිය",
+    "send": "විමසීම යවන්න",
+    "sending": "යවමින්...",
+    "sent": "{name} වෙත යැවුවා.",
+    "track": "පණිවිඩ තුළ මෙම විමසීම බලන්න",
+    "failed": "යැවීමට නොහැකි විය. ඔබේ සම්බන්ධතාව පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+    "retry": "නැවත උත්සාහ කරන්න"
+  },
+  "seller": {
+    "title": "විකුණුම්කරුගේ තොරතුරු",
+    "legalName": "නීත්‍යානුකූල නම",
+    "regNo": "ලියාපදිංචි අංකය",
+    "address": "ලියාපදිංචි ලිපිනය",
+    "contact": "සම්බන්ධ වීම",
+    "notProvided": "තවම ලබා දී නැත",
+    "report": "මෙම ව්‍යාපාරය වාර්තා කරන්න",
+    "tips": "ආරක්ෂිත මිලදී ගැනීමේ උපදෙස්"
+  },
+  "mobile": {
+    "back": "ආපසු"
+  }
+}

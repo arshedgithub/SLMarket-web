@@ -14,11 +14,26 @@
 export const COLOMBO_OFFSET_MINUTES = 330; // UTC+5:30, no daylight saving
 
 // Days 0 = Sunday ... 6 = Saturday. Minutes are minutes after local midnight.
+export type DayWindow = { openMinute: number; closeMinute: number };
 export type OpeningHours = {
   days: number[];
   openMinute: number;
   closeMinute: number;
+  // A weekday with its own window (null = closed that day), e.g. a shorter
+  // Sunday. Weekdays not listed here follow days/openMinute/closeMinute.
+  overrides?: Record<number, DayWindow | null>;
 };
+
+export function windowFor(
+  hours: OpeningHours,
+  weekday: number,
+): DayWindow | null {
+  const override = hours.overrides?.[weekday];
+  if (override !== undefined) return override;
+  return hours.days.includes(weekday)
+    ? { openMinute: hours.openMinute, closeMinute: hours.closeMinute }
+    : null;
+}
 
 // Used when a business has not set its own opening hours.
 export const DEFAULT_HOURS: OpeningHours = {
@@ -48,10 +63,10 @@ export function businessMinutesBetween(
     dayStart < e;
     dayStart += DAY_MS
   ) {
-    const weekday = new Date(dayStart).getUTCDay();
-    if (!hours.days.includes(weekday)) continue;
-    const open = dayStart + hours.openMinute * MIN_MS;
-    const close = dayStart + hours.closeMinute * MIN_MS;
+    const window = windowFor(hours, new Date(dayStart).getUTCDay());
+    if (!window) continue;
+    const open = dayStart + window.openMinute * MIN_MS;
+    const close = dayStart + window.closeMinute * MIN_MS;
     const from = Math.max(open, s);
     const to = Math.min(close, e);
     if (to > from) total += (to - from) / MIN_MS;
@@ -62,11 +77,8 @@ export function businessMinutesBetween(
 export function isOpenAt(date: Date, hours: OpeningHours = DEFAULT_HOURS) {
   const local = new Date(date.getTime() + COLOMBO_OFFSET_MINUTES * MIN_MS);
   const minute = local.getUTCHours() * 60 + local.getUTCMinutes();
-  return (
-    hours.days.includes(local.getUTCDay()) &&
-    minute >= hours.openMinute &&
-    minute < hours.closeMinute
-  );
+  const window = windowFor(hours, local.getUTCDay());
+  return !!window && minute >= window.openMinute && minute < window.closeMinute;
 }
 
 /* ------------------------------------------------------------------

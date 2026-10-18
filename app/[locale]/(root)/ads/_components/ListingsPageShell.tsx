@@ -108,7 +108,9 @@ export async function ListingsPageShell({
     : null;
 
   return (
-    <Suspense fallback={<div className="marketplace-page min-h-[60vh]" />}>
+    <Suspense
+      fallback={<div className="marketplace-page ads-page min-h-[60vh]" />}
+    >
       {/* key: the same page component serves every deal/category/subcategory
           URL, and filter state is seeded from the URL once on mount. */}
       <ListingsExperience

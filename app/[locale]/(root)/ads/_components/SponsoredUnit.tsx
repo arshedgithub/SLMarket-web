@@ -3,54 +3,31 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import {
-  ArrowRight,
-  Banknote,
-  BadgeCheck,
-  CalendarCheck,
-  ChevronRight,
-  ClipboardCheck,
-  CreditCard,
-  FileText,
-  Home,
-  Leaf,
-  RotateCcw,
-  ShieldCheck,
-  Star,
-  Store,
-  Truck,
-  Wrench,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, BadgeCheck, Star, Store } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { labelForSurface, responseLabelFor } from "@/lib/business/responseTime";
+import { sampleListings, type SampleListing, type SampleShop } from "./data";
+import { businessHref } from "@/lib/business/slug";
+import { AVATAR_TONE } from "./avatarTone";
 import {
-  DEFAULT_HOURS,
-  isOpenAt,
-  labelForSurface,
-  responseLabelFor,
-} from "@/lib/business/responseTime";
-import {
-  sampleListings,
-  type BusinessHighlight,
-  type SampleListing,
-  type SampleShop,
-} from "./data";
-import { dropPercent, logoColorFor } from "./ListingCard";
+  PremiumBusinessCard,
+  PremiumBusinessCardSkeleton,
+} from "./PremiumBusinessCard";
 
 /*
  * TWO sponsored units per page of 28 ads, always after the 8th and the 20th
  * ad, in every view and on every device. Only the container adapts:
- *   cell    5 columns (1280+) and 3 columns (768-1023): one business, one
- *           cell, built like an ad card
- *   wide    4 columns (1024-1279): one business spanning 2 cells
- *   row3    desktop list: a row of up to 3 businesses
- *   scroll  mobile (grid and list): a snap-scrolling row
+ *   premium  grid, every width: one business on the premium card, spanning
+ *            2 cells (the whole row on the 2 column phone grid). The grid
+ *            uses dense flow, so a span that would start in the last column
+ *            moves to the next row and the following ad fills the gap.
+ *   row3     desktop list: a row of up to 3 businesses
+ *   scroll   mobile list: a snap-scrolling row
  * A page view never changes its sponsored businesses. New businesses come
  * with a new page, a refresh or a new visit (see useSponsoredOrder).
  */
 
-export type SponsoredLayout = "cell" | "wide" | "row3" | "scroll";
+export type SponsoredLayout = "premium" | "row3" | "scroll";
 
 function useMedia(query: string) {
   const [matches, setMatches] = useState(false);
@@ -65,35 +42,25 @@ function useMedia(query: string) {
 }
 
 export const useIsMdUp = () => useMedia("(min-width: 768px)");
-export const useIsLgUp = () => useMedia("(min-width: 1024px)");
-export const useIsXlUp = () => useMedia("(min-width: 1280px)");
 
 export function sponsoredLayoutFor(
   view: "grid" | "list",
   mdUp: boolean,
-  lgUp: boolean,
-  xlUp: boolean,
 ): SponsoredLayout {
-  if (!mdUp) return "scroll";
-  if (view === "list") return "row3";
-  if (xlUp || !lgUp) return "cell";
-  return "wide";
+  if (view === "grid") return "premium";
+  return mdUp ? "row3" : "scroll";
 }
 
 export function sponsoredContainerClass(
   view: "grid" | "list",
-  layout: SponsoredLayout,
 ): string | undefined {
-  if (view !== "grid") return undefined;
-  if (layout === "scroll") return "col-span-full";
-  if (layout === "wide") return "col-span-2";
-  return undefined;
+  return view === "grid" ? "col-span-2" : undefined;
 }
 
 export const isSingleBusinessLayout = (layout: SponsoredLayout) =>
-  layout === "cell" || layout === "wide";
+  layout === "premium";
 
-// The businesses a unit shows: one for the cell layouts, up to three for
+// The businesses a unit shows: one for the premium card, up to three for
 // the row layouts.
 export function sponsoredUnitShops(
   slotShops: SampleShop[],
@@ -199,25 +166,20 @@ export function useSponsoredOrder(
  * Cards
  * ------------------------------------------------------------------ */
 
-// A business's latest DIFFERENT ads (fewer if it has fewer, never repeated).
+// A business's latest DIFFERENT ads (fewer if it has fewer, never repeated,
+// never the same photo twice).
 function latestAds(shop: SampleShop): SampleListing[] {
   const seen = new Set<string>();
   const ads: SampleListing[] = [];
   for (const l of sampleListings) {
-    if (l.sellerName !== shop.name || seen.has(l.title)) continue;
+    if (l.sellerName !== shop.name || seen.has(l.title) || seen.has(l.image))
+      continue;
     seen.add(l.title);
+    seen.add(l.image);
     ads.push(l);
     if (ads.length === 3) break;
   }
   return ads;
-}
-
-function detailHref(l: SampleListing) {
-  return `/ads/${l.categoryId}?q=${encodeURIComponent(l.title)}`;
-}
-
-function rupees(l: SampleListing) {
-  return `Rs. ${l.price.toLocaleString("en-US")}`;
 }
 
 function Thumbs({
@@ -244,308 +206,35 @@ function Thumbs({
   );
 }
 
-const HIGHLIGHT_ICONS: Record<BusinessHighlight, LucideIcon> = {
-  delivery: Truck,
-  warranty: ShieldCheck,
-  easyPayments: CreditCard,
-  cod: Banknote,
-  returns: RotateCcw,
-  inspection: ClipboardCheck,
-  leasing: FileText,
-  consultation: Home,
-  siteVisits: CalendarCheck,
-  assembly: Wrench,
-  freshness: Leaf,
-};
-
-type Fact = { key: string; Icon: LucideIcon; label: string; title?: string };
-
-// Trust lines under the tiles: the business's own highlights plus the
-// measured response label. Sponsored placements only ever show the two
-// fast labels. `max` is what the card has room for; the response label
-// keeps its place when earned, highlights fill the rest.
-function useFacts(shop: SampleShop, max: number): Fact[] {
+// Sample data has no logo or banner of its own (`cover` is a category
+// photo), so the card falls back to initials and the branded navy cover.
+// Every sponsored slot is a paid placement.
+function PremiumSponsored({ shop }: { shop: SampleShop }) {
   const t = useTranslations("listings");
   const label = labelForSurface(responseLabelFor(shop.response), "sponsored");
-  const highlights: Fact[] = shop.highlights.map((h) => ({
-    key: h,
-    Icon: HIGHLIGHT_ICONS[h],
-    label: t(`business.highlights.${h}`),
-  }));
-  if (!label) return highlights.slice(0, max);
-  return [
-    ...highlights.slice(0, max - 1),
-    {
-      key: "response",
-      Icon: Zap,
-      label: t(`business.response.${label}`),
-      title: t("business.responseTooltip"),
-    },
-  ];
-}
-
-function SponsoredPill() {
-  const t = useTranslations("listings");
   return (
-    <span className="absolute left-2.5 top-2.5 rounded-full bg-slate-900/75 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-      {t("shops.sponsored")}
-    </span>
-  );
-}
-
-function OpenPill({ shop }: { shop: SampleShop }) {
-  const t = useTranslations("listings");
-  const open = isOpenAt(new Date(), shop.hours ?? DEFAULT_HOURS);
-  return (
-    <span
-      className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-        open
-          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-          : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-      }`}
-    >
-      <span
-        className={`h-2 w-2 rounded-full ${open ? "bg-emerald-500" : "bg-slate-400"}`}
-      />
-      {open ? t("business.openNow") : t("business.closed")}
-    </span>
-  );
-}
-
-function FooterRow({ shop }: { shop: SampleShop }) {
-  const t = useTranslations("listings");
-  return (
-    <div className="mt-auto flex items-center justify-between gap-2 pt-1">
-      <span className="flex h-9 min-w-0 items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-white px-3 text-[13px] font-semibold text-blue-600 dark:border-blue-800 dark:bg-transparent">
-        <span className="truncate">{t("card.viewBusiness")}</span>
-        <ArrowRight className="h-4 w-4 shrink-0" />
-      </span>
-      <span className="flex shrink-0 items-center gap-0.5 whitespace-nowrap text-[13px] font-semibold text-blue-600">
-        {t("card.adsCount", { count: shop.listings.replace("+", "") })}
-        <ChevronRight className="h-4 w-4" />
-      </span>
-    </div>
-  );
-}
-
-function FactsRow({ facts, className }: { facts: Fact[]; className: string }) {
-  if (facts.length === 0) return null;
-  return (
-    <ul className={className}>
-      {facts.map(({ key, Icon, label, title }) => (
-        <li
-          key={key}
-          title={title}
-          className="flex min-w-0 items-center gap-1.5 text-xs text-[var(--color-market-text-secondary)]"
-        >
-          <Icon className="h-3.5 w-3.5 shrink-0 text-blue-600" />
-          <span className="truncate">{label}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function OldPrice({ ad }: { ad: SampleListing }) {
-  const pct = dropPercent(ad);
-  if (!pct) return null;
-  return (
-    <span className="flex flex-wrap items-center gap-x-1">
-      <span className="whitespace-nowrap text-[10px] text-[var(--color-market-text-muted)] line-through">
-        {ad.originalPriceLabel}
-      </span>
-      <span className="rounded bg-emerald-50 px-1 text-[10px] font-bold text-emerald-600 dark:bg-emerald-950">
-        &minus;{pct}%
-      </span>
-    </span>
-  );
-}
-
-// Catalogue tile. Small card: photo on top. Large card: photo left.
-function Tile({ ad, horizontal }: { ad: SampleListing; horizontal: boolean }) {
-  return (
-    <Link
-      href={detailHref(ad)}
-      className={`relative z-10 flex min-w-0 overflow-hidden rounded-lg border border-blue-100 bg-white transition hover:border-blue-300 dark:border-blue-900 dark:bg-[#132038] ${
-        horizontal ? "items-center gap-2 p-1.5" : "flex-col gap-1 p-1"
-      }`}
-    >
-      <span
-        className={`relative shrink-0 overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 ${
-          horizontal ? "h-14 w-14" : "aspect-[4/3] w-full"
-        }`}
-      >
-        <Image
-          src={ad.image}
-          alt=""
-          fill
-          sizes="90px"
-          className="object-cover"
-        />
-      </span>
-      <span className="flex min-w-0 flex-col">
-        <span
-          className={`text-[11px] font-semibold leading-tight text-[var(--color-market-text)] ${
-            horizontal ? "truncate" : "line-clamp-2"
-          }`}
-        >
-          {ad.title}
-        </span>
-        {horizontal && (
-          <span className="truncate text-[11px] text-[var(--color-market-text-muted)]">
-            {ad.attrs.slice(0, 2).join(" \u00b7 ")}
-          </span>
-        )}
-        {horizontal ? (
-          <span className="text-xs font-bold text-[#1557d6]">{rupees(ad)}</span>
-        ) : (
-          <span className="flex flex-col leading-tight">
-            <span className="text-[10px] text-[var(--color-market-text-muted)]">
-              Rs.
-            </span>
-            <span className="whitespace-nowrap text-[10.5px] font-bold tracking-tight text-[#1557d6]">
-              {ad.price.toLocaleString("en-US")}
-            </span>
-          </span>
-        )}
-        {horizontal && <OldPrice ad={ad} />}
-      </span>
-    </Link>
-  );
-}
-
-const CARD_SHELL =
-  "relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white transition hover:border-blue-300 dark:border-blue-900 dark:bg-[#0f1b2e]";
-
-function Cover({ shop, height }: { shop: SampleShop; height: string }) {
-  return (
-    <div
-      className={`relative shrink-0 bg-slate-100 dark:bg-slate-800 ${height}`}
-    >
-      <Image
-        src={shop.cover}
-        alt=""
-        fill
-        sizes="(min-width: 1024px) 480px, 240px"
-        className="object-cover"
-      />
-      <SponsoredPill />
-    </div>
-  );
-}
-
-function Logo({ shop, className }: { shop: SampleShop; className: string }) {
-  return (
-    <span
-      className={`relative z-10 flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-4 ring-white dark:ring-[#0f1b2e] ${logoColorFor(shop.name)} ${className}`}
-    >
-      {shop.name.slice(0, 2).toUpperCase()}
-    </span>
-  );
-}
-
-function NameLink({
-  shop,
-  className,
-}: {
-  shop: SampleShop;
-  className: string;
-}) {
-  return (
-    <p
-      className={`flex items-center gap-1 font-bold text-[var(--color-market-text)] ${className}`}
-    >
-      <Link
-        href="/businesses"
-        className="truncate after:absolute after:inset-0 after:content-['']"
-      >
-        {shop.name}
-      </Link>
-      <BadgeCheck className="h-4 w-4 shrink-0 fill-blue-600 text-white" />
-    </p>
-  );
-}
-
-// Small template: one cell (5 and 3 column grids).
-function SponsoredCell({ shop }: { shop: SampleShop }) {
-  const ads = latestAds(shop);
-  const facts = useFacts(shop, 2);
-  return (
-    <article className={CARD_SHELL}>
-      <Cover shop={shop} height="h-[84px]" />
-      <div className="flex flex-1 flex-col gap-2 px-3 pb-3">
-        <div className="flex items-start gap-2.5">
-          <Logo shop={shop} className="-mt-7 h-14 w-14 text-lg" />
-          <div className="min-w-0 flex-1 pt-1">
-            <NameLink shop={shop} className="text-[15px]" />
-            <p className="flex items-center gap-1 text-[11px] text-[var(--color-market-text-secondary)]">
-              <Star className="h-3 w-3 shrink-0 fill-amber-400 text-amber-400" />
-              <span className="truncate">
-                {shop.rating.toFixed(1)} ({shop.reviews}) &middot;{" "}
-                {shop.location} &middot; {shop.category}
-              </span>
-            </p>
-          </div>
-        </div>
-        {ads.length > 0 && (
-          <div
-            className="grid gap-1"
-            style={{
-              gridTemplateColumns: `repeat(${ads.length}, minmax(0, 1fr))`,
-            }}
-          >
-            {ads.map((ad) => (
-              <Tile key={ad.id} ad={ad} horizontal={false} />
-            ))}
-          </div>
-        )}
-        <FactsRow facts={facts} className="flex flex-col gap-1" />
-        <FooterRow shop={shop} />
-      </div>
-    </article>
-  );
-}
-
-// Large template: two cells wide (4 column grid).
-function SponsoredWide({ shop }: { shop: SampleShop }) {
-  const t = useTranslations("listings");
-  const ads = latestAds(shop);
-  const facts = useFacts(shop, 3);
-  return (
-    <article className={CARD_SHELL}>
-      <Cover shop={shop} height="h-[104px]" />
-      <div className="flex flex-1 flex-col gap-2.5 px-4 pb-3">
-        <div className="flex items-start gap-3">
-          <Logo shop={shop} className="-mt-9 h-[72px] w-[72px] text-2xl" />
-          <div className="min-w-0 flex-1 pt-1">
-            <NameLink shop={shop} className="text-lg" />
-            <p className="flex items-center gap-1 text-xs text-[var(--color-market-text-secondary)]">
-              <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
-              <span className="truncate">
-                {shop.rating.toFixed(1)} (
-                {t("card.reviews", { count: shop.reviews })}) &middot;{" "}
-                {shop.category} &middot; {shop.location}
-              </span>
-            </p>
-          </div>
-          <OpenPill shop={shop} />
-        </div>
-        {ads.length > 0 && (
-          <div
-            className="grid gap-2"
-            style={{
-              gridTemplateColumns: `repeat(${ads.length}, minmax(0, 1fr))`,
-            }}
-          >
-            {ads.map((ad) => (
-              <Tile key={ad.id} ad={ad} horizontal />
-            ))}
-          </div>
-        )}
-        <FactsRow facts={facts} className="flex flex-wrap gap-x-4 gap-y-1" />
-        <FooterRow shop={shop} />
-      </div>
-    </article>
+    <PremiumBusinessCard
+      shop={{
+        name: shop.name,
+        verified: true,
+        rating: shop.rating,
+        reviewCount: shop.reviews,
+        category: shop.category,
+        city: shop.location,
+        replyTime: label ? t(`business.responseShort.${label}`) : undefined,
+        delivery: shop.highlights.includes("delivery")
+          ? t("business.highlights.delivery")
+          : undefined,
+        adsCount: Number.parseInt(shop.listings, 10) || 0,
+        href: businessHref(shop.name),
+        isPaidPlacement: true,
+      }}
+      products={latestAds(shop).map((ad) => ({
+        imageUrl: ad.image,
+        price: ad.price,
+        alt: ad.title,
+      }))}
+    />
   );
 }
 
@@ -559,14 +248,14 @@ function SponsoredBusinessCard({
   const t = useTranslations("listings");
   return (
     <Link
-      href="/businesses"
+      href={businessHref(shop.name)}
       className={`flex min-w-0 flex-col gap-2 rounded-xl border border-blue-100 bg-white p-3 transition hover:border-blue-300 dark:border-blue-900 dark:bg-[#132038] ${
         scroll ? "w-[280px] shrink-0 snap-start" : ""
       }`}
     >
       <div className="flex items-center gap-3">
         <span
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-base font-bold text-white ${logoColorFor(shop.name)}`}
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-base font-bold ${AVATAR_TONE}`}
         >
           {shop.name.slice(0, 2).toUpperCase()}
         </span>
@@ -628,11 +317,7 @@ function ExploreCard({ category, fill }: { category: string; fill?: boolean }) {
 }
 
 // Reserves the slot's space until the picks are ready, so nothing jumps.
-export function SponsoredPlaceholder() {
-  return (
-    <div className="h-full min-h-[240px] rounded-2xl bg-blue-50/70 dark:bg-blue-950/40" />
-  );
-}
+export const SponsoredPlaceholder = PremiumBusinessCardSkeleton;
 
 export function SponsoredUnit({
   shops,
@@ -645,16 +330,9 @@ export function SponsoredUnit({
 }) {
   const t = useTranslations("listings");
 
-  if (layout === "cell") {
+  if (layout === "premium") {
     return shops[0] ? (
-      <SponsoredCell shop={shops[0]} />
-    ) : (
-      <ExploreCard category={contextCategory} fill />
-    );
-  }
-  if (layout === "wide") {
-    return shops[0] ? (
-      <SponsoredWide shop={shops[0]} />
+      <PremiumSponsored shop={shops[0]} />
     ) : (
       <ExploreCard category={contextCategory} fill />
     );

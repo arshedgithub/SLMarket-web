@@ -1,0 +1,237 @@
+{
+  "kind": {
+    "products": "Products",
+    "services": "Services",
+    "vehicles": "Vehicles",
+    "properties": "Properties",
+    "courses": "Courses"
+  },
+  "sections": {
+    "offers": "Offers",
+    "brands": "Brands",
+    "reviews": "Reviews",
+    "questions": "Questions",
+    "about": "About",
+    "location": "Location"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "businesses": "Businesses"
+  },
+  "hero": {
+    "verified": "Verified business",
+    "followers": "{count} followers",
+    "since": "On SLMarket since {year}",
+    "whatsapp": "WhatsApp",
+    "showNumber": "Show number",
+    "call": "Call",
+    "enquire": "Send enquiry",
+    "chat": "Chat",
+    "follow": "Follow",
+    "following": "Following",
+    "share": "Share",
+    "closesAt": "Closes {time}",
+    "opensAt": "Opens {time}",
+    "opensTomorrow": "Opens tomorrow {time}",
+    "signInToSeeNumber": "Sign in to see number",
+    "tryLater": "Try again later"
+  },
+  "share": {
+    "title": "Share this page",
+    "whatsapp": "WhatsApp",
+    "facebook": "Facebook",
+    "copy": "Copy link",
+    "copied": "Link copied"
+  },
+  "new": {
+    "badge": "New on SLMarket"
+  },
+  "collections": {
+    "title": "Featured collections",
+    "subtitle": "Handpicked by {name} to help you find what you need",
+    "count": "{count, plural, one {# item} other {# items}}",
+    "autoNew": "New arrivals",
+    "autoDrops": "Price drops"
+  },
+  "topPicks": {
+    "title": "Top picks from {name}",
+    "viewAll": "View all {count} {kind}"
+  },
+  "offers": {
+    "title": "Special offers",
+    "subtitle": "Limited time offers from {name}",
+    "copy": "Copy",
+    "copied": "Copied",
+    "endsInDays": "Ends in {count, plural, one {# day} other {# days}}",
+    "endsInHours": "Ends in {count, plural, one {# hour} other {# hours}}",
+    "endsSoon": "Ends in less than an hour",
+    "shop": "Shop the offer"
+  },
+  "brands": {
+    "title": "Brands",
+    "authorisedTitle": "Authorised brands",
+    "subtitle": "Official partners with verified authorisation",
+    "authorised": "Authorised dealer",
+    "proof": "Proof verified {date}",
+    "also": "Also available"
+  },
+  "catalogue": {
+    "title": "All {kind} ({count})",
+    "search": "Search in {name}",
+    "sort": "Sort by",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "all": "All",
+    "noResults": "No {kind} match these filters.",
+    "emptyShop": "No {kind} listed yet. Follow {name} to hear when they post.",
+    "showing": "Showing {from} to {to} of {total}",
+    "showingCount": "Showing {shown} of {total}",
+    "showMore": "Show more"
+  },
+  "filters": {
+    "title": "Filters",
+    "any": "Any",
+    "condition": "Condition",
+    "price": "Price (Rs.)",
+    "min": "Min",
+    "max": "Max",
+    "to": "to",
+    "availability": "Availability",
+    "warranty": "Warranty",
+    "brand": "Brand",
+    "clear": "Clear filters",
+    "close": "Close",
+    "show": "Show {count} results"
+  },
+  "condition": {
+    "new": "Brand new",
+    "used": "Used",
+    "reconditioned": "Reconditioned"
+  },
+  "warranty": {
+    "company": "Company warranty",
+    "shop": "Shop warranty"
+  },
+  "duration": {
+    "years": "{count, plural, one {# year} other {# years}}",
+    "months": "{count, plural, one {# month} other {# months}}"
+  },
+  "availability": {
+    "in-stock": "In stock",
+    "few-left": "Few left",
+    "pre-order": "Pre-order",
+    "sold": "Sold"
+  },
+  "product": {
+    "save": "Save",
+    "negotiable": "Negotiable",
+    "instalment": "or {amount}/month for {months} months, {provider}",
+    "delivery": "Delivery {min} to {max} days",
+    "whatsappAbout": "WhatsApp about {title}"
+  },
+  "reviews": {
+    "title": "Customer reviews ({count})",
+    "subtitle": "Only buyers who contacted {name} through SLMarket can review.",
+    "outOf": "out of 5",
+    "count": "{count} reviews",
+    "write": "Write a review",
+    "contactFirst": "Contact {name} first to leave a review",
+    "signIn": "Sign in to write a review",
+    "filterAll": "All",
+    "withPhotos": "With photos",
+    "sortHelpful": "Most helpful",
+    "contacted": "Contacted via SLMarket",
+    "reply": "{name} replied",
+    "helpful": "Helpful ({count})",
+    "seeAll": "See all {count} reviews",
+    "empty": "No reviews yet",
+    "emptyDesc": "Reviews from buyers who contacted {name} will appear here.",
+    "noMatch": "No reviews match these filters.",
+    "about": "About: {product}",
+    "starsOf": "{stars} out of 5 stars"
+  },
+  "qa": {
+    "title": "Questions and answers",
+    "ask": "Ask a question",
+    "empty": "No questions yet. Be the first to ask {name}.",
+    "seeAll": "See all {count} questions"
+  },
+  "about": {
+    "title": "About {name}",
+    "established": "Established",
+    "teamSize": "Team size",
+    "team": "Meet the team",
+    "languages": "Languages",
+    "payments": "Payment methods",
+    "instalments": "Instalment providers",
+    "deliveryAreas": "Delivery areas",
+    "deliveryFee": "Delivery fee and time",
+    "warranty": "Warranty policy",
+    "returns": "Returns policy",
+    "faq": "Frequently asked questions",
+    "social": "Follow us"
+  },
+  "location": {
+    "title": "Location and branches",
+    "mainBranch": "Main branch",
+    "hours": "Opening hours",
+    "today": "Today",
+    "directions": "Get directions",
+    "branches": "{count} branches"
+  },
+  "trust": {
+    "title": "Verified business",
+    "notVerified": "Not verified yet",
+    "phone": "Phone number verified",
+    "registration": "Business registration verified",
+    "address": "Address verified",
+    "authorised": "Authorised dealer verification",
+    "how": "How we verify"
+  },
+  "visit": {
+    "title": "Visit and contact",
+    "today": "Today: {hours}",
+    "seeHours": "See all hours",
+    "hideHours": "Hide hours",
+    "hoursNotSet": "Opening hours not added yet"
+  },
+  "enquiry": {
+    "title": "Ask {name}",
+    "subtitle": "Tell us what you're looking for and we'll get back to you.",
+    "what": "What are you looking for?",
+    "whatPlaceholder": "e.g. iPhone 15",
+    "budget": "Budget (optional)",
+    "method": "Preferred contact method",
+    "methods": {
+      "whatsapp": "WhatsApp",
+      "call": "Call",
+      "chat": "Chat"
+    },
+    "phone": "Your phone number",
+    "message": "Add a message (optional)",
+    "errWhat": "Tell us what you're looking for.",
+    "errPhone": "Enter a valid Sri Lankan mobile number.",
+    "consent": "By sending, you agree to share your name and number with {name}.",
+    "privacy": "Privacy policy",
+    "send": "Send enquiry",
+    "sending": "Sending...",
+    "sent": "Sent to {name}.",
+    "track": "Track this enquiry in Messages",
+    "failed": "Couldn't send. Check your connection and try again.",
+    "retry": "Try again"
+  },
+  "seller": {
+    "title": "Seller information",
+    "legalName": "Legal name",
+    "regNo": "Registration no.",
+    "address": "Registered address",
+    "contact": "Contact",
+    "notProvided": "Not provided yet",
+    "report": "Report this business",
+    "tips": "Safe buying tips"
+  },
+  "mobile": {
+    "back": "Back"
+  }
+}

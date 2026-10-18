@@ -1,14 +1,15 @@
 import { cache } from "react";
 import { notFound } from "next/navigation";
-import { db } from "@/lib/db";
 import type { Metadata } from "next";
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ShieldCheck, MapPin, Clock, Globe } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { BadgeCheck, CalendarDays, MapPin, Tag, Truck } from "lucide-react";
+import { db } from "@/lib/db";
+import { Link } from "@/i18n/navigation";
+import { categories } from "@/config/const/navLinks";
 import MessageSellerButton from "./_components/MessageSellerButton";
 import { ListingGallery } from "@/components/listings/ListingGallery";
 import { NegotiateButton } from "@/components/listings/NegotiateButton";
+import { AVATAR_TONE } from "../../ads/_components/avatarTone";
 import { safeJsonLd } from "@/lib/utils/json-ld";
 import { localeAlternates } from "@/lib/seo/hreflang";
 
@@ -16,35 +17,47 @@ interface Props {
   params: Promise<{ slug: string; locale: string }>;
 }
 
-// cache() dedupes this within a single request — generateMetadata and the
-// page component both need the same listing, so without this they'd issue
-// two separate round-trips to Postgres for the same row.
+// cache() dedupes this within a single request: generateMetadata and the
+// page both need the same listing.
 const getListing = cache(async (slug: string) =>
-  db.listing.findUnique({
+  db.listing.findFirst({
     where: { slug, status: "ACTIVE" },
     include: {
-      seller: {
+      seller: { select: { name: true } },
+      businessProfile: {
         select: {
-          id: true,
           name: true,
-          shopSlug: true,
-          avatarUrl: true,
+          slug: true,
           isVerified: true,
-          locationCity: true,
-          specialties: true,
-          subscription: { select: { plan: { select: { name: true } } } },
+          logoUrl: true,
+          whatsappNumber: true,
+          status: true,
         },
       },
     },
   }),
 );
 
+type Listing = NonNullable<Awaited<ReturnType<typeof getListing>>>;
+
+// A suspended business hides all of its listings.
+const isVisible = (l: Listing) =>
+  !l.businessProfile || l.businessProfile.status === "ACTIVE";
+
+// Short spec chips stored by the post-ad flow (attributes.highlights).
+function highlightsOf(l: Listing): string[] {
+  const attrs = l.attributes as { highlights?: unknown } | null;
+  return Array.isArray(attrs?.highlights)
+    ? attrs.highlights.filter((h): h is string => typeof h === "string")
+    : [];
+}
+
+const rupees = (n: number) => `Rs. ${n.toLocaleString("en-US")}`;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params;
-
   const listing = await getListing(slug);
-
-  if (!listing) return { title: "Not Found" };
+  if (!listing || !isVisible(listing)) return { title: "Ad not found" };
 
   const title = listing.metaTitle ?? listing.title;
   const description =
@@ -60,8 +73,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: url,
       languages: localeAlternates(`/ad/${listing.slug}`),
     },
-    // og:image / twitter:image come from the sibling opengraph-image.tsx
-    // file convention — it generates a branded preview without the price.
+    // og:image / twitter:image come from the sibling opengraph-image.tsx.
     openGraph: {
       title,
       description,
@@ -69,64 +81,61 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: "SLMarket.lk",
       type: "website",
     },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
 export default async function AdPage({ params }: Props) {
-  const { slug } = await params;
-
+  const { slug, locale } = await params;
   const listing = await getListing(slug);
+  if (!listing || !isVisible(listing)) notFound();
 
-  if (!listing) notFound();
+  const t = await getTranslations({ locale, namespace: "listings" });
+  const tCat = await getTranslations({ locale, namespace: "categories" });
 
-  const seller = {
-    ...listing.seller,
-    planName: listing.seller.subscription?.plan.name ?? "free",
-  };
+  const category = categories.find((c) => c.id === listing.categoryId);
+  const hasSub = category?.subcategories.some(
+    (s) => s.id === listing.subcategoryId,
+  );
+  const price = listing.price === null ? null : Number(listing.price);
+  const business = listing.businessProfile;
+  const sellerName = business?.name ?? listing.seller.name;
+  const place = [listing.city, listing.district]
+    .filter((p, i, all) => p && all.indexOf(p) === i)
+    .join(", ");
+  const contactPhone = listing.showContactPhone ? listing.contactPhone : null;
+  const whatsapp = listing.allowWhatsapp
+    ? (business?.whatsappNumber ?? listing.contactPhone)
+    : null;
+  const highlights = highlightsOf(listing);
 
-  // JSON-LD schema
+  const priceText =
+    listing.pricingType === "FREE"
+      ? t("adPage.free")
+      : listing.pricingType === "CONTACT" || price === null
+        ? t("adPage.contactForPrice")
+        : listing.pricingType === "STARTING_FROM"
+          ? t("adPage.from", { price: rupees(price) })
+          : rupees(price);
+
   const jsonLd = listing.schemaMarkup ?? {
     "@context": "https://schema.org",
     "@type": "Product",
     name: listing.title,
     description: listing.description,
     image: listing.images,
-    brand: { "@type": "Brand", name: "SLMarket.lk" },
-    offers: {
-      "@type": "Offer",
-      price: listing.price,
-      priceCurrency: listing.currency,
-      availability: "https://schema.org/InStock",
-      seller: { "@type": "Organization", name: seller.name },
-      areaServed: { "@type": "Country", name: "Sri Lanka" },
-    },
-    additionalProperty: [
-      listing.gemOrigin && {
-        "@type": "PropertyValue",
-        name: "Origin",
-        value: listing.gemOrigin,
-      },
-      listing.caratWeight && {
-        "@type": "PropertyValue",
-        name: "Carat Weight",
-        value: String(listing.caratWeight),
-      },
-      listing.treatmentStatus && {
-        "@type": "PropertyValue",
-        name: "Treatment",
-        value: listing.treatmentStatus,
-      },
-      listing.certificationBody && {
-        "@type": "PropertyValue",
-        name: "Certified By",
-        value: listing.certificationBody,
-      },
-    ].filter(Boolean),
+    ...(price !== null && listing.pricingType !== "CONTACT"
+      ? {
+          offers: {
+            "@type": "Offer",
+            price,
+            priceCurrency: listing.currency,
+            availability: "https://schema.org/InStock",
+            seller: { "@type": "Organization", name: sellerName },
+            areaServed: { "@type": "Country", name: "Sri Lanka" },
+          },
+        }
+      : {}),
   };
 
   return (
@@ -136,140 +145,169 @@ export default async function AdPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Images */}
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <nav
+          aria-label={t("adPage.breadcrumb")}
+          className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-[color:var(--color-market-text-muted)]"
+        >
+          <Link href="/ads" className="hover:text-blue-600">
+            {t("adPage.allAds")}
+          </Link>
+          {category && (
+            <>
+              <span aria-hidden>/</span>
+              <Link
+                href={`/ads/${category.id}`}
+                className="hover:text-blue-600"
+              >
+                {tCat(`${category.id}.name`)}
+              </Link>
+            </>
+          )}
+          {category && hasSub && (
+            <>
+              <span aria-hidden>/</span>
+              <Link
+                href={`/ads/${category.id}/${listing.subcategoryId}`}
+                className="hover:text-blue-600"
+              >
+                {tCat(`${category.id}.subcategories.${listing.subcategoryId}`)}
+              </Link>
+            </>
+          )}
+        </nav>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
           <div className="lg:col-span-3">
             <ListingGallery
               images={listing.images}
-              reelUrl={listing.reelUrl}
+              reelUrl={listing.videoUrl}
               title={listing.title}
               isBoosted={listing.isBoosted}
             />
           </div>
 
-          {/* Details */}
-          <div className="lg:col-span-2 space-y-5">
+          <div className="space-y-5 lg:col-span-2">
             <div>
-              <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">
-                {listing.category}
-              </p>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="font-heading text-2xl font-bold text-[color:var(--color-market-text)]">
                 {listing.title}
               </h1>
-              <div className="mt-2">
-                <p className="flex items-center gap-2 text-3xl font-bold text-blue-600">
-                  {listing.currency} {Number(listing.price).toLocaleString()}
-                  {listing.pricingType === "Negotiable" && (
-                    <span className="text-xs font-bold uppercase tracking-wide text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">
-                      Negotiable
-                    </span>
-                  )}
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <p className="text-3xl font-bold text-[color:var(--color-market-price)]">
+                  {priceText}
                 </p>
-                {listing.pricingType === "Negotiable" && (
-                  <>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                      Price is negotiable. Message the seller for details.
-                    </p>
-                    <NegotiateButton
-                      listingId={listing.id}
-                      listingSlug={listing.slug}
-                      listingTitle={listing.title}
-                      whatsappNumber={
-                        listing.whatsappEnabled ? listing.whatsappNumber : null
-                      }
-                      className="mt-3 flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-                    />
-                  </>
+                {listing.negotiable && (
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    {t("card.negotiable")}
+                  </span>
                 )}
               </div>
+              {listing.promotionType !== "NONE" && listing.promotionDetail && (
+                <p className="mt-2 inline-flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+                  <Tag aria-hidden className="h-3.5 w-3.5" />
+                  {listing.promotionDetail}
+                </p>
+              )}
+              <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-[color:var(--color-market-text-muted)]">
+                {place && (
+                  <li className="flex items-center gap-1">
+                    <MapPin aria-hidden className="h-4 w-4" />
+                    {place}
+                  </li>
+                )}
+                <li className="flex items-center gap-1">
+                  <CalendarDays aria-hidden className="h-4 w-4" />
+                  {t("adPage.posted", {
+                    date: listing.createdAt.toLocaleDateString(
+                      locale === "en" ? "en-LK" : locale,
+                      {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    ),
+                  })}
+                </li>
+                {(listing.deliveryAvailable || listing.islandwideDelivery) && (
+                  <li className="flex items-center gap-1">
+                    <Truck aria-hidden className="h-4 w-4" />
+                    {listing.islandwideDelivery
+                      ? t("business.highlights.delivery")
+                      : t("adPage.delivery")}
+                  </li>
+                )}
+              </ul>
             </div>
 
-            {/* Category-specific details */}
-            <CategoryDetails listing={listing} />
-
-            {/* Certification images (all categories) */}
-            {listing.certificationImages?.length > 0 && (
-              <div>
-                <h2 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">
-                  Certification Documents
-                </h2>
-                <div className="flex gap-2 flex-wrap">
-                  {listing.certificationImages.map((src: string, i: number) => (
-                    <a
-                      key={i}
-                      href={src}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className="w-20 h-20 relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity">
-                        <Image
-                          src={src}
-                          alt={`Certificate ${i + 1}`}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                        />
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
+            {highlights.length > 0 && (
+              <ul className="flex flex-wrap gap-2">
+                {highlights.map((h) => (
+                  <li
+                    key={h}
+                    className="rounded-lg border border-[var(--color-market-border)] bg-[var(--color-market-surface)] px-2.5 py-1 text-sm text-[color:var(--color-market-text-secondary)]"
+                  >
+                    {h}
+                  </li>
+                ))}
+              </ul>
             )}
 
-            {/* Description */}
+            {listing.negotiable && (
+              <NegotiateButton
+                listingId={listing.id}
+                listingSlug={listing.slug}
+                listingTitle={listing.title}
+                whatsappNumber={whatsapp}
+                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+              />
+            )}
+
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-white mb-2">
-                Description
+              <h2 className="mb-2 font-semibold text-[color:var(--color-market-text)]">
+                {t("adPage.description")}
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="whitespace-pre-line text-sm leading-relaxed text-[color:var(--color-market-text-secondary)]">
                 {listing.description}
               </p>
             </div>
 
-            {/* Seller card */}
-            <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                  {seller.name.charAt(0)}
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                      {seller.name}
-                    </span>
-                    {seller.isVerified && (
-                      <ShieldCheck className="w-4 h-4 text-blue-500" />
+            <div className="rounded-xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] p-4">
+              <div className="mb-3 flex items-center gap-3">
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${AVATAR_TONE}`}
+                >
+                  {sellerName.slice(0, 2).toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1 text-sm font-semibold text-[color:var(--color-market-text)]">
+                    <span className="truncate">{sellerName}</span>
+                    {business?.isVerified && (
+                      <BadgeCheck
+                        aria-label={t("premiumCard.verified")}
+                        className="h-4 w-4 shrink-0 fill-blue-600 text-white"
+                      />
                     )}
-                  </div>
-                  {seller.locationCity && (
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-                      <MapPin className="w-3 h-3" />
-                      {seller.locationCity}, Sri Lanka
-                    </div>
-                  )}
+                  </p>
+                  <p className="text-xs text-[color:var(--color-market-text-muted)]">
+                    {business ? t("card.shop") : t("card.individual")}
+                  </p>
                 </div>
               </div>
 
-              {seller.shopSlug && (
+              {business && (
                 <Link
-                  href={`/business/${seller.shopSlug}`}
-                  className="block text-center text-xs font-medium text-blue-600 hover:underline mb-3"
+                  href={`/business/${business.slug}`}
+                  className="mb-3 block text-center text-xs font-medium text-blue-600 hover:underline"
                 >
-                  View business page →
+                  {t("card.viewBusiness")}
                 </Link>
               )}
 
-              {/* Message Seller (direct chat) + Call/WhatsApp fallback */}
               <MessageSellerButton
                 listingId={listing.id}
                 listingTitle={listing.title}
-                contactPhone={
-                  listing.hideContactPhone ? null : listing.contactPhone
-                }
-                whatsappNumber={
-                  listing.whatsappEnabled ? listing.whatsappNumber : null
-                }
+                contactPhone={contactPhone}
+                whatsappNumber={whatsapp}
               />
             </div>
           </div>
@@ -277,135 +315,4 @@ export default async function AdPage({ params }: Props) {
       </div>
     </>
   );
-}
-
-// ── Category-specific detail grids ─────────────────────────────────────────
-
-function DetailGrid({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-4 grid grid-cols-2 gap-3 text-sm">
-      {children}
-    </div>
-  );
-}
-
-function DetailCell({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  if (!value) return null;
-  return (
-    <div>
-      <p className="text-xs text-gray-500 mb-0.5">{label}</p>
-      <p className="font-semibold text-gray-900 dark:text-white">{value}</p>
-    </div>
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CategoryDetails({ listing }: { listing: any }) {
-  const category: string = listing.category;
-
-  if (category === "GEM") {
-    return (
-      <DetailGrid>
-        <DetailCell label="Gem Type" value={listing.gemType} />
-        <DetailCell
-          label="Carat Weight"
-          value={
-            listing.caratWeight ? `${Number(listing.caratWeight)} ct` : null
-          }
-        />
-        <DetailCell label="Origin" value={listing.gemOrigin} />
-        <DetailCell label="Current Location" value={listing.currentLocation} />
-        <DetailCell label="Treatment" value={listing.treatmentStatus} />
-        <DetailCell label="Certified By" value={listing.certificationBody} />
-        <DetailCell label="Certificate #" value={listing.certificationNumber} />
-      </DetailGrid>
-    );
-  }
-
-  if (category === "JEWELLERY") {
-    return (
-      <DetailGrid>
-        <DetailCell label="Type" value={listing.jewelleryType} />
-        <DetailCell
-          label="Metal"
-          value={
-            [listing.metalType, listing.metalPurity]
-              .filter(Boolean)
-              .join(" · ") || null
-          }
-        />
-        <DetailCell label="Accent Gemstone" value={listing.gemType} />
-        <DetailCell
-          label="Weight"
-          value={
-            listing.weightGrams ? `${Number(listing.weightGrams)} g` : null
-          }
-        />
-        <DetailCell label="Ring Size" value={listing.ringSize} />
-        <DetailCell label="Location" value={listing.currentLocation} />
-      </DetailGrid>
-    );
-  }
-
-  if (category === "PRECIOUS_METAL") {
-    return (
-      <DetailGrid>
-        <DetailCell label="Metal Type" value={listing.metalType} />
-        <DetailCell label="Purity" value={listing.metalPurity} />
-        <DetailCell
-          label="Weight"
-          value={
-            listing.weightGrams ? `${Number(listing.weightGrams)} g` : null
-          }
-        />
-        <DetailCell label="Current Location" value={listing.currentLocation} />
-        <DetailCell label="Certificate #" value={listing.certificationNumber} />
-      </DetailGrid>
-    );
-  }
-
-  if (category === "SERVICE") {
-    const areaLabel =
-      listing.serviceArea?.length > 0
-        ? listing.serviceArea.join(", ")
-        : (listing.currentLocation ?? null);
-
-    return (
-      <DetailGrid>
-        <DetailCell label="Service Type" value={listing.serviceType} />
-        <DetailCell label="Pricing" value={listing.pricingType} />
-        <DetailCell
-          label="Turnaround Time"
-          value={
-            listing.turnaroundTime ? (
-              <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {listing.turnaroundTime}
-              </span>
-            ) : null
-          }
-        />
-        <DetailCell
-          label="Service Area"
-          value={
-            areaLabel ? (
-              <span className="flex items-center gap-1">
-                <Globe className="w-3.5 h-3.5" />
-                {areaLabel}
-              </span>
-            ) : null
-          }
-        />
-        <DetailCell label="Workshop Location" value={listing.currentLocation} />
-      </DetailGrid>
-    );
-  }
-
-  return null;
 }

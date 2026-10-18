@@ -13,6 +13,7 @@ import {
   Star,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { businessHref } from "@/lib/business/slug";
 import type { SampleShop } from "./data";
 
 const TIER = {
@@ -36,7 +37,7 @@ function BusinessCard({ shop, index }: { shop: SampleShop; index: number }) {
 
   return (
     <Link
-      href="/businesses"
+      href={businessHref(shop.name)}
       className="group flex w-full min-w-0 flex-col overflow-hidden rounded-xl bg-[var(--color-market-surface)] shadow-[0_4px_18px_rgba(15,50,120,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_26px_rgba(15,50,120,0.14)]"
     >
       <div className="relative h-24">

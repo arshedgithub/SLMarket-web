@@ -650,9 +650,11 @@ export default async function HomePage({
   const t = await getTranslations({ locale, namespace: "home" });
   const tCat = await getTranslations({ locale, namespace: "categories" });
 
+  // The deals panel is a nice-to-have: if the database is unreachable the
+  // homepage still renders, with zero counts, instead of crashing.
   const [priceDropCount, offerCount] = await Promise.all([
-    getPriceDropCount(),
-    getActiveOfferCount(),
+    getPriceDropCount().catch(() => 0),
+    getActiveOfferCount().catch(() => 0),
   ]);
 
   const catItems: CategoryRailItem[] = categoryConfig.map((category) => ({

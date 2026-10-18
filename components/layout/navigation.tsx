@@ -76,7 +76,9 @@ export default function Navigation({
   const pathname = usePathname();
   // Listing pages carry their own one-row mobile header (logo mark +
   // search + location), so the global top bar is desktop/tablet only there.
-  const onListingPage = pathname.startsWith("/ads");
+  const onBusinessPage =
+    pathname.startsWith("/business/") && pathname !== "/business/new";
+  const onListingPage = pathname.startsWith("/ads") || onBusinessPage;
   const [hideBottomNav, setHideBottomNav] = useState(false);
 
   const { isDarkMode, toggleDarkMode } = useThemeStore();
@@ -794,7 +796,9 @@ export default function Navigation({
       <nav
         aria-label="Mobile navigation"
         className={`fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] transition-transform duration-200 dark:bg-[#0c1422] md:hidden ${
-          hideBottomNav && !isBottomAccountOpen ? "translate-y-full" : ""
+          (hideBottomNav && !isBottomAccountOpen) || onBusinessPage
+            ? "translate-y-full"
+            : ""
         }`}
       >
         <div className="grid grid-cols-5 items-end">

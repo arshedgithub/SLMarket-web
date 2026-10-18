@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  // lib/db.ts connects to Neon through its serverless driver (port 443).
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {

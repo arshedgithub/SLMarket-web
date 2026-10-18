@@ -162,7 +162,19 @@
     "photos": "{count} photos",
     "latest": "Latest",
     "nearYouShort": "{category} near you",
-    "exploreBusinesses": "Explore businesses"
+    "exploreBusinesses": "Explore businesses",
+    "cue": {
+      "job": "Job",
+      "rent": "Rent",
+      "sale": "Sale"
+    }
+  },
+  "premiumCard": {
+    "premium": "Premium",
+    "ad": "Ad",
+    "verified": "Verified business",
+    "visitShop": "Visit shop · {count} ads",
+    "logoAlt": "{name} logo"
   },
   "empty": {
     "title": "No ads match your filters",
@@ -190,6 +202,11 @@
       "within-few-hours": "Usually replies within a few hours",
       "within-day": "Usually replies within a day"
     },
+    "responseShort": {
+      "within-hour": "Replies within 1 hr",
+      "within-few-hours": "Replies within a few hrs",
+      "within-day": "Replies within a day"
+    },
     "highlights": {
       "delivery": "Islandwide delivery",
       "warranty": "1 year warranty",
@@ -203,5 +220,15 @@
       "assembly": "Assembly service",
       "freshness": "Freshness guaranteed"
     }
+  },
+  "adPage": {
+    "breadcrumb": "Breadcrumb",
+    "allAds": "All ads",
+    "free": "Free",
+    "contactForPrice": "Contact for price",
+    "from": "From {price}",
+    "posted": "Posted {date}",
+    "delivery": "Delivery available",
+    "description": "Description"
   }
 }

@@ -5,6 +5,7 @@
  * query once the schema is extended for the general marketplace.
  */
 
+import type { BusinessHighlight } from "@/lib/business/highlights";
 import type { OpeningHours } from "@/lib/business/responseTime";
 import {
   SRI_LANKA_DISTRICTS,
@@ -12,6 +13,19 @@ import {
 } from "@/config/const/sriLankaLocations";
 
 const CAT_IMG = "/images/marketplace/categories";
+// One photo per sample ad, matching the item (Unsplash licence, no
+// attribution required). Credits:
+//   toyota-aqua Angga Pratama, yamaha-fz-s Ankur Dagar, honda-vezel Ralph
+//   Florent, bajaj-three-wheeler Zoshua Colah, iphone-13 Ash-Lab, iphone-14
+//   Thai Nguyen, dell-xps-13 Dell, canon-eos-250d Andrew Hutchings,
+//   macbook-air-m1 Isaac Martin, airpods-pro Daniel Romero, sofa-set Goran
+//   Ivos, dining-table Jonathan Borba, modern-house-rent Salman Saqib,
+//   house-negombo Zoshua Colah, land-gampaha Javier Tavara,
+//   apartment-sea-view Far Chinberdiev, party-dress ola szkolda, spice-pack
+//   Anju Ravindranath, deep-cleaning Giorgio Trovato, mountain-bike Frederik
+//   Rosar, labrador-puppy Jairo Alzate, tuition-science Ronald Felton,
+//   facial-skincare karelys Ruiz.
+const LISTING_IMG = "/images/marketplace/listings/samples";
 
 // Sample listings store the town/city a seller actually typed (e.g.
 // "Rajagiriya", "Negombo"), which reads better on a card than the district
@@ -43,6 +57,8 @@ export type SampleListing = {
   // "already visible as a seller nearby" from "seller type unspecified".
   sellerName?: string;
   featured?: boolean;
+  // Paid tier above Featured. A card shows one tier badge: Premium wins.
+  premium?: boolean;
   deal?: DealTag;
   // Sellers open to offers — a small muted note beside the price, never a
   // deal type (almost every classified is negotiable).
@@ -50,6 +66,10 @@ export type SampleListing = {
   // The actual coupon/offer text shown on cards with deal: "coupon".
   offer?: string;
   description?: string;
+  // Card meta, most important first, in a fixed order per category:
+  //   vehicles     fuel, transmission, year (then anything else)
+  //   electronics  condition, then specs
+  //   property     beds, baths, area (land: area only)
   attrs: string[];
   postedAgo: string;
 };
@@ -63,7 +83,7 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 6950000,
     priceLabel: "Rs. 6,950,000",
-    image: `${CAT_IMG}/vehicles.webp`,
+    image: `${LISTING_IMG}/toyota-aqua.webp`,
     condition: "used",
     sellerType: "shop",
     sellerName: "AutoHub LK",
@@ -81,7 +101,7 @@ const baseListings: SampleListing[] = [
     location: "Rajagiriya",
     price: 250000,
     priceLabel: "Rs. 250,000 / month",
-    image: `${CAT_IMG}/property.webp`,
+    image: `${LISTING_IMG}/modern-house-rent.webp`,
     condition: "na",
     sellerType: "shop",
     sellerName: "Prime Estates",
@@ -100,7 +120,7 @@ const baseListings: SampleListing[] = [
     price: 175000,
     priceLabel: "Rs. 175,000",
     originalPriceLabel: "Rs. 195,000",
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/iphone-13.webp`,
     condition: "like-new",
     sellerType: "shop",
     sellerName: "TechZone Sri Lanka",
@@ -118,7 +138,7 @@ const baseListings: SampleListing[] = [
     location: "Gampaha",
     price: 85000,
     priceLabel: "Rs. 85,000",
-    image: `${CAT_IMG}/home-garden.webp`,
+    image: `${LISTING_IMG}/sofa-set.webp`,
     condition: "used",
     sellerType: "individual",
     attrs: ["Used", "Good Condition"],
@@ -132,14 +152,14 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 299000,
     priceLabel: "Rs. 299,000",
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/dell-xps-13.webp`,
     condition: "used",
     sellerType: "shop",
     sellerName: "TechZone Sri Lanka",
     deal: "coupon",
     featured: true,
     offer: "10% off with code WELCOME10",
-    attrs: ["i7", "16GB", "512GB SSD"],
+    attrs: ["Used", "i7", "16GB", "512GB SSD"],
     postedAgo: "4 hours ago",
   },
   {
@@ -150,10 +170,10 @@ const baseListings: SampleListing[] = [
     location: "Kandy",
     price: 780000,
     priceLabel: "Rs. 780,000",
-    image: `${CAT_IMG}/vehicles.webp`,
+    image: `${LISTING_IMG}/yamaha-fz-s.webp`,
     condition: "used",
     sellerType: "individual",
-    attrs: ["2019", "150cc", "32,000 km"],
+    attrs: ["Petrol", "Manual", "2019", "150cc", "32,000 km"],
     postedAgo: "6 hours ago",
   },
   {
@@ -164,7 +184,7 @@ const baseListings: SampleListing[] = [
     location: "Negombo",
     price: 120000,
     priceLabel: "Rs. 120,000",
-    image: `${CAT_IMG}/home-garden.webp`,
+    image: `${LISTING_IMG}/dining-table.webp`,
     condition: "used",
     sellerType: "individual",
     attrs: ["6 Chairs", "Solid Wood"],
@@ -178,12 +198,12 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 185000,
     priceLabel: "Rs. 185,000",
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/canon-eos-250d.webp`,
     condition: "like-new",
     sellerType: "shop",
     sellerName: "ElectroMart LK",
     negotiable: true,
-    attrs: ["24.1MP", "With Lens", "Like New"],
+    attrs: ["Like New", "24.1MP", "With Lens"],
     postedAgo: "1 day ago",
   },
   {
@@ -194,13 +214,14 @@ const baseListings: SampleListing[] = [
     location: "Negombo",
     price: 18500000,
     priceLabel: "Rs. 18.5M",
-    image: `${CAT_IMG}/property.webp`,
+    image: `${LISTING_IMG}/house-negombo.webp`,
     condition: "used",
     sellerType: "shop",
     sellerName: "Prime Estates",
     featured: true,
+    premium: true,
     description: "Well built 3 bedroom house close to the beach and main road.",
-    attrs: ["House", "3 Beds"],
+    attrs: ["3 Beds", "2 Baths", "1,800 sq.ft"],
     postedAgo: "2 days ago",
   },
   {
@@ -228,10 +249,10 @@ const baseListings: SampleListing[] = [
     location: "Gampaha",
     price: 2800000,
     priceLabel: "Rs. 2.8M",
-    image: `${CAT_IMG}/property.webp`,
+    image: `${LISTING_IMG}/land-gampaha.webp`,
     condition: "na",
     sellerType: "individual",
-    attrs: ["Land", "10 Perches"],
+    attrs: ["10 Perches"],
     postedAgo: "4 days ago",
   },
   {
@@ -242,7 +263,7 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 6500,
     priceLabel: "Rs. 6,500",
-    image: `${CAT_IMG}/fashion.webp`,
+    image: `${LISTING_IMG}/party-dress.webp`,
     condition: "new",
     sellerType: "shop",
     sellerName: "Glamour.lk",
@@ -260,7 +281,7 @@ const baseListings: SampleListing[] = [
     location: "Matale",
     price: 1200,
     priceLabel: "Rs. 1,200",
-    image: `${CAT_IMG}/food.webp`,
+    image: `${LISTING_IMG}/spice-pack.webp`,
     condition: "new",
     sellerType: "individual",
     attrs: ["Organic", "1kg"],
@@ -274,7 +295,7 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 4500,
     priceLabel: "Rs. 4,500",
-    image: `${CAT_IMG}/services.webp`,
+    image: `${LISTING_IMG}/deep-cleaning.webp`,
     condition: "na",
     sellerType: "shop",
     sellerName: "FixIt Services",
@@ -291,7 +312,7 @@ const baseListings: SampleListing[] = [
     location: "Nuwara Eliya",
     price: 32000,
     priceLabel: "Rs. 32,000",
-    image: `${CAT_IMG}/hobbies.webp`,
+    image: `${LISTING_IMG}/mountain-bike.webp`,
     condition: "used",
     sellerType: "individual",
     negotiable: true,
@@ -306,7 +327,7 @@ const baseListings: SampleListing[] = [
     location: "Kurunegala",
     price: 15000,
     priceLabel: "Rs. 15,000",
-    image: `${CAT_IMG}/animals.webp`,
+    image: `${LISTING_IMG}/labrador-puppy.webp`,
     condition: "na",
     sellerType: "individual",
     featured: true,
@@ -321,7 +342,7 @@ const baseListings: SampleListing[] = [
     location: "Kandy",
     price: 3000,
     priceLabel: "Rs. 3,000 / month",
-    image: `${CAT_IMG}/education.webp`,
+    image: `${LISTING_IMG}/tuition-science.webp`,
     condition: "na",
     sellerType: "individual",
     attrs: ["Grade 10 to 11", "Online"],
@@ -335,7 +356,7 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 5000,
     priceLabel: "Rs. 5,000",
-    image: `${CAT_IMG}/health-beauty.webp`,
+    image: `${LISTING_IMG}/facial-skincare.webp`,
     condition: "na",
     sellerType: "shop",
     deal: "coupon",
@@ -351,11 +372,11 @@ const baseListings: SampleListing[] = [
     location: "Galle",
     price: 6850000,
     priceLabel: "Rs. 6,850,000",
-    image: `${CAT_IMG}/vehicles.webp`,
+    image: `${LISTING_IMG}/honda-vezel.webp`,
     condition: "used",
     sellerType: "individual",
     description: "Hybrid SUV in very good condition, regularly serviced.",
-    attrs: ["2016", "Hybrid", "Automatic"],
+    attrs: ["Hybrid", "Automatic", "2016"],
     postedAgo: "2 days ago",
   },
   {
@@ -366,10 +387,10 @@ const baseListings: SampleListing[] = [
     location: "Gampaha",
     price: 1150000,
     priceLabel: "Rs. 1,150,000",
-    image: `${CAT_IMG}/vehicles.webp`,
+    image: `${LISTING_IMG}/bajaj-three-wheeler.webp`,
     condition: "used",
     sellerType: "individual",
-    attrs: ["2019", "Petrol", "Good Condition"],
+    attrs: ["Petrol", "Manual", "2019"],
     postedAgo: "1 day ago",
   },
   {
@@ -380,12 +401,12 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 120000,
     priceLabel: "Rs. 120,000 / month",
-    image: `${CAT_IMG}/property.webp`,
+    image: `${LISTING_IMG}/apartment-sea-view.webp`,
     condition: "na",
     sellerType: "shop",
     sellerName: "Prime Estates",
     description: "Sea view apartment with parking and 24h security.",
-    attrs: ["2 Beds", "Sea View", "Furnished"],
+    attrs: ["2 Beds", "2 Baths", "1,150 sq.ft"],
     postedAgo: "2 days ago",
   },
   {
@@ -396,12 +417,12 @@ const baseListings: SampleListing[] = [
     location: "Colombo",
     price: 285000,
     priceLabel: "Rs. 285,000",
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/macbook-air-m1.webp`,
     condition: "like-new",
     sellerType: "shop",
     sellerName: "Digital Hub",
     description: "8GB RAM, 256GB SSD, battery health 94%.",
-    attrs: ["8GB RAM", "256GB SSD", "Like New"],
+    attrs: ["Like New", "8GB RAM", "256GB SSD"],
     postedAgo: "3 hours ago",
   },
   {
@@ -413,12 +434,12 @@ const baseListings: SampleListing[] = [
     price: 175000,
     priceLabel: "Rs. 175,000",
     originalPriceLabel: "Rs. 195,000",
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/iphone-14.webp`,
     condition: "like-new",
     sellerType: "shop",
     sellerName: "Digital Hub",
     deal: "price-drop",
-    attrs: ["128GB", "Like New", "Original"],
+    attrs: ["Like New", "128GB", "Original"],
     postedAgo: "6 hours ago",
   },
   {
@@ -429,11 +450,11 @@ const baseListings: SampleListing[] = [
     location: "Kandy",
     price: 62000,
     priceLabel: "Rs. 62,000",
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/airpods-pro.webp`,
     condition: "new",
     sellerType: "shop",
     sellerName: "Digital Hub",
-    attrs: ["USB-C", "Sealed"],
+    attrs: ["Brand New", "USB-C", "Sealed"],
     postedAgo: "1 day ago",
   },
 ];
@@ -458,21 +479,10 @@ export const sampleListings: SampleListing[] = [
  * ============================================================
  */
 
-// The fixed list a business picks its highlights from (never free text).
-export const BUSINESS_HIGHLIGHTS = [
-  "delivery",
-  "warranty",
-  "easyPayments",
-  "cod",
-  "returns",
-  "inspection",
-  "leasing",
-  "consultation",
-  "siteVisits",
-  "assembly",
-  "freshness",
-] as const;
-export type BusinessHighlight = (typeof BUSINESS_HIGHLIGHTS)[number];
+export {
+  BUSINESS_HIGHLIGHTS,
+  type BusinessHighlight,
+} from "@/lib/business/highlights";
 
 export type SampleShop = {
   name: string;
@@ -613,7 +623,7 @@ export const sampleShops: SampleShop[] = [
     rating: 4.6,
     reviews: 38,
     phone: "94711000009",
-    listings: "86",
+    listings: "17",
     tier: "verified",
     cover: `${CAT_IMG}/electronics.webp`,
     highlights: ["delivery", "warranty", "easyPayments"],
