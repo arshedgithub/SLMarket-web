@@ -5,6 +5,8 @@ export const upgradeSchema = z.object({
   gateway: z.enum(["PAYHERE"]),
   couponCode: z.string().optional(),
   cycle: z.enum(["MONTHLY", "ANNUAL"]).default("MONTHLY"),
+  // Which of the owner's business pages; optional when they have only one.
+  businessProfileId: z.string().min(1).optional(),
 });
 
 export const couponValidateSchema = z.object({
@@ -69,6 +71,8 @@ export const boostSchema = z.object({
 
 export const adminPlanUpdateSchema = z.object({
   planId: z.string().min(1),
+  // Which of the user's business pages; optional when they have only one.
+  businessProfileId: z.string().min(1).optional(),
 });
 
 export type UpgradeInput = z.infer<typeof upgradeSchema>;

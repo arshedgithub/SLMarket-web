@@ -45,6 +45,12 @@ function UpgradePageContent() {
   const [loading, setLoading] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
   const [autoRedirected, setAutoRedirected] = useState(false);
+  // Plans belong to business pages: which of the owner's pages this is for.
+  const [businesses, setBusinesses] = useState<
+    { id: string; name: string; planId: string | null }[] | null
+  >(null);
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("/api/subscriptions/plans")
@@ -56,11 +62,21 @@ function UpgradePageContent() {
   // sign-in and goes stale if the plan changes server-side (e.g. an admin
   // override), so it can't be trusted here.
   useEffect(() => {
-    fetch("/api/subscriptions")
+    const wanted = searchParams.get("business");
+    fetch(
+      `/api/subscriptions${wanted ? `?business=${encodeURIComponent(wanted)}` : ""}`,
+    )
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setCurrentPlanId(data?.subscription?.planId ?? null))
-      .catch(() => setCurrentPlanId(null));
-  }, []);
+      .then((data) => {
+        setBusinesses(data?.businesses ?? []);
+        setBusinessId(data?.businessProfileId ?? null);
+        setCurrentPlanId(data?.subscription?.planId ?? null);
+      })
+      .catch(() => {
+        setBusinesses([]);
+        setCurrentPlanId(null);
+      });
+  }, [searchParams]);
 
   const resolvedCurrentPlanId =
     currentPlanId ?? plans.find((p) => p.name === "free")?.id ?? null;
@@ -111,6 +127,7 @@ function UpgradePageContent() {
   const handleUpgrade = useCallback(async () => {
     if (!selectedPlan) return;
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/subscriptions/upgrade", {
         method: "POST",
@@ -119,9 +136,17 @@ function UpgradePageContent() {
           planId: selectedPlan.id,
           gateway: "PAYHERE",
           couponCode: couponCode || undefined,
+          businessProfileId: businessId ?? undefined,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(
+          data.message ??
+            "We couldn't start the upgrade. Please try again in a moment.",
+        );
+        return;
+      }
 
       if (data.activated) {
         window.location.href = "/dashboard?payment=success";
@@ -145,12 +170,13 @@ function UpgradePageContent() {
     } finally {
       setLoading(false);
     }
-  }, [selectedPlan, couponCode]);
+  }, [selectedPlan, couponCode, businessId]);
 
   // Coming from /subscription with a plan (and optionally a coupon) pre-selected —
   // skip the extra click and go straight to the PayHere checkout.
   useEffect(() => {
     if (!prefilled || autoRedirected || !selectedPlan) return;
+    if (businesses === null || businesses.length !== 1) return;
     if (couponCode && !couponResult) return;
     setAutoRedirected(true);
     handleUpgrade();
@@ -158,6 +184,7 @@ function UpgradePageContent() {
     prefilled,
     autoRedirected,
     selectedPlan,
+    businesses,
     couponCode,
     couponResult,
     handleUpgrade,
@@ -192,12 +219,63 @@ function UpgradePageContent() {
         </Link>
       </div>
 
-      {prefilled && selectedPlan && !autoRedirected && (
-        <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Redirecting you to secure payment for {selectedPlan.displayName}...
+      {businesses?.length === 0 && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-semibold">Plans are for business pages</p>
+          <p className="mt-0.5">
+            Create your business page first, then choose a plan for it. Personal
+            ads stay free.
+          </p>
+          <Link
+            href="/business/new"
+            className="mt-2 inline-flex font-semibold text-amber-900 underline"
+          >
+            Create a business page
+          </Link>
         </div>
       )}
+
+      {businesses && businesses.length > 1 && (
+        <label className="block text-sm">
+          <span className="font-medium text-gray-700 dark:text-gray-300">
+            Business page this plan is for
+          </span>
+          <select
+            value={businessId ?? ""}
+            onChange={(e) => {
+              const b = businesses.find((x) => x.id === e.target.value);
+              setBusinessId(b?.id ?? null);
+              setCurrentPlanId(b?.planId ?? null);
+            }}
+            className="mt-1 block h-11 w-full max-w-sm rounded-lg border border-gray-300 bg-white px-3 dark:border-gray-700 dark:bg-gray-900"
+          >
+            {businesses.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      {error && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+          {error}
+        </div>
+      )}
+
+      {prefilled &&
+        selectedPlan &&
+        !autoRedirected &&
+        businesses?.length === 1 && (
+          <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Redirecting you to secure payment for {selectedPlan.displayName}...
+          </div>
+        )}
 
       {/* Plan cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -299,7 +377,14 @@ function UpgradePageContent() {
                       ? `${plan.maxListings} active listings`
                       : "Unlimited listings",
                   },
-                  { show: !!plan.hasShopProfile, text: "Shop profile page" },
+                  { show: !!plan.hasBusinessProfile, text: "Business page" },
+                  {
+                    show: !!plan.hasBusinessProfile && plan.maxBranches !== 0,
+                    text:
+                      plan.maxBranches == null
+                        ? "Unlimited branches"
+                        : `${plan.maxBranches} branch${plan.maxBranches === 1 ? "" : "es"}`,
+                  },
                   { show: !!plan.hasAnalytics, text: "Analytics dashboard" },
                   {
                     show: !!plan.hasDigitalMarketing,
@@ -314,25 +399,12 @@ function UpgradePageContent() {
                     text: "Priority search placement",
                   },
                   {
-                    show:
-                      plan.maxReelsPerMonth != null &&
-                      plan.maxReelsPerMonth > 0,
-                    text:
-                      plan.maxReelsPerMonth != null && plan.maxReelsPerMonth > 0
-                        ? `${plan.maxReelsPerMonth} reels/month`
-                        : "",
-                  },
-                  {
                     show: !!plan.hasRealtimeAlerts,
                     text: "Real-time price alerts",
                   },
                   {
                     show: !!plan.hasWhatsappBroadcast,
                     text: "WhatsApp broadcast",
-                  },
-                  {
-                    show: !!plan.hasWholesaleListings,
-                    text: "Wholesale listings",
                   },
                   { show: !!plan.hasApiAccess, text: "API access" },
                   {
@@ -439,7 +511,7 @@ function UpgradePageContent() {
 
           <button
             onClick={handleUpgrade}
-            disabled={loading}
+            disabled={loading || businesses?.length === 0}
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg transition-colors"
           >
             {loading
