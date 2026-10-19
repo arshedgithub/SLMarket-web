@@ -93,9 +93,6 @@
     }
   },
   "sell": {
-    "eyebrow": "Start Selling Today",
-    "heading": "Sell on",
-    "tagline": "Turn things you no longer need into something valuable.",
     "desc": "List your property, vehicle, electronics, products, services or anything else and reach buyers across Sri Lanka.",
     "ctaPost": "Post a Free Ad",
     "ctaShop": "Create a Business Page",
@@ -106,35 +103,6 @@
     "step2Desc": "Add the details buyers ask about.",
     "step3Title": "Publish free",
     "step3Desc": "We check it and buyers can call you."
-  },
-  "whyUs": {
-    "eyebrow": "Why Choose Us",
-    "heading": "Why",
-    "desc": "More than just a marketplace, we create opportunities for a stronger Sri Lanka.",
-    "script": "Local People, Stronger Communities",
-    "builtTitle": "Built for Sri Lanka",
-    "builtDesc": "A marketplace designed around local buyers, sellers and businesses.",
-    "discoverTitle": "More Ways to Get Discovered",
-    "discoverDesc": "Ads, businesses, deals and powerful marketplace discovery.",
-    "exposureTitle": "Extra Exposure for Premium Ads",
-    "exposureDesc": "Get additional visibility through our social media promotion channels.",
-    "everyoneTitle": "For Individuals & Businesses",
-    "everyoneDesc": "Sell one item or build your business presence with a professional business page."
-  },
-  "mobileApp": {
-    "eyebrow": "Coming Soon",
-    "heading": "Mobile App",
-    "tagline": "Your marketplace, now in your pocket.",
-    "desc": "Browse ads, discover deals, manage favourites and connect with buyers and sellers, anytime, anywhere in Sri Lanka.",
-    "comingSoon": "Coming soon on iOS and Android",
-    "f1Title": "Easy to use",
-    "f1Desc": "Clean and simple experience",
-    "f2Title": "Instant notifications",
-    "f2Desc": "Be the first to know",
-    "f3Title": "Save favourites",
-    "f3Desc": "Never miss a deal",
-    "f4Title": "Access anywhere",
-    "f4Desc": "Across Sri Lanka"
   },
   "forYou": {
     "savedSearches": "Your saved searches",

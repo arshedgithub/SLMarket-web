@@ -70,7 +70,7 @@ export default function NotificationsDropdown() {
                           {notification.title}
                         </p>
                         {notification.count > 1 && (
-                          <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                          <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary">
                             {notification.count}
                           </span>
                         )}
@@ -78,7 +78,7 @@ export default function NotificationsDropdown() {
                       <p className="truncate text-xs text-light-text">
                         {notification.body}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-light-text">
+                      <p className="mt-0.5 text-xs text-light-text">
                         {formatDistanceToNow(new Date(notification.createdAt))}{" "}
                         ago
                       </p>

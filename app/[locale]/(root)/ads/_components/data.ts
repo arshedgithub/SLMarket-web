@@ -59,10 +59,6 @@ export type AdCard = {
   // The business's number, international digits, for the list view's
   // Call / WhatsApp buttons (business ads only).
   contactPhone?: string;
-  // Private seller's join year, shown instead of a bare "Individual".
-  memberSince?: number;
-  // pricingType FIXED and not negotiable: "Fixed price" on the card.
-  fixedPrice?: boolean;
   featured?: boolean;
   // Paid tier above Featured. A card shows one tier badge: Premium wins.
   premium?: boolean;

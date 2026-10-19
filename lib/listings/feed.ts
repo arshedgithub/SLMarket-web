@@ -197,8 +197,6 @@ export function toCard(row: FeedRow, now = Date.now()): AdCard {
     sellerSlug: business?.slug,
     sellerLogo: business?.logoUrl ?? null,
     contactPhone: businessPhone ?? undefined,
-    memberSince: business ? undefined : row.seller.createdAt.getFullYear(),
-    fixedPrice: row.pricingType === "FIXED" && !row.negotiable,
     featured: row.isFeaturedHomepage,
     premium: row.isBoosted,
     deal: coupon ? "coupon" : was ? "price-drop" : undefined,

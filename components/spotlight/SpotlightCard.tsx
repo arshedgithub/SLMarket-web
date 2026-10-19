@@ -289,7 +289,7 @@ function BusinessHeader({ spot }: { spot: Spotlight }) {
 export function PremiumPill() {
   const t = useTranslations("listings");
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-market-gold-soft)] px-2 py-0.5 text-[11px] font-bold text-[color:var(--color-market-gold-text)]">
+    <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-market-gold-soft)] px-2 py-0.5 text-xs font-bold text-[color:var(--color-market-gold-text)]">
       <Crown aria-hidden className="h-3 w-3" />
       {t("premiumCard.premium")}
     </span>

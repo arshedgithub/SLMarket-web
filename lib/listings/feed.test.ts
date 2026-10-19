@@ -53,7 +53,6 @@ describe("toCard", () => {
       sellerName: "TechZone",
       featured: true,
       negotiable: true,
-      fixedPrice: false,
       attrs: ["i7", "Like New"],
       postedAgo: "3 hours ago",
       postedAt: ago(3 * HOUR).toISOString(),
@@ -111,7 +110,6 @@ describe("toCard", () => {
     );
     expect(c.sellerType).toBe("individual");
     expect(c.sellerName).toBeUndefined();
-    expect(c.memberSince).toBe(2023);
     expect(c.priceLabel).toBe("Free");
     expect(c.reserved).toBe(true);
   });
@@ -129,14 +127,6 @@ describe("toCard", () => {
       toCard(row({ businessProfile: null, contactPhone: "0777123456" }), NOW)
         .contactPhone,
     ).toBeUndefined();
-  });
-
-  it("marks fixed, non-negotiable prices", () => {
-    expect(toCard(row({ negotiable: false }), NOW).fixedPrice).toBe(true);
-    expect(
-      toCard(row({ pricingType: "STARTING_FROM", negotiable: false }), NOW)
-        .fixedPrice,
-    ).toBe(false);
   });
 });
 

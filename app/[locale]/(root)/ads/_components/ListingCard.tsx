@@ -189,18 +189,25 @@ function SaveButton({
   );
 }
 
+// Coupon cards show only the saving ("10% off"); the code is on the ad
+// page. Other offers ("Buy 2 get 10% off") show in full.
+export function offerSummary(l: AdCard): string | null {
+  if (!l.offer) return null;
+  if (l.deal !== "coupon") return l.offer;
+  const saving = l.offer.match(/(\d+(?:\.\d+)?\s*%|Rs\.?\s*[\d,]+)\s*off/i);
+  return saving ? saving[0].replace(/\s+/g, " ") : null;
+}
+
 function PriceBlock({ listing, size }: { listing: AdCard; size: "md" | "lg" }) {
   const t = useTranslations("listings");
   const { main, suffix } = priceParts(listing);
   const pct = dropPercent(listing);
-  const note = listing.negotiable
-    ? t("card.negotiable")
-    : listing.fixedPrice
-      ? t("card.fixedPrice")
-      : null;
+  const offer = listing.offer ? offerSummary(listing) : null;
   return (
     <div>
-      <p className="flex min-w-0 items-baseline gap-x-1.5">
+      {/* Negotiable sits next to the price, only when it is true; it wraps
+          under a long price instead of being cut off. */}
+      <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <span
           className={`whitespace-nowrap font-bold leading-6 text-[color:var(--color-market-price)] ${
             size === "lg" ? "text-xl" : "text-[17px]"
@@ -213,31 +220,25 @@ function PriceBlock({ listing, size }: { listing: AdCard; size: "md" | "lg" }) {
             </span>
           )}
         </span>
-        {note && size === "lg" && (
-          <span className="ml-auto shrink-0 whitespace-nowrap text-xs font-medium text-[color:var(--color-market-text-secondary)]">
-            {note}
+        {listing.negotiable && (
+          <span className="whitespace-nowrap rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-semibold leading-4 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            {t("card.negotiable")}
           </span>
         )}
       </p>
-      {/* Always the same height: the old price or the offer, and on grid
-          cards the Negotiable / Fixed price note (beside a long price it
-          would be cut off). */}
-      <p className="flex h-5 min-w-0 items-center gap-1.5 text-[13px] leading-5">
-        {pct ? (
-          <span className="whitespace-nowrap text-[color:var(--color-market-text-muted)] line-through">
-            {listing.originalPriceLabel}
-          </span>
-        ) : listing.deal === "coupon" && listing.offer ? (
-          <span className="min-w-0 truncate font-medium text-emerald-700 dark:text-emerald-400">
-            {listing.offer}
-          </span>
-        ) : null}
-        {note && size === "md" && (
-          <span className="ml-auto shrink-0 whitespace-nowrap text-xs font-medium text-[color:var(--color-market-text-secondary)]">
-            {note}
-          </span>
-        )}
-      </p>
+      {(pct || offer) && (
+        <p className="flex min-w-0 flex-wrap items-center gap-x-1.5 text-[13px] leading-5">
+          {pct ? (
+            <span className="whitespace-nowrap text-[color:var(--color-market-text-secondary)] line-through">
+              {listing.originalPriceLabel}
+            </span>
+          ) : (
+            <span className="font-semibold text-emerald-800 dark:text-emerald-300">
+              {offer}
+            </span>
+          )}
+        </p>
+      )}
     </div>
   );
 }
@@ -284,10 +285,8 @@ function SellerLine({ listing }: { listing: AdCard }) {
   const t = useTranslations("listings");
   if (!listing.sellerName) {
     return (
-      <p className="truncate text-[13px] text-[color:var(--color-market-text-muted)]">
-        {listing.memberSince
-          ? t("card.privateSellerSince", { year: String(listing.memberSince) })
-          : t("card.privateSeller")}
+      <p className="truncate text-[13px] text-[color:var(--color-market-text-secondary)]">
+        {t("card.privateSeller")}
       </p>
     );
   }
@@ -550,27 +549,22 @@ export function ListingCard({
       </div>
 
       <div className="flex flex-1 flex-col p-3">
-        <h3 className="line-clamp-2 h-10 text-sm font-medium leading-5 text-[color:var(--color-market-text)]">
+        <h3 className="line-clamp-2 text-sm font-medium leading-5 text-[color:var(--color-market-text)]">
           {title}
         </h3>
         <div className="mt-1">
           <PriceBlock listing={listing} size="md" />
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="mt-1.5 flex flex-col gap-0.5">
           <SpecsLine listing={listing} />
           <MetaLine listing={listing} compact />
         </div>
-        {listing.sellerName ? (
-          <div className="mt-auto pt-3">
-            <div className="border-t border-[var(--color-market-border)] pt-2.5">
-              <SellerLine listing={listing} />
-            </div>
-          </div>
-        ) : (
-          <div className="mt-auto pt-2">
+        {/* One footer height for every card, so a row's bottoms line up. */}
+        <div className="mt-auto pt-3">
+          <div className="flex h-10 items-center border-t border-[var(--color-market-border)] pt-2">
             <SellerLine listing={listing} />
           </div>
-        )}
+        </div>
       </div>
       <span className="sr-only">{t("card.openAd")}</span>
     </article>

@@ -5,7 +5,7 @@
  */
 
 // Category and district counts ("124 ads").
-export const COUNT_MIN = 20;
+export const COUNT_MIN = 25;
 // "8 new today".
 export const NEW_TODAY_MIN = 5;
 // "X people viewed this" on an ad.

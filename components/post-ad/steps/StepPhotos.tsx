@@ -73,7 +73,7 @@ export function StepPhotos({
         <h2 className="flex items-center gap-2 text-lg font-bold text-[var(--color-market-text)]">
           Add photos
           {minImages === 0 && (
-            <span className="rounded-full bg-background px-2 py-0.5 text-[10px] font-medium text-[var(--color-market-text-muted)]">
+            <span className="rounded-full bg-background px-2 py-0.5 text-xs font-medium text-[var(--color-market-text-muted)]">
               Optional
             </span>
           )}
@@ -118,7 +118,7 @@ export function StepPhotos({
           <span className="btn-outline rounded-lg px-4 py-2 text-xs font-semibold">
             Browse Files
           </span>
-          <p className="mt-1 text-[11px] text-[var(--color-market-text-muted)]">
+          <p className="mt-1 text-xs text-[var(--color-market-text-muted)]">
             JPG, PNG up to 10MB each
           </p>
           <input
@@ -175,7 +175,7 @@ export function StepPhotos({
                 className="object-cover"
               />
               {i === 0 && (
-                <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white">
+                <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-xs font-bold text-white">
                   <Star className="h-2.5 w-2.5 fill-current" />
                   Cover
                 </span>
@@ -220,7 +220,7 @@ export function StepPhotos({
           {draft.images.length < maxImages && (
             <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border text-[var(--color-market-text-muted)] transition hover:border-primary/50 hover:text-primary">
               <Plus className="h-5 w-5" />
-              <span className="text-[11px] font-medium">Add more</span>
+              <span className="text-xs font-medium">Add more</span>
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/avif"
@@ -241,7 +241,7 @@ export function StepPhotos({
             <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-market-text)]">
               <Film className="h-4 w-4 text-[var(--color-market-text-muted)]" />
               Add a short video
-              <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] font-medium text-[var(--color-market-text-muted)]">
+              <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-[var(--color-market-text-muted)]">
                 <Lock className="mr-1 inline h-2.5 w-2.5" />
                 Premium
               </span>

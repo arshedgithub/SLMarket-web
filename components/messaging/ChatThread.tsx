@@ -250,7 +250,7 @@ export default function ChatThread({
                     {message.text}
                   </p>
                   <p
-                    className={`mt-1 text-[11px] ${isOwn ? "text-white/70" : "text-light-text"}`}
+                    className={`mt-1 text-xs ${isOwn ? "text-white/70" : "text-light-text"}`}
                   >
                     {message.createdAt
                       ? `${formatDistanceToNow(new Date(message.createdAt))} ago`

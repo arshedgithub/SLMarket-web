@@ -106,7 +106,7 @@ export function StepSeller({
                   {shop.category} · {shop.location}
                 </span>
               </span>
-              <span className="shrink-0 rounded-full bg-background px-2.5 py-1 text-[11px] font-semibold text-[var(--color-market-text-secondary)]">
+              <span className="shrink-0 rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-[var(--color-market-text-secondary)]">
                 {shop.branches.length} Branch
                 {shop.branches.length === 1 ? "" : "es"}
               </span>

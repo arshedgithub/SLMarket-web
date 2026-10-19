@@ -280,7 +280,7 @@ export function RadioRow({
             {label}
           </span>
           {badge && (
-            <span className="rounded-full bg-[var(--color-market-danger)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--color-market-danger)]">
+            <span className="rounded-full bg-[var(--color-market-danger)]/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-[var(--color-market-danger)]">
               {badge}
             </span>
           )}

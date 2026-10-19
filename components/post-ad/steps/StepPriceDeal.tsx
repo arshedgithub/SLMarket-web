@@ -166,7 +166,7 @@ export function StepPriceDeal({
             <div className="mt-1.5 flex items-center gap-2">
               <p className="text-lg font-bold text-primary">{previewPrice}</p>
               {draft.negotiable && showAmount && (
-                <span className="rounded-full bg-[var(--color-market-success)]/10 px-2 py-0.5 text-[10px] font-bold text-[var(--color-market-success)]">
+                <span className="rounded-full bg-[var(--color-market-success)]/10 px-2 py-0.5 text-xs font-bold text-[var(--color-market-success)]">
                   Negotiable
                 </span>
               )}

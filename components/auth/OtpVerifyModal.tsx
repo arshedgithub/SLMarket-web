@@ -334,7 +334,7 @@ export function OtpVerifyModal({
                   />
                 ))}
               </div>
-              <p className="mt-2 text-center text-[11px] text-gray-400">
+              <p className="mt-2 text-center text-xs text-gray-400">
                 Code expires in 5 minutes · Enter key submits
               </p>
             </div>

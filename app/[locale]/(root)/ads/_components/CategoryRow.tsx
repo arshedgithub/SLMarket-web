@@ -8,7 +8,8 @@ import {
   ChevronRight,
   LayoutGrid,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { compactNumber } from "@/lib/format";
 import { showCount } from "@/lib/listings/socialProof";
 import { Link } from "@/i18n/navigation";
 import { categoryAccent, categoryGlyphSrc } from "@/config/const/categoryIcons";
@@ -39,6 +40,7 @@ const visibleCount = (chip: Chip) =>
 // count. Filled #EEF4FF + blue border + blue text when active — never the
 // same look as a filter chip (outlined, neutral icon, chevron).
 function ChipLink({ chip }: { chip: Chip }) {
+  const locale = useLocale();
   return (
     <Link
       href={chip.href}
@@ -74,7 +76,7 @@ function ChipLink({ chip }: { chip: Chip }) {
         <span
           className={`text-[13px] font-medium ${chip.active ? "text-blue-700" : "text-[var(--color-market-text-secondary)]"}`}
         >
-          {visibleCount(chip)!.toLocaleString()}
+          {compactNumber(visibleCount(chip)!, locale)}
         </span>
       )}
     </Link>

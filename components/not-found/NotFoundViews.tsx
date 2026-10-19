@@ -84,7 +84,7 @@ export async function AdNotFound() {
               strokeWidth={1.75}
             />
           </span>
-          <span className="absolute -bottom-2 -right-3 rounded-full bg-[image:var(--premium-gold)] px-2 py-0.5 text-[11px] font-bold text-[var(--premium-navy-1)] shadow-sm">
+          <span className="absolute -bottom-2 -right-3 rounded-full bg-[image:var(--premium-gold)] px-2 py-0.5 text-xs font-bold text-[var(--premium-navy-1)] shadow-sm">
             404
           </span>
         </div>

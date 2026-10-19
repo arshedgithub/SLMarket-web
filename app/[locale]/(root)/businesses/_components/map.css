@@ -46,7 +46,7 @@
   border-radius: 9999px;
   background: #0f172a;
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
@@ -84,5 +84,5 @@
 
 /* Attribution stays visible and readable on every map. */
 .maplibregl-ctrl-attrib {
-  font-size: 11px;
+  font-size: 12px;
 }

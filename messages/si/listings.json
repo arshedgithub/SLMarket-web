@@ -163,7 +163,6 @@
     "call": "අමතන්න",
     "whatsapp": "WhatsApp",
     "apply": "ඉල්ලුම් කරන්න",
-    "individual": "පුද්ගලික",
     "viewBusiness": "ව්‍යාපාරය බලන්න",
     "sponsoredIn": "ප්‍රචාරිත",
     "viewAll": "සියල්ල බලන්න",
@@ -181,7 +180,6 @@
       "sale": "විකිණීමට"
     },
     "reserved": "වෙන් කර ඇත",
-    "fixedPrice": "ස්ථාවර මිල",
     "save": "{title} සුරකින්න",
     "unsave": "{title} සුරැකීම ඉවත් කරන්න",
     "couponBadge": "දීමනාව",
@@ -190,7 +188,6 @@
     "justListed": "දැන් පළ කළා",
     "urgent": "හදිසි",
     "privateSeller": "පුද්ගලික විකුණුම්කරු",
-    "privateSellerSince": "{year} සිට සාමාජික",
     "openAd": "දැන්වීම විවෘත කරන්න"
   },
   "premiumCard": {

@@ -305,7 +305,7 @@ export function StepLocation({
                   {draft.district} District, Sri Lanka
                 </p>
               )}
-              <p className="mt-2 text-[11px] text-[var(--color-market-text-muted)]">
+              <p className="mt-2 text-xs text-[var(--color-market-text-muted)]">
                 Your exact address is never shown publicly.
               </p>
             </div>

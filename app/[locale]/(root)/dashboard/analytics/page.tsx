@@ -229,7 +229,7 @@ export default async function AnalyticsPage() {
                       height: `${Math.max(4, (d.views / maxViews) * 112)}px`,
                     }}
                   />
-                  <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-800 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10">
+                  <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
                     {d.label}: {d.views} views
                   </div>
                 </div>

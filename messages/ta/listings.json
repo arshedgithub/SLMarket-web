@@ -163,7 +163,6 @@
     "call": "அழை",
     "whatsapp": "WhatsApp",
     "apply": "விண்ணப்பிக்க",
-    "individual": "தனிநபர்",
     "viewBusiness": "வணிகத்தைப் பார்க்க",
     "sponsoredIn": "விளம்பரம்",
     "viewAll": "அனைத்தும்",
@@ -181,7 +180,6 @@
       "sale": "விற்பனைக்கு"
     },
     "reserved": "முன்பதிவு",
-    "fixedPrice": "நிலையான விலை",
     "save": "{title} ஐச் சேமி",
     "unsave": "{title} ஐச் சேமிப்பிலிருந்து நீக்கு",
     "couponBadge": "சலுகை",
@@ -190,7 +188,6 @@
     "justListed": "இப்போது இடப்பட்டது",
     "urgent": "அவசரம்",
     "privateSeller": "தனிநபர் விற்பனையாளர்",
-    "privateSellerSince": "{year} முதல் உறுப்பினர்",
     "openAd": "விளம்பரத்தைத் திற"
   },
   "premiumCard": {
