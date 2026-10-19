@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
+import { logSearch } from "@/lib/search/logSearch";
 import { categoryIcon } from "@/config/const/categoryIcons";
 import {
   GPS_COOKIE,
@@ -183,9 +184,25 @@ export function HeroSearch({
   const [query, setQuery] = useState("");
   const [locating, setLocating] = useState(false);
 
+  // Start from the district the visitor chose or shared before; failing
+  // that, the likely one from their connection (never a permission
+  // prompt, and never saved until they pick it themselves).
   useEffect(() => {
     const known = readCookie(GPS_COOKIE) ?? readCookie(PLACE_COOKIE);
-    if (isDistrict(known)) setDistrict(known);
+    if (isDistrict(known)) {
+      setDistrict(known);
+      return;
+    }
+    let live = true;
+    fetch("/api/geo")
+      .then((r) => (r.ok ? r.json() : { district: null }))
+      .then((d: { district?: string | null }) => {
+        if (live && isDistrict(d.district)) setDistrict(d.district);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
   }, []);
 
   function locate() {
@@ -207,7 +224,10 @@ export function HeroSearch({
     e.preventDefault();
     const params = new URLSearchParams();
     const q = query.trim();
-    if (q) params.set("q", q);
+    if (q) {
+      params.set("q", q);
+      logSearch(q);
+    }
     if (district) {
       params.set("location", district);
       rememberChosenDistrict(district);
@@ -268,7 +288,10 @@ export function HeroSearch({
           ariaLabel={labels.location}
           icon={MapPin}
           value={district}
-          onChange={setDistrict}
+          onChange={(d) => {
+            setDistrict(d);
+            rememberChosenDistrict(d);
+          }}
           header={
             <button
               type="button"

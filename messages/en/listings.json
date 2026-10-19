@@ -53,7 +53,6 @@
       "premium": "Premium",
       "verified": "Verified"
     },
-    "new": "New",
     "viewAds": "View {count, plural, one {# ad} other {# ads}}"
   },
   "filters": {
@@ -93,7 +92,8 @@
     },
     "deal": {
       "coupon": "Coupons & Offers",
-      "price-drop": "Price Drops"
+      "price-drop": "Price Drops",
+      "offer": "Special offers"
     },
     "active": "Active:",
     "clearAll": "Clear all",
@@ -177,23 +177,16 @@
     "call": "Call",
     "whatsapp": "WhatsApp",
     "apply": "Apply",
-    "viewBusiness": "View business",
-    "sponsoredIn": "Sponsored",
-    "viewAll": "View all",
-    "nearYou": "{category} businesses near you",
     "adsCount": "{count, plural, one {# ad} other {# ads}}",
     "reviews": "{count, plural, one {# review} other {# reviews}}",
-    "exploreNear": "Explore businesses near you",
     "photos": "{count, plural, one {# photo} other {# photos}}",
-    "latest": "Latest",
-    "nearYouShort": "{category} near you",
-    "exploreBusinesses": "Explore businesses",
     "cue": {
       "job": "Job",
       "rent": "Rent",
       "sale": "Sale"
     },
-    "reserved": "Reserved"
+    "reserved": "Reserved",
+    "offer": "Special offers"
   },
   "premiumCard": {
     "premium": "Premium",

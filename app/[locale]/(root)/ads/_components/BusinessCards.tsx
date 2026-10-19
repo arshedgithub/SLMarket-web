@@ -16,10 +16,6 @@ import type { ShopCard } from "./data";
 // Fewer than this and the strip is not shown (a "featured" row of one or
 // two businesses looks empty).
 export const STRIP_MIN_BUSINESSES = 3;
-const NEW_BUSINESS_DAYS = 30;
-
-const isNew = (shop: ShopCard, now: number) =>
-  now - Date.parse(shop.createdAt) < NEW_BUSINESS_DAYS * 86_400_000;
 
 function TierPill({ tier }: { tier: ShopCard["tier"] }) {
   const t = useTranslations("listings");
@@ -45,9 +41,8 @@ function TierPill({ tier }: { tier: ShopCard["tier"] }) {
   return null;
 }
 
-function BusinessCard({ shop, now }: { shop: ShopCard; now: number }) {
+function BusinessCard({ shop }: { shop: ShopCard }) {
   const t = useTranslations("listings");
-  const fresh = isNew(shop, now);
 
   return (
     <Link
@@ -103,11 +98,6 @@ function BusinessCard({ shop, now }: { shop: ShopCard; now: number }) {
                 <title>{t("card.verifiedTip")}</title>
               </BadgeCheck>
             )}
-            {fresh && (
-              <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                {t("shops.new")}
-              </span>
-            )}
           </p>
           <p className="mt-0.5 truncate text-[13px] text-[var(--color-market-text-secondary)]">
             {shop.category}
@@ -142,12 +132,9 @@ function BusinessCard({ shop, now }: { shop: ShopCard; now: number }) {
  */
 export function FeaturedBusinessesStrip({
   shops,
-  now,
   hideIds = [],
 }: {
   shops: ShopCard[];
-  // Server time, so "New" renders the same on server and client.
-  now: number;
   hideIds?: string[];
 }) {
   const t = useTranslations("listings");
@@ -251,7 +238,7 @@ export function FeaturedBusinessesStrip({
             key={shop.id}
             className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3rem)/4)]"
           >
-            <BusinessCard shop={shop} now={now} />
+            <BusinessCard shop={shop} />
           </div>
         ))}
       </div>

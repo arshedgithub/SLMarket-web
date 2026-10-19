@@ -497,7 +497,7 @@ const LISTING_SEED = [
     price: 6500,
     image: `${LISTING_IMG}/party-dress.webp`,
     attrs: ["Women", "Size M"],
-    promotionType: "COUPON" as const,
+    promotionType: "DISCOUNT" as const,
     promotionDetail: "Buy 2 get 10% off",
     hoursAgo: 5,
     business: "glamour-lk",

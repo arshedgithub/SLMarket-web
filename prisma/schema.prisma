@@ -866,3 +866,15 @@ model SpotlightStatDaily {
   @@id([spotId, day])
   @@map("spotlight_stats_daily")
 }
+
+// What people search for, per normalised term per day (Asia/Colombo), for
+// "Popular searches". Only the words and a count, nothing about who searched.
+model SearchTermDaily {
+  term  String   @db.VarChar(60)
+  day   DateTime @db.Date
+  count Int      @default(0)
+
+  @@id([term, day])
+  @@index([day])
+  @@map("search_terms_daily")
+}

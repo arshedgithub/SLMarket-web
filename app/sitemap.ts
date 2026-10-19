@@ -44,6 +44,14 @@ const staticHubs: MetadataRoute.Sitemap = [
     priority: 0.6,
     changeFrequency: "daily",
   }),
+  ...localizedUrls("/ads/deals/offers", {
+    priority: 0.6,
+    changeFrequency: "daily",
+  }),
+  ...localizedUrls("/categories", {
+    priority: 0.7,
+    changeFrequency: "weekly",
+  }),
   ...localizedUrls("/about", { priority: 0.5, changeFrequency: "monthly" }),
   ...localizedUrls("/help", {
     priority: 0.4,

@@ -53,7 +53,6 @@
       "premium": "ප්‍රිමියම්",
       "verified": "සත්‍යාපිත"
     },
-    "new": "නව",
     "viewAds": "දැන්වීම් {count} බලන්න"
   },
   "filters": {
@@ -93,7 +92,8 @@
     },
     "deal": {
       "coupon": "කූපන් සහ දීමනා",
-      "price-drop": "මිල අඩුවීම්"
+      "price-drop": "මිල අඩුවීම්",
+      "offer": "විශේෂ දීමනා"
     },
     "active": "සක්‍රීය:",
     "clearAll": "සියල්ල හිස් කරන්න",
@@ -163,17 +163,9 @@
     "call": "අමතන්න",
     "whatsapp": "WhatsApp",
     "apply": "ඉල්ලුම් කරන්න",
-    "viewBusiness": "ව්‍යාපාරය බලන්න",
-    "sponsoredIn": "ප්‍රචාරිත",
-    "viewAll": "සියල්ල බලන්න",
-    "nearYou": "ඔබ අසල {category} ව්‍යාපාර",
     "adsCount": "දැන්වීම් {count}",
     "reviews": "සමාලෝචන {count}",
-    "exploreNear": "ඔබ අසල ව්‍යාපාර බලන්න",
     "photos": "ඡායාරූප {count}",
-    "latest": "නවතම",
-    "nearYouShort": "ඔබ අසල {category}",
-    "exploreBusinesses": "ව්‍යාපාර බලන්න",
     "cue": {
       "job": "රැකියාව",
       "rent": "කුලියට",
@@ -188,7 +180,8 @@
     "justListed": "දැන් පළ කළා",
     "urgent": "හදිසි",
     "privateSeller": "පුද්ගලික විකුණුම්කරු",
-    "openAd": "දැන්වීම විවෘත කරන්න"
+    "openAd": "දැන්වීම විවෘත කරන්න",
+    "offer": "විශේෂ දීමනා"
   },
   "premiumCard": {
     "premium": "ප්‍රිමියම්",

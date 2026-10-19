@@ -40,10 +40,35 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const existing = await db.user.findUnique({ where: { email } });
-  if (existing) {
+  // Same email in any letter case, or the same phone: point them to
+  // sign-in instead (the form shows a "Sign in" button for these codes).
+  const [emailTaken, phoneTaken] = await Promise.all([
+    db.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+      select: { id: true },
+    }),
+    phone
+      ? db.user.findFirst({
+          where: { phone: { in: [phone, `94${phone.replace(/^0/, "")}`] } },
+          select: { id: true },
+        })
+      : null,
+  ]);
+  if (emailTaken) {
     return NextResponse.json(
-      { message: "An account with this email already exists" },
+      {
+        message: "An account with this email already exists",
+        code: "email_taken",
+      },
+      { status: 409 },
+    );
+  }
+  if (phoneTaken) {
+    return NextResponse.json(
+      {
+        message: "An account with this phone number already exists",
+        code: "phone_taken",
+      },
       { status: 409 },
     );
   }

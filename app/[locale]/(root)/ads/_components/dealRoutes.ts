@@ -4,6 +4,7 @@ import type { DealTag } from "./data";
 export const DEAL_ROUTE_TYPES = {
   coupons: { tag: "coupon", label: "Coupons & Offers" },
   "price-drops": { tag: "price-drop", label: "Price Drops" },
+  offers: { tag: "offer", label: "Special Offers" },
 } as const satisfies Record<string, { tag: DealTag; label: string }>;
 
 export type DealRouteType = keyof typeof DEAL_ROUTE_TYPES;

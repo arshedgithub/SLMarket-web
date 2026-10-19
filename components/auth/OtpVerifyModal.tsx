@@ -103,8 +103,16 @@ export function OtpVerifyModal({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: value }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message ?? "Failed to send code");
+        // A server failure may not answer with JSON: show a plain message,
+        // never a parser error.
+        const data = (await res.json().catch(() => ({}))) as {
+          message?: string;
+        };
+        if (!res.ok)
+          throw new Error(
+            data.message ??
+              "We couldn't send the code right now. Please tap Resend code in a moment.",
+          );
       } else {
         clearVerifier(recaptchaRef);
         if (IS_DEV) {
@@ -155,8 +163,14 @@ export function OtpVerifyModal({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: value, code: submitCode }),
           });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message ?? "Incorrect code");
+          const data = (await res.json().catch(() => ({}))) as {
+            message?: string;
+          };
+          if (!res.ok)
+            throw new Error(
+              data.message ??
+                "That code is not right. Check it, or tap Resend code.",
+            );
         } else {
           if (!confirmationRef.current)
             throw new Error("Please request a new code");
@@ -397,6 +411,17 @@ export function OtpVerifyModal({
                 </button>
               )}
             </div>
+          )}
+
+          {/* Cancel: back to the form, which keeps everything typed. */}
+          {status !== "success" && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-11 w-full items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              Cancel
+            </button>
           )}
 
           {/* Container must exist in DOM for RecaptchaVerifier; hidden in dev where appVerificationDisabledForTesting bypasses it */}

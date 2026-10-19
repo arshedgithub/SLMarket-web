@@ -23,7 +23,9 @@ export function locationDistrict(location: string): string {
 
 export type Condition = "new" | "used" | "like-new" | "reconditioned" | "na";
 export type SellerType = "individual" | "verified" | "shop";
-export type DealTag = "coupon" | "price-drop";
+// coupon: a code for money off; offer: a special offer such as "Buy 2
+// get 10% off" (promotionType DISCOUNT); price-drop: a genuine drop.
+export type DealTag = "coupon" | "price-drop" | "offer";
 
 // What an ad card shows, built from a Listing row (lib/listings/feed.ts).
 export type AdCard = {
@@ -158,7 +160,7 @@ export const SELLER_VALUES: (SellerType | "all")[] = [
   "shop",
 ];
 
-export const DEAL_VALUES: DealTag[] = ["coupon", "price-drop"];
+export const DEAL_VALUES: DealTag[] = ["price-drop", "coupon", "offer"];
 
 // "newest" is "Featured first, then newest" (featured ads are pinned).
 export const SORT_VALUES = [

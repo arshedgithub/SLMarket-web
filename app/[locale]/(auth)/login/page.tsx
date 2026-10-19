@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { signIn, getSession } from "next-auth/react";
 import Image from "next/image";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AuthMethodSwitch } from "@/components/auth/AuthMethodSwitch";
+import { AuthTabs } from "@/components/auth/AuthTabs";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { colors } from "@/lib/theme/colors";
@@ -32,6 +33,23 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [nextQuery, setNextQuery] = useState("");
+
+  // Arriving from "Sign in with this email/phone" on the sign-up form: the
+  // email or phone is already filled in.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const phone = p.get("phone");
+    const presetEmail = p.get("email");
+    if (phone && /^0\d{9}$/.test(phone)) {
+      setMethod("phone");
+      setPhoneLocal(phone);
+    } else if (presetEmail) {
+      setEmail(presetEmail);
+    }
+    const target = getRedirectTarget();
+    if (target) setNextQuery(`?next=${encodeURIComponent(target)}`);
+  }, []);
 
   const handleMethodChange = (next: "email" | "phone") => {
     setMethod(next);
@@ -111,17 +129,8 @@ export default function LoginPage() {
           <h2 className="mt-6 text-3xl font-extrabold text-[var(--color-luxury-text)]">
             {t("title")}
           </h2>
-          <p className="mt-2 text-sm text-[var(--color-luxury-text-body)]">
-            {t("orCreateAccount")}
-            <br />
-            <Link
-              href="/register"
-              className="font-bold text-primary dark:text-primary-light hover:underline"
-            >
-              {t("createAccount")}
-            </Link>
-          </p>
         </div>
+        <AuthTabs active="signIn" />
 
         {/* Login Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -216,13 +225,14 @@ export default function LoginPage() {
             </div>
 
             <div className="text-sm">
-              <a
-                href="#"
+              {/* No self-service reset yet: support helps. */}
+              <Link
+                href="/help/contact"
                 className="font-medium"
                 style={{ color: colors.primary.main }}
               >
                 {t("forgotPassword")}
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -236,6 +246,20 @@ export default function LoginPage() {
             {loading ? t("signingIn") : t("signIn")}
           </Button>
         </form>
+
+        {/* A big, plain way to the sign-up form for first-time visitors. */}
+        <div className="border-t border-[var(--color-luxury-border)] pt-6 text-center">
+          <p className="text-sm text-[var(--color-luxury-text-body)]">
+            {t("newHere")}
+          </p>
+          <Link
+            href={`/register${nextQuery}`}
+            className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#1557d6] bg-white text-sm font-semibold text-[#1557d6] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-transparent dark:hover:bg-blue-950"
+          >
+            <UserPlus aria-hidden className="h-4 w-4" />
+            {t("createFree")}
+          </Link>
+        </div>
       </div>
     </div>
   );

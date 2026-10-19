@@ -1,7 +1,7 @@
 import { Layout } from "@/components";
 import { getMegaMenuAds } from "@/lib/getMegaMenuAds";
 import { getAdFeed } from "@/lib/listings/feed";
-import { popularSearches } from "@/lib/listings/popularSearches";
+import { getPopularSearches } from "@/lib/search/popular";
 
 export const revalidate = 60;
 
@@ -13,7 +13,10 @@ export default async function RootLayout({
   const [megaMenuAds, ads] = await Promise.all([getMegaMenuAds(), getAdFeed()]);
 
   return (
-    <Layout megaMenuAds={megaMenuAds} popularSearches={popularSearches(ads, 6)}>
+    <Layout
+      megaMenuAds={megaMenuAds}
+      popularSearches={await getPopularSearches(ads)}
+    >
       {children}
     </Layout>
   );

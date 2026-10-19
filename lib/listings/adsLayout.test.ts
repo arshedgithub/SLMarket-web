@@ -20,11 +20,12 @@ describe("ads per page and spotlight slots", () => {
       expect((b.pageSize + b.slotsAfter.length * span) % b.cols).toBe(0);
     });
 
-    it(`${name}: slots start on a row boundary, never in the first two rows`, () => {
+    it(`${name}: slots zigzag (left edge, then right edge), never in the first two rows`, () => {
       let cellsBefore = 0;
       b.slotsAfter.forEach((after, i) => {
         const cells = after + i * span;
-        expect(cells % b.cols).toBe(0);
+        // The first starts a row, the second ends one.
+        expect((i % 2 === 0 ? cells : cells + span) % b.cols).toBe(0);
         expect(cells).toBeGreaterThanOrEqual(2 * b.cols);
         cellsBefore = cells;
       });

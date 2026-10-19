@@ -18,6 +18,7 @@ import {
   PLACE_COOKIE,
   resolveOrigin,
 } from "@/lib/listings/nearYou";
+import { getPopularSearches } from "@/lib/search/popular";
 import { VIEWPORT_COOKIE, type Bucket } from "./adQuery";
 
 const BUCKET_NAMES: Bucket[] = ["mobile", "tablet", "laptop", "desktop"];
@@ -135,7 +136,6 @@ export async function ListingsPageShell({
     headers(),
   ]);
   const stats = feedStats(ads);
-  const now = Date.now();
   const origin = resolveOrigin({
     gps: decodeURIComponent(jar.get(GPS_COOKIE)?.value ?? ""),
     chosen: decodeURIComponent(jar.get(PLACE_COOKIE)?.value ?? ""),
@@ -161,8 +161,8 @@ export async function ListingsPageShell({
         dealScope={dealScope}
         ads={ads}
         stats={stats}
-        stripShops={featuredStripShops(shops, now)}
-        now={now}
+        popularSearchList={await getPopularSearches(ads)}
+        stripShops={featuredStripShops(shops)}
         initialBucket={guessBucket(jar.get(VIEWPORT_COOKIE)?.value, h)}
         initialOrigin={origin}
       />

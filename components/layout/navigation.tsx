@@ -40,7 +40,11 @@ import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { useMessagingStore } from "@/store/messagingStore";
 import MessagesPopover from "@/components/messaging/MessagesPopover";
 import NotificationsDropdown from "@/components/messaging/NotificationsDropdown";
-import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import LanguageSwitcher, {
+  I18N_ENABLED,
+} from "@/components/layout/LanguageSwitcher";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { logSearch } from "@/lib/search/logSearch";
 import type { MegaMenuAdSlide } from "@/lib/getMegaMenuAds";
 
 export default function Navigation({
@@ -133,6 +137,7 @@ export default function Navigation({
   );
 
   useOutsideClick([catModalRef], () => closeCatModal());
+  useFocusTrap(catModalRef, isCatModalOpen, closeCatModal);
   useOutsideClick(
     [profileMenuRef, tabletProfileMenuRef, mobileProfileMenuRef],
     () => setIsProfileMenuOpen(false),
@@ -200,6 +205,7 @@ export default function Navigation({
   const submitHeaderSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = headerQuery.trim();
+    if (q) logSearch(q);
     router.push(q ? `/ads?q=${encodeURIComponent(q)}` : "/ads");
   };
 
@@ -426,17 +432,29 @@ export default function Navigation({
               </form>
             ) : (
               <div className="hidden items-center gap-5 md:flex lg:gap-8">
-                <button
-                  type="button"
-                  onClick={openCatModal}
-                  aria-haspopup="dialog"
-                  aria-expanded={isCatModalOpen}
-                  className="flex items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold text-text transition-colors hover:text-primary"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                  {t("browseAds")}
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </button>
+                <div className="flex items-center">
+                  <Link
+                    href="/ads"
+                    className="flex h-11 items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold text-text transition-colors hover:text-primary"
+                  >
+                    <LayoutGrid aria-hidden className="h-4 w-4" />
+                    {t("browseAds")}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={openCatModal}
+                    aria-haspopup="dialog"
+                    aria-expanded={isCatModalOpen}
+                    aria-controls="categories-menu"
+                    aria-label={t("showCategories")}
+                    className="flex h-11 w-8 items-center justify-center rounded-lg text-text transition-colors hover:bg-background hover:text-primary"
+                  >
+                    <ChevronDown
+                      aria-hidden
+                      className={`h-4 w-4 transition-transform ${isCatModalOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                </div>
                 <Link
                   href="/ads/deals"
                   className="hidden items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold text-text transition-colors hover:text-primary lg:flex"
@@ -463,12 +481,12 @@ export default function Navigation({
 
             {/* Right cluster (tablet) */}
             <div className="hidden items-center gap-1 md:flex lg:hidden">
-              <LanguageSwitcher compact />
+              <LanguageSwitcher />
 
               <button
                 onClick={changeTheme}
                 aria-label={t("toggleDarkMode")}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background hover:text-primary"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background hover:text-primary"
               >
                 {isDarkMode ? (
                   <Sun className="h-5 w-5" />
@@ -541,17 +559,12 @@ export default function Navigation({
 
             {/* Right cluster (desktop) */}
             <div className="hidden items-center gap-2 lg:flex">
-              <div className="xl:hidden">
-                <LanguageSwitcher compact />
-              </div>
-              <div className="hidden xl:block">
-                <LanguageSwitcher />
-              </div>
+              <LanguageSwitcher />
 
               <button
                 onClick={changeTheme}
                 aria-label={t("toggleDarkMode")}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background hover:text-primary"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-light-text transition-colors hover:bg-background hover:text-primary"
               >
                 {isDarkMode ? (
                   <Sun className="h-5 w-5" />
@@ -617,7 +630,7 @@ export default function Navigation({
                     href="/login"
                     className="whitespace-nowrap px-3 py-1.5 text-[15px] font-semibold text-text transition-colors hover:text-primary"
                   >
-                    {t("signInRegister")}
+                    {t("signIn")}
                   </Link>
                   <Link
                     href="/post-ad"
@@ -666,12 +679,14 @@ export default function Navigation({
         <div className={`md:hidden ${isMenuOpen ? "block" : "hidden"}`}>
           <div className="space-y-1 border-t border-border bg-background px-3 pb-6 pt-3 dark:bg-[#0c1422]">
             {/* Preferences */}
-            <div className="mb-2 flex items-center justify-between border-b border-border px-2 pb-3">
-              <span className="text-sm font-medium text-text">
-                {t("language")}
-              </span>
-              <LanguageSwitcher />
-            </div>
+            {I18N_ENABLED && (
+              <div className="mb-2 flex items-center justify-between border-b border-border px-2 pb-3">
+                <span className="text-sm font-medium text-text">
+                  {t("language")}
+                </span>
+                <LanguageSwitcher />
+              </div>
+            )}
             <div className="mb-2 flex items-center justify-between border-b border-border px-2 pb-3">
               <span className="text-sm font-medium text-text">
                 {t("darkMode")}
@@ -925,13 +940,15 @@ export default function Navigation({
                       {t("register")}
                     </Link>
                   </div>
-                  <div className="flex items-center justify-between border-t border-border pt-3">
-                    <span className="flex items-center gap-1.5 text-sm text-text">
-                      <Languages className="h-4 w-4 text-primary" />
-                      {t("language")}
-                    </span>
-                    <LanguageSwitcher />
-                  </div>
+                  {I18N_ENABLED && (
+                    <div className="flex items-center justify-between border-t border-border pt-3">
+                      <span className="flex items-center gap-1.5 text-sm text-text">
+                        <Languages className="h-4 w-4 text-primary" />
+                        {t("language")}
+                      </span>
+                      <LanguageSwitcher />
+                    </div>
+                  )}
                 </div>
               ))}
           </div>
@@ -941,190 +958,198 @@ export default function Navigation({
       {/* ======================================================
           BROWSE CATEGORIES MODAL
           ====================================================== */}
-      {isCatModalOpen && (
-        <>
+      {/* Always in the HTML (hidden while closed) so every category link
+          is crawlable; opening it only reveals it. */}
+      <>
+        {isCatModalOpen && (
           <div
+            aria-hidden
             className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm"
             onClick={() => closeCatModal()}
           />
-          <div
-            ref={catModalRef}
-            className="fixed left-1/2 top-20 z-[70] max-h-[82vh] w-[94vw] max-w-5xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl dark:bg-[#111d30] sm:top-24"
-          >
-            <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-              <div>
-                <h2 className="text-sm font-bold text-text">
-                  {t("megaMenu.title")}
-                </h2>
-                <p className="text-xs text-light-text">
-                  {t("megaMenu.subtitle")}
-                </p>
-              </div>
-              <button
+        )}
+        <div
+          ref={catModalRef}
+          id="categories-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("megaMenu.title")}
+          hidden={!isCatModalOpen}
+          className="fixed left-1/2 top-20 z-[70] max-h-[82vh] w-[94vw] max-w-5xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl dark:bg-[#111d30] sm:top-24"
+        >
+          <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+            <div>
+              <h2 className="text-sm font-bold text-text">
+                {t("megaMenu.title")}
+              </h2>
+              <p className="text-xs text-light-text">
+                {t("megaMenu.subtitle")}
+              </p>
+            </div>
+            <button
+              onClick={() => closeCatModal()}
+              aria-label={t("toggleMenu")}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-light-text hover:bg-background"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="flex max-h-[calc(82vh-118px)] flex-col lg:h-[440px] lg:flex-row">
+            {/* Rail */}
+            <div className="w-full flex-shrink-0 overflow-y-auto border-b border-border p-2 lg:w-56 lg:border-b-0 lg:border-r">
+              <Link
+                href="/ads"
                 onClick={() => closeCatModal()}
-                aria-label={t("toggleMenu")}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-light-text hover:bg-background"
+                className="mb-1 flex w-full items-center gap-3 rounded-lg border-l-[3px] border-transparent px-3 py-2.5 text-left text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
               >
-                <X className="h-4 w-4" />
-              </button>
+                <LayoutGrid className="h-4 w-4 flex-shrink-0" />
+                <span className="flex-1 truncate">
+                  {t("megaMenu.allListings")}
+                </span>
+                <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
+              </Link>
+              {categories.map((category) => {
+                const Icon = categoryIcon(category.icon);
+                const isActive = activeCat === category.id;
+                return (
+                  <Link
+                    key={category.id}
+                    href={category.href}
+                    onMouseEnter={() => hoverCat(category.id)}
+                    onFocus={() => setActiveCat(category.id)}
+                    onClick={() => closeCatModal()}
+                    className={`flex w-full items-center gap-3 rounded-lg border-l-[3px] px-3 py-2.5 text-left text-sm transition-colors ${
+                      isActive
+                        ? "border-primary bg-primary/10 font-semibold text-primary"
+                        : "border-transparent text-text hover:bg-background"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="flex-1 truncate">
+                      {tCategories(`${category.id}.name`)}
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-light-text" />
+                  </Link>
+                );
+              })}
             </div>
 
-            <div className="flex max-h-[calc(82vh-118px)] flex-col lg:h-[440px] lg:flex-row">
-              {/* Rail */}
-              <div className="w-full flex-shrink-0 overflow-y-auto border-b border-border p-2 lg:w-56 lg:border-b-0 lg:border-r">
-                <Link
-                  href="/ads"
-                  onClick={() => closeCatModal()}
-                  className="mb-1 flex w-full items-center gap-3 rounded-lg border-l-[3px] border-transparent px-3 py-2.5 text-left text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
-                >
-                  <LayoutGrid className="h-4 w-4 flex-shrink-0" />
-                  <span className="flex-1 truncate">
-                    {t("megaMenu.allListings")}
-                  </span>
-                  <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
-                </Link>
-                {categories.map((category) => {
-                  const Icon = categoryIcon(category.icon);
-                  const isActive = activeCat === category.id;
-                  return (
-                    <button
-                      key={category.id}
-                      onMouseEnter={() => hoverCat(category.id)}
-                      onClick={() => setActiveCat(category.id)}
-                      className={`flex w-full items-center gap-3 rounded-lg border-l-[3px] px-3 py-2.5 text-left text-sm transition-colors ${
-                        isActive
-                          ? "border-primary bg-primary/10 font-semibold text-primary"
-                          : "border-transparent text-text hover:bg-background"
-                      }`}
+            {/* Subcategories */}
+            <div className="w-full flex-shrink-0 overflow-y-auto border-b border-border p-5 lg:w-[360px] lg:border-b-0 lg:border-r">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
+                {t("megaMenu.explorePrefix")}{" "}
+                {activeCategory && tCategories(`${activeCategory.id}.name`)}
+              </p>
+              <ul className="space-y-0.5 sm:columns-2 sm:gap-x-4 lg:columns-1">
+                {activeSubcats.map((subcat) => (
+                  <li key={subcat.id} className="break-inside-avoid">
+                    <Link
+                      href={subcat.href}
+                      onClick={() => closeCatModal()}
+                      className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-text transition-colors hover:bg-background hover:text-primary"
                     >
-                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="h-1 w-1 flex-shrink-0 rounded-full bg-light-text group-hover:bg-primary" />
                       <span className="flex-1 truncate">
-                        {tCategories(`${category.id}.name`)}
+                        {tCategories(
+                          `${activeCategory?.id}.subcategories.${subcat.id}`,
+                        )}
                       </span>
-                      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-light-text" />
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Subcategories */}
-              <div className="w-full flex-shrink-0 overflow-y-auto border-b border-border p-5 lg:w-[360px] lg:border-b-0 lg:border-r">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
-                  {t("megaMenu.explorePrefix")}{" "}
-                  {activeCategory && tCategories(`${activeCategory.id}.name`)}
-                </p>
-                <ul className="space-y-0.5 sm:columns-2 sm:gap-x-4 lg:columns-1">
-                  {activeSubcats.map((subcat) => (
-                    <li key={subcat.id} className="break-inside-avoid">
-                      <Link
-                        href={subcat.href}
-                        onClick={() => closeCatModal()}
-                        className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-text transition-colors hover:bg-background hover:text-primary"
-                      >
-                        <span className="h-1 w-1 flex-shrink-0 rounded-full bg-light-text group-hover:bg-primary" />
-                        <span className="flex-1 truncate">
-                          {tCategories(
-                            `${activeCategory?.id}.subcategories.${subcat.id}`,
-                          )}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                {activeCategory && (
-                  <Link
-                    href={activeCategory.href}
-                    onClick={() => closeCatModal()}
-                    className="mt-3 inline-flex items-center gap-1 px-2 text-sm font-semibold text-primary hover:underline"
-                  >
-                    {t("megaMenu.viewAllPrefix")}{" "}
-                    {tCategories(`${activeCategory.id}.name`)}
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Link>
-                )}
-              </div>
-
-              {/* Promo rail */}
-              {activeAd && (
-                <div className="hidden flex-1 flex-col overflow-hidden lg:flex">
-                  <Link
-                    href={activeAd.href}
-                    onClick={() => closeCatModal()}
-                    className="group relative block min-h-0 flex-1"
-                  >
-                    <Image
-                      src={activeAd.image}
-                      alt={activeAd.title}
-                      fill
-                      sizes="360px"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                    <span className="absolute left-3 top-3 rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
-                      {t("megaMenu.sponsored")}
-                    </span>
-                    {adSlides.length > 1 && (
-                      <div className="absolute right-3 top-3 flex gap-1.5">
-                        {adSlides.map((slide, i) => (
-                          <span
-                            key={slide.id}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setAdIndex(i);
-                            }}
-                            className={`h-1.5 cursor-pointer rounded-full transition-all ${
-                              i === adIndex
-                                ? "w-6 bg-white"
-                                : "w-1.5 bg-white/60"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 p-4">
-                      <h3 className="mb-1 line-clamp-2 text-lg font-bold leading-snug text-white">
-                        {activeAd.title}
-                      </h3>
-                      {activeAd.subtitle && (
-                        <p className="line-clamp-2 text-xs text-white/80">
-                          {activeAd.subtitle}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                  <Link
-                    href={activeAd.href}
-                    onClick={() => closeCatModal()}
-                    className="flex flex-shrink-0 items-center justify-center gap-1.5 border-t border-border bg-primary py-2.5 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
-                  >
-                    {activeAd.cta ?? t("megaMenu.viewListing")}
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {activeCategory && (
+                <Link
+                  href={activeCategory.href}
+                  onClick={() => closeCatModal()}
+                  className="mt-3 inline-flex items-center gap-1 px-2 text-sm font-semibold text-primary hover:underline"
+                >
+                  {t("megaMenu.viewAllPrefix")}{" "}
+                  {tCategories(`${activeCategory.id}.name`)}
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
               )}
             </div>
 
-            {/* Popular searches (the live list: lib/listings/popularSearches.ts) */}
-            {popularSearches.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
-                <span className="text-[13px] font-semibold text-light-text">
-                  {t("megaMenu.popularSearches")}:
-                </span>
-                {popularSearches.map((s) => (
-                  <Link
-                    key={s.label}
-                    href={s.href}
-                    onClick={() => closeCatModal()}
-                    className="inline-flex h-8 items-center rounded-full border border-border bg-background px-3 text-[13px] font-medium text-light-text transition-colors hover:border-primary/40 hover:text-primary"
-                  >
-                    {s.label}
-                  </Link>
-                ))}
+            {/* Promo rail */}
+            {activeAd && (
+              <div className="hidden flex-1 flex-col overflow-hidden lg:flex">
+                <Link
+                  href={activeAd.href}
+                  onClick={() => closeCatModal()}
+                  className="group relative block min-h-0 flex-1"
+                >
+                  <Image
+                    src={activeAd.image}
+                    alt={activeAd.title}
+                    fill
+                    sizes="360px"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  <span className="absolute left-3 top-3 rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+                    {t("megaMenu.sponsored")}
+                  </span>
+                  {adSlides.length > 1 && (
+                    <div className="absolute right-3 top-3 flex gap-1.5">
+                      {adSlides.map((slide, i) => (
+                        <span
+                          key={slide.id}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setAdIndex(i);
+                          }}
+                          className={`h-1.5 cursor-pointer rounded-full transition-all ${
+                            i === adIndex ? "w-6 bg-white" : "w-1.5 bg-white/60"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <h3 className="mb-1 line-clamp-2 text-lg font-bold leading-snug text-white">
+                      {activeAd.title}
+                    </h3>
+                    {activeAd.subtitle && (
+                      <p className="line-clamp-2 text-xs text-white/80">
+                        {activeAd.subtitle}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+                <Link
+                  href={activeAd.href}
+                  onClick={() => closeCatModal()}
+                  className="flex flex-shrink-0 items-center justify-center gap-1.5 border-t border-border bg-primary py-2.5 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
+                >
+                  {activeAd.cta ?? t("megaMenu.viewListing")}
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
             )}
           </div>
-        </>
-      )}
+
+          {/* Popular searches (the live list: lib/listings/popularSearches.ts) */}
+          {popularSearches.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
+              <span className="text-[13px] font-semibold text-light-text">
+                {t("megaMenu.popularSearches")}:
+              </span>
+              {popularSearches.map((s) => (
+                <Link
+                  key={s.label}
+                  href={s.href}
+                  onClick={() => closeCatModal()}
+                  className="inline-flex h-8 items-center rounded-full border border-border bg-background px-3 text-[13px] font-medium text-light-text transition-colors hover:border-primary/40 hover:text-primary"
+                >
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </>
     </>
   );
 }

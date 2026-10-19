@@ -35,7 +35,8 @@ import {
   type SortValue,
 } from "./data";
 import { dealsHref } from "./dealRoutes";
-import { popularSearches } from "@/lib/listings/popularSearches";
+import type { PopularSearch } from "@/lib/listings/popularSearches";
+import { logSearch } from "@/lib/search/logSearch";
 import {
   activeFilterCount,
   DEFAULT_FILTERS,
@@ -171,8 +172,8 @@ export function ListingsExperience({
   dealScope,
   ads,
   stats,
+  popularSearchList,
   stripShops,
-  now,
   initialBucket,
   initialOrigin,
 }: {
@@ -180,10 +181,10 @@ export function ListingsExperience({
   // The ads to list (lib/listings/feed.ts) and the counts around them.
   ads: AdCard[];
   stats: FeedStats;
+  // Popular searches (lib/search/popular.ts), worked out on the server.
+  popularSearchList: PopularSearch[];
   // Businesses for the Featured strip (lib/listings/feed.ts featuredStripShops).
   stripShops: ShopCard[];
-  // Server time, so time-based labels match between server and client.
-  now: number;
   // The server's guess at the screen size (ads per page).
   initialBucket: Bucket;
   // The visitor's district from GPS or an earlier choice, for "Nearest".
@@ -397,7 +398,6 @@ export function ListingsExperience({
         : stripShops,
     [categoryId, stripShops],
   );
-  const popularSearchList = useMemo(() => popularSearches(ads, 6), [ads]);
 
   const singleDealScope = dealScope?.length === 1 ? dealScope[0] : null;
   const heading = dealScope
@@ -460,7 +460,9 @@ export function ListingsExperience({
 
   function submitSearch(e?: React.FormEvent) {
     e?.preventDefault();
-    setSearch(inputValue.trim());
+    const q = inputValue.trim();
+    if (q && q !== search) logSearch(q);
+    setSearch(q);
   }
 
   function clearAll() {
@@ -930,7 +932,6 @@ export function ListingsExperience({
           <div className="mt-12 border-t border-[var(--color-market-border)] pt-10 empty:hidden">
             <FeaturedBusinessesStrip
               shops={orderedStrip}
-              now={now}
               hideIds={spotlightBusinessIds}
             />
           </div>

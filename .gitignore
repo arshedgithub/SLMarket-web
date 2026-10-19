@@ -51,3 +51,6 @@ memory
 
 # Copied from node_modules by scripts/copy-maplibre-worker.mjs
 /public/vendor/maplibre/
+
+# Emails written by SMTP=logs (lib/email.ts)
+/logs

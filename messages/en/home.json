@@ -20,36 +20,12 @@
     "searchLocationLabel": "Search location",
     "useMyLocation": "Use my location",
     "trustSafety": "Safety tips",
-    "trustIslandwide": "Islandwide",
-    "newToday": "{count} new ads today",
-    "browseLatest": "Browse the latest ads"
-  },
-  "categoryTaglines": {
-    "vehicles": "Cars, bikes & three-wheelers",
-    "property": "Land, houses & rentals",
-    "electronics": "Phones, laptops & more",
-    "home-garden": "Furniture & home living",
-    "fashion": "Clothing, shoes & bags",
-    "food": "Groceries & fresh produce",
-    "agriculture": "Machinery, seeds & crops",
-    "animals-pets": "Pets, livestock & supplies",
-    "services": "Repairs, classes & experts",
-    "jobs": "Full-time & part-time",
-    "health-beauty": "Skincare, makeup & wellness",
-    "hobbies": "Sports gear, fitness & hobbies",
-    "education": "Classes, courses & tutoring",
-    "other": "Everything else on the market"
+    "trustIslandwide": "Islandwide"
   },
   "browse": {
     "heading": "Browse categories",
-    "subheading": "Everything you need, all in one marketplace",
-    "viewAll": "View all",
-    "eyebrow": "Explore",
-    "countLabel": "{count, plural, one {# ad} other {# ads}}",
-    "countNew": "New",
     "more": "More",
-    "less": "Show less",
-    "beFirst": "Be the first to post"
+    "countLabel": "{count, plural, one {{shown} ad} other {{shown} ads}}"
   },
   "latest": {
     "heading": "Latest ads",
@@ -58,20 +34,8 @@
     "latest": "Latest",
     "featured": "Featured",
     "deals": "Deals",
-    "near": "Near you",
     "nearIn": "In {district}",
-    "nearEmpty": "No new ads in {district} yet. Browse all ads in Sri Lanka instead.",
-    "nearAsk": "Share your location to see ads near you, or choose a district.",
-    "chooseDistrict": "Choose a district"
-  },
-  "shops": {
-    "eyebrow": "Featured Businesses",
-    "heading": "Discover Local Businesses",
-    "subheading": "Explore businesses across Sri Lanka.",
-    "viewAll": "View All Businesses",
-    "visit": "View Business",
-    "listings": "Ads",
-    "more": "More"
+    "newToday": "{count} new today"
   },
   "deals": {
     "eyebrow": "Deals & Offers",
@@ -93,38 +57,45 @@
     }
   },
   "sell": {
-    "desc": "List your property, vehicle, electronics, products, services or anything else and reach buyers across Sri Lanka.",
+    "desc": "List your products, property, vehicles, or services and connect with buyers across Sri Lanka.",
     "ctaPost": "Post a Free Ad",
     "ctaShop": "Create a Business Page",
-    "stepsTitle": "Sell in about 60 seconds",
-    "step1Title": "Add photos",
-    "step1Desc": "Snap a few clear photos with your phone.",
-    "step2Title": "Set your price",
-    "step2Desc": "Add the details buyers ask about.",
-    "step3Title": "Publish free",
-    "step3Desc": "We check it and buyers can call you."
+    "eyebrow": "Sell on SLMarket.lk",
+    "heading": "Have Something to Sell? Start Here.",
+    "benefit1": "Free Listings",
+    "benefit2": "Reach Buyers Across Sri Lanka",
+    "benefit3": "Quick & Easy to Get Started",
+    "panelTitle": "Post your ad today",
+    "panelDesc": "New or used, big or small: add photos, a price and a few details."
   },
   "forYou": {
-    "savedSearches": "Your saved searches",
     "recentlyViewed": "Recently viewed",
-    "manage": "Manage"
+    "clear": "Clear"
   },
   "districts": {
-    "heading": "Browse by district",
-    "desc": "Ads close to home, from Colombo to Jaffna.",
-    "all": "All districts"
+    "all": "View all districts",
+    "eyebrow": "Explore by location",
+    "headingStart": "Browse by",
+    "headingHighlight": "District",
+    "desc": "Find listings and sellers near you, in districts across Sri Lanka."
   },
   "safety": {
-    "eyebrow": "Stay safe",
-    "heading": "Buy and sell with confidence",
-    "cta": "All safety tips",
+    "heading": "Your Safety Matters",
+    "cta": "View safety tips",
     "tip1Title": "Never pay in advance",
-    "tip1Desc": "No deposits or delivery fees before you see the item.",
-    "tip2Title": "Meet in a public place",
-    "tip2Desc": "Somewhere busy, in daylight, and bring a friend.",
+    "tip1Desc": "Don't send a deposit before you see the item.",
+    "tip2Title": "Meet safely",
+    "tip2Desc": "Meet the seller in a busy public place.",
     "tip3Title": "Check before you pay",
-    "tip3Desc": "Test the item and check documents and serial numbers.",
-    "tip4Title": "Report anything odd",
-    "tip4Desc": "Use Report this ad. Our team reviews every report."
+    "tip3Desc": "Inspect the item and its papers first.",
+    "tip4Title": "Report suspicious activity",
+    "tip4Desc": "Tell us about any ad or person that seems wrong.",
+    "eyebrow": "Buy with confidence",
+    "desc": "Simple habits that keep every deal safe."
+  },
+  "categoriesPage": {
+    "title": "All categories",
+    "description": "Every category on SLMarket.lk, from vehicles and property to jobs and services.",
+    "intro": "Pick a category, or a type of item inside it."
   }
 }

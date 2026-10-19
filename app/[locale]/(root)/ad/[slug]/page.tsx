@@ -52,6 +52,7 @@ import { safeJsonLd } from "@/lib/utils/json-ld";
 import { localeAlternates } from "@/lib/seo/hreflang";
 import { AVATAR_TONE } from "../../ads/_components/avatarTone";
 import { AdGallery } from "./_components/AdGallery";
+import { DEFAULT_JOB_THUMBNAIL } from "@/lib/listings/defaultImages";
 import {
   ContactBar,
   ContactPanel,
@@ -474,7 +475,11 @@ export default async function AdPage({ params }: Props) {
           {/* Gallery */}
           <div className={`lg:col-span-7 ${contactable ? "" : "opacity-80"}`}>
             <AdGallery
-              photos={ad.photos}
+              photos={
+                ad.photos.length === 0 && ad.categoryId === "jobs"
+                  ? [DEFAULT_JOB_THUMBNAIL]
+                  : ad.photos
+              }
               videoUrl={ad.videoUrl}
               title={ad.title}
               slug={ad.slug}

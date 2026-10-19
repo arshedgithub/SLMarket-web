@@ -1,9 +1,33 @@
+import { appendFile, mkdir } from "node:fs/promises";
+import path from "node:path";
 import nodemailer from "nodemailer";
 import { escapeHtml } from "@/lib/utils/escape-html";
 
-// Swap to any email provider by replacing this file.
-// Required env vars: GMAIL_USER, GMAIL_APP_PASSWORD, EMAIL_FROM
+/*
+ * Where email goes, chosen by env (first match wins):
+ *   SMTP=logs   written to logs/emails.log instead of sent (local
+ *               development: read verification codes there). Refused in
+ *               production, where it would silently drop every email.
+ *   SMTP_HOST   any SMTP server: SMTP_HOST, SMTP_PORT (587), SMTP_SECURE
+ *               ("true" for port 465), SMTP_USER, SMTP_PASSWORD
+ *   otherwise   Gmail: GMAIL_USER, GMAIL_APP_PASSWORD
+ * EMAIL_FROM sets the sender for all three.
+ */
+const LOG_MODE = process.env.SMTP?.trim().toLowerCase() === "logs";
+export const EMAIL_LOG_FILE = path.join(process.cwd(), "logs", "emails.log");
+
 function getTransporter() {
+  if (process.env.SMTP_HOST) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT ?? 587),
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+  }
   return nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -13,9 +37,53 @@ function getTransporter() {
   });
 }
 
+// The readable text of an email body, for the log.
+function htmlToText(html: string): string {
+  return html
+    .replace(/<(style|head)[\s\S]*?<\/\1>/gi, "")
+    .replace(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 ($1)")
+    .replace(/<br\s*\/?>|<\/(p|div|tr|h\d|blockquote)>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&middot;/g, "·")
+    .replace(/&amp;/g, "&")
+    .replace(/\s*\n\s*/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .trim();
+}
+
+async function logEmail(mail: {
+  from: string;
+  to: string | string[];
+  subject: string;
+  html: string;
+  replyTo?: string;
+}): Promise<void> {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "SMTP=logs is for development only: set real SMTP settings in production.",
+    );
+  }
+  const to = Array.isArray(mail.to) ? mail.to.join(", ") : mail.to;
+  const entry = [
+    `==== ${new Date().toISOString()} ====`,
+    `From:    ${mail.from}`,
+    `To:      ${to}`,
+    ...(mail.replyTo ? [`ReplyTo: ${mail.replyTo}`] : []),
+    `Subject: ${mail.subject}`,
+    "",
+    htmlToText(mail.html),
+    "",
+    "",
+  ].join("\n");
+  await mkdir(path.dirname(EMAIL_LOG_FILE), { recursive: true });
+  await appendFile(EMAIL_LOG_FILE, entry, "utf8");
+  console.info(`[email] logged "${mail.subject}" to ${to} (logs/emails.log)`);
+}
+
 const FROM =
   process.env.EMAIL_FROM ??
-  `SLMarket.lk <${process.env.GMAIL_USER ?? "noreply@slmarket.lk"}>`;
+  `SLMarket.lk <${process.env.SMTP_USER ?? process.env.GMAIL_USER ?? "noreply@slmarket.lk"}>`;
 
 interface SendEmailOptions {
   to: string | string[];
@@ -25,13 +93,15 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
-  await getTransporter().sendMail({
+  const mail = {
     from: FROM,
     to: options.to,
     subject: options.subject,
     html: options.html,
     replyTo: options.replyTo,
-  });
+  };
+  if (LOG_MODE) return logEmail(mail);
+  await getTransporter().sendMail(mail);
 }
 
 export async function sendOtpEmail(email: string, code: string): Promise<void> {

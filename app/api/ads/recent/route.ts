@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
  * "Recently viewed" for signed-in users, across devices.
  *   GET                       { items }   newest first, up to 12
  *   POST { slug, title, priceText, photo, place }   record a view
+ *   DELETE                    clear the list
  * Each row keeps a small snapshot of the card so the list needs no lookup.
  */
 
@@ -71,5 +72,13 @@ export async function POST(req: NextRequest) {
     await db.recentlyViewedAd.deleteMany({
       where: { id: { in: old.map((o) => o.id) } },
     });
+  return new NextResponse(null, { status: 204 });
+}
+
+// DELETE: clear the signed-in user's "Recently viewed" (the "Clear" link).
+export async function DELETE() {
+  const uid = await userId();
+  if (!uid) return new NextResponse(null, { status: 204 });
+  await db.recentlyViewedAd.deleteMany({ where: { userId: uid } });
   return new NextResponse(null, { status: 204 });
 }

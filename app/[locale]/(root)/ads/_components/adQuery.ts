@@ -250,7 +250,9 @@ export function filterAds(ads: AdCard[], query: AdQuery): AdCard[] {
  * Ads per page by screen. A spotlight slot takes cells, so every page
  * still ends on a full row: desktop 26 ads + 2 slots of 2 = 30 = 5 x 6,
  * laptop 24 + 4 = 28 = 4 x 7, tablet 21 + 3 = 24 = 3 x 8, mobile 20 + 2
- * = 22 = 2 x 11. Slots never sit in the first two rows. The page size
+ * = 22 = 2 x 11. Slots never sit in the first two rows. With two slots
+ * they zigzag: the first starts a row (left edge), the second ends a row
+ * (right edge), so they never stack down the same side. The page size
  * stays fixed even when no slot is shown (a partial last row is better
  * than ads moving between pages).
  */
@@ -262,8 +264,8 @@ export const BUCKETS: Record<
 > = {
   mobile: { cols: 2, pageSize: 20, slotsAfter: [6] },
   tablet: { cols: 3, pageSize: 21, slotsAfter: [6] },
-  laptop: { cols: 4, pageSize: 24, slotsAfter: [8, 18] },
-  desktop: { cols: 5, pageSize: 26, slotsAfter: [10, 23] },
+  laptop: { cols: 4, pageSize: 24, slotsAfter: [8, 16] },
+  desktop: { cols: 5, pageSize: 26, slotsAfter: [10, 21] },
 };
 
 // List view: 12 rows per page, a slot after the 6th, a second after the

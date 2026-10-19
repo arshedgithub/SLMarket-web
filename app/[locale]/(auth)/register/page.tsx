@@ -1,11 +1,20 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { AuthTabs } from "@/components/auth/AuthTabs";
+import { ExistingAccountNotice } from "@/components/auth/ExistingAccountNotice";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { Eye, EyeOff, UserPlus, ChevronDown, CheckCircle2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  UserPlus,
+  ChevronDown,
+  CheckCircle2,
+  LogIn,
+} from "lucide-react";
 import { colors } from "@/lib/theme/colors";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,19 +36,19 @@ const fieldVerifiedCls = "border-green-400 bg-green-50/40 focus:ring-green-400";
 
 type FieldErrors = Partial<
   Record<
-    | "fullName"
-    | "email"
-    | "phone"
-    | "verify"
-    | "password"
-    | "confirmPassword"
-    | "terms",
+    "fullName" | "email" | "phone" | "password" | "confirmPassword" | "terms",
     string
   >
 >;
 
 export default function RegisterPage() {
   const t = useTranslations("auth.register");
+  // Where they were going, kept when they switch to sign-in.
+  const [nextQuery, setNextQuery] = useState("");
+  useEffect(() => {
+    const target = getRedirectTarget();
+    if (target) setNextQuery(`&next=${encodeURIComponent(target)}`);
+  }, []);
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -54,13 +63,39 @@ export default function RegisterPage() {
   const [topError, setTopError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
+  // An account already uses this email or phone: the form says so and
+  // offers "Sign in" instead (checked when the field is left, before an
+  // email code is sent, and on submit).
+  const [taken, setTaken] = useState({ email: false, phone: false });
+  const takenRef = useRef<HTMLDivElement>(null);
+  const checkAccount = async (fields: { email?: string; phone?: string }) => {
+    try {
+      const res = await fetch("/api/auth/check-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      if (!res.ok) return { emailTaken: false, phoneTaken: false };
+      const d = (await res.json()) as {
+        emailTaken: boolean;
+        phoneTaken: boolean;
+      };
+      setTaken((prev) => ({
+        email: fields.email !== undefined ? d.emailTaken : prev.email,
+        phone: fields.phone !== undefined ? d.phoneTaken : prev.phone,
+      }));
+      return d;
+    } catch {
+      return { emailTaken: false, phoneTaken: false };
+    }
+  };
+
   const [emailOtpOpen, setEmailOtpOpen] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
 
   // Refs for scroll-to-error
   const fullNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
-  const verifyCardRef = useRef<HTMLDivElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
@@ -89,7 +124,6 @@ export default function RegisterPage() {
     else if (!isEmailValid) errors.email = t("errors.emailInvalid");
     if (!phoneLocal.trim()) errors.phone = t("errors.phoneRequired");
     else if (!isPhoneValid) errors.phone = t("errors.phoneInvalid");
-    if (!emailVerified) errors.verify = t("errors.verifyRequired");
     if (!password) errors.password = t("errors.passwordRequired");
     else if (password.length < 8)
       errors.password = t("errors.passwordTooShort");
@@ -110,7 +144,6 @@ export default function RegisterPage() {
         { key: "fullName", ref: fullNameRef },
         { key: "email", ref: emailRef },
         { key: "phone", ref: phoneRef },
-        { key: "verify", ref: verifyCardRef },
         { key: "password", ref: passwordRef },
         { key: "confirmPassword", ref: confirmPasswordRef },
         { key: "terms", ref: termsRef },
@@ -123,8 +156,35 @@ export default function RegisterPage() {
       return;
     }
 
+    // An account already uses this email or phone: say so (with a way to
+    // sign in) instead of sending a code.
     setFieldErrors({});
     setTopError("");
+    setLoading(true);
+    const existing = await checkAccount({ email, phone: phoneLocal.trim() });
+    if (existing.emailTaken || existing.phoneTaken) {
+      setLoading(false);
+      requestAnimationFrame(() =>
+        takenRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        }),
+      );
+      return;
+    }
+
+    // The email is confirmed with a code before the account is made: the
+    // code is sent as the window opens, and the account is created as soon
+    // as it is accepted. Cancel returns to this form, still filled in.
+    if (!emailVerified) {
+      setLoading(false);
+      setEmailOtpOpen(true);
+      return;
+    }
+    await createAccount();
+  };
+
+  const createAccount = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
@@ -140,6 +200,23 @@ export default function RegisterPage() {
       });
 
       const data = await res.json();
+      if (
+        res.status === 409 &&
+        (data.code === "email_taken" || data.code === "phone_taken")
+      ) {
+        setTaken({
+          email: data.code === "email_taken",
+          phone: data.code === "phone_taken",
+        });
+        setLoading(false);
+        requestAnimationFrame(() =>
+          takenRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          }),
+        );
+        return;
+      }
       if (!res.ok)
         throw new Error(data.message ?? t("errors.registrationFailed"));
 
@@ -188,16 +265,9 @@ export default function RegisterPage() {
               />
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-            <p className="mt-1.5 text-sm text-gray-500">
-              {t("alreadyHaveAccount")}{" "}
-              <Link
-                href="/login"
-                className="font-semibold hover:underline"
-                style={{ color: colors.primary.main }}
-              >
-                {t("signIn")}
-              </Link>
-            </p>
+            <div className="mt-5">
+              <AuthTabs active="register" />
+            </div>
           </div>
 
           {/* Form */}
@@ -251,7 +321,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Email */}
-            <div ref={verifyCardRef}>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 {t("emailAddress")} <span className="text-red-500">*</span>
               </label>
@@ -268,8 +338,11 @@ export default function RegisterPage() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setEmailVerified(false);
+                    setTaken((p) => ({ ...p, email: false }));
                     clearError("email");
-                    clearError("verify");
+                  }}
+                  onBlur={() => {
+                    if (EMAIL_PATTERN.test(email)) void checkAccount({ email });
                   }}
                   className={`${fieldCls} ${
                     emailVerified
@@ -289,21 +362,14 @@ export default function RegisterPage() {
               {fieldErrors.email && (
                 <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>
               )}
-              {!emailVerified && (
-                <button
-                  type="button"
-                  onClick={() => setEmailOtpOpen(true)}
-                  disabled={!isEmailValid}
-                  className="mt-1.5 cursor-pointer text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:underline"
-                  style={{ color: colors.primary.main }}
-                >
-                  {t("sendEmailCode")}
-                </button>
-              )}
-              {fieldErrors.verify && (
-                <p className="mt-1.5 text-xs text-red-600">
-                  {fieldErrors.verify}
-                </p>
+              {taken.email && (
+                <div ref={takenRef}>
+                  <ExistingAccountNotice
+                    kind="email"
+                    value={email}
+                    next={getRedirectTarget()}
+                  />
+                </div>
               )}
             </div>
 
@@ -319,7 +385,12 @@ export default function RegisterPage() {
                 value={phoneLocal}
                 onChange={(e) => {
                   setPhoneLocal(e.target.value.replace(/\D/g, "").slice(0, 10));
+                  setTaken((p) => ({ ...p, phone: false }));
                   clearError("phone");
+                }}
+                onBlur={() => {
+                  const phone = phoneLocal.trim();
+                  if (/^0\d{9}$/.test(phone)) void checkAccount({ phone });
                 }}
                 placeholder={t("phonePlaceholder")}
                 required
@@ -327,6 +398,15 @@ export default function RegisterPage() {
               />
               {fieldErrors.phone && (
                 <p className="mt-1 text-xs text-red-600">{fieldErrors.phone}</p>
+              )}
+              {taken.phone && !taken.email && (
+                <div ref={takenRef}>
+                  <ExistingAccountNotice
+                    kind="phone"
+                    value={phoneLocal.trim()}
+                    next={getRedirectTarget()}
+                  />
+                </div>
               )}
             </div>
 
@@ -457,21 +537,23 @@ export default function RegisterPage() {
                   className="text-sm text-gray-600 leading-snug cursor-pointer"
                 >
                   {t("agreeTerms")}{" "}
-                  <a
-                    href="#"
+                  <Link
+                    href="/help/terms"
+                    target="_blank"
                     className="font-semibold hover:underline"
                     style={{ color: colors.primary.main }}
                   >
                     {t("termsOfService")}
-                  </a>{" "}
+                  </Link>{" "}
                   {t("and")}{" "}
-                  <a
-                    href="#"
+                  <Link
+                    href="/help/privacy-policy"
+                    target="_blank"
                     className="font-semibold hover:underline"
                     style={{ color: colors.primary.main }}
                   >
                     {t("privacyPolicy")}
-                  </a>
+                  </Link>
                 </label>
               </div>
               {fieldErrors.terms && (
@@ -491,6 +573,16 @@ export default function RegisterPage() {
               {loading ? t("creatingAccount") : t("createAccount")}
             </Button>
           </form>
+          <div className="border-t border-gray-100 bg-gray-50 px-8 py-5 text-center">
+            <p className="text-sm text-gray-700">{t("haveAccount")}</p>
+            <Link
+              href={`/login?returning=1${nextQuery}`}
+              className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#1557d6] bg-white text-sm font-semibold text-[#1557d6] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              <LogIn aria-hidden className="h-4 w-4" />
+              {t("signInInstead")}
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -502,7 +594,7 @@ export default function RegisterPage() {
           onVerified={() => {
             setEmailVerified(true);
             setEmailOtpOpen(false);
-            clearError("verify");
+            void createAccount();
           }}
         />
       )}

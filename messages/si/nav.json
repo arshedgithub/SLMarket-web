@@ -1,9 +1,6 @@
 {
   "signIn": "පිවිසෙන්න",
   "register": "ලියාපදිංචි වන්න",
-  "signInRegister": "පිවිසෙන්න / ලියාපදිංචි වන්න",
-  "tagline": "මිලදී ගන්න, විකුණන්න, සොයාගන්න.",
-  "allListings": "සියලුම දැන්වීම්",
   "categories": "කාණ්ඩ",
   "allCategories": "සියලුම කාණ්ඩ",
   "browseCategories": "කාණ්ඩ පිරික්සන්න",
@@ -67,5 +64,6 @@
     }
   },
   "sell": "විකුණන්න",
-  "browseAds": "දැන්වීම් බලන්න"
+  "browseAds": "දැන්වීම් බලන්න",
+  "showCategories": "කාණ්ඩ පෙන්වන්න"
 }

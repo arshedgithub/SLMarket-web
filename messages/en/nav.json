@@ -1,9 +1,6 @@
 {
   "signIn": "Sign in",
   "register": "Register",
-  "signInRegister": "Sign in / Register",
-  "tagline": "Buy, Sell, Discover, Grow Together.",
-  "allListings": "All Ads",
   "categories": "Categories",
   "allCategories": "All Categories",
   "browseCategories": "Browse Categories",
@@ -67,5 +64,6 @@
     }
   },
   "sell": "Sell",
-  "browseAds": "Browse ads"
+  "browseAds": "Browse ads",
+  "showCategories": "Show categories"
 }

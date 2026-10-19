@@ -1,3 +1,4 @@
+import { DEFAULT_JOB_THUMBNAIL } from "@/lib/listings/defaultImages";
 export type PricingType = "fixed" | "startingFrom" | "contact" | "free";
 
 export type LocationType = "single" | "branches" | "islandwide";
@@ -91,11 +92,6 @@ export function getImageLimits(categoryId: string): {
   }
   return { min: 1, max: 5 };
 }
-
-// Job listings can skip photos entirely (see getImageLimits), so previews
-// fall back to a generic vacancy graphic rather than a blank image slot.
-export const DEFAULT_JOB_THUMBNAIL =
-  "/images/marketplace/defaults/job-vacancy-thumbnail.webp";
 
 export function getCoverImage(draft: AdDraft): string | null {
   if (draft.images[0]) return draft.images[0];

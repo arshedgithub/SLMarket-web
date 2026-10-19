@@ -20,6 +20,9 @@ const handleI18nRouting = createMiddleware(routing);
 const ACCOUNT_ROUTES = ["/dashboard"];
 const ADMIN_ROUTES = ["/admin"];
 const AUTH_ROUTES = ["/login", "/register"];
+// Set once someone has signed in (or picks "Sign in"): /login then stays
+// on the sign-in form instead of starting on "Create account".
+const RETURNING_COOKIE = "slm_returning";
 
 // Route-protection below is written against locale-free paths (e.g.
 // "/dashboard"), so strip the "/en" | "/ta" | "/si" prefix next-intl adds
@@ -236,6 +239,27 @@ export default auth(async (req) => {
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
 
   const withLocale = (path: string) => new URL(`/${locale}${path}`, req.url);
+
+  // First-time visitors who follow "Sign in" start on "Create account";
+  // anyone who has signed in before (or picks the Sign in tab) does not.
+  if (
+    pathname === "/login" &&
+    !session &&
+    !req.cookies.has(RETURNING_COOKIE) &&
+    !req.nextUrl.searchParams.has("returning")
+  ) {
+    return NextResponse.redirect(withLocale(`/register${req.nextUrl.search}`));
+  }
+  if (
+    (session || req.nextUrl.searchParams.has("returning")) &&
+    !req.cookies.has(RETURNING_COOKIE)
+  ) {
+    intlResponse.cookies.set(RETURNING_COOKIE, "1", {
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+      sameSite: "lax",
+    });
+  }
 
   // Redirect authenticated users away from auth pages
   if (isAuthRoute && session) {

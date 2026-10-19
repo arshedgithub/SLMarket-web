@@ -60,9 +60,12 @@ export function AdViewTracker({
 export function RecentlyViewed({
   currentSlug,
   heading,
+  clearLabel,
 }: {
   currentSlug: string;
   heading: string;
+  // When given, a "Clear" link empties the list (here and in the account).
+  clearLabel?: string;
 }) {
   const [items, setItems] = useState<RecentAd[]>([]);
   useEffect(() => {
@@ -89,14 +92,35 @@ export function RecentlyViewed({
   }, [currentSlug]);
   if (items.length === 0) return null;
 
+  const clear = () => {
+    setItems([]);
+    try {
+      localStorage.removeItem(KEY);
+    } catch {
+      /* storage unavailable */
+    }
+    void fetch("/api/ads/recent", { method: "DELETE" }).catch(() => {});
+  };
+
   return (
     <section aria-labelledby="recent-heading" className="mt-10">
-      <h2
-        id="recent-heading"
-        className="font-heading mb-4 text-lg font-extrabold tracking-tight text-[color:var(--color-market-text)] sm:text-xl"
-      >
-        {heading}
-      </h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2
+          id="recent-heading"
+          className="font-heading text-lg font-extrabold tracking-tight text-[color:var(--color-market-text)] sm:text-xl"
+        >
+          {heading}
+        </h2>
+        {clearLabel && (
+          <button
+            type="button"
+            onClick={clear}
+            className="h-10 rounded-lg px-2 text-sm font-semibold text-[color:var(--color-market-text-secondary)] hover:text-blue-700"
+          >
+            {clearLabel}
+          </button>
+        )}
+      </div>
       <ul className="scrollbar-hide -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
         {items.map((r) => (
           <li key={r.slug} className="w-[42%] shrink-0 snap-start sm:w-48">
@@ -122,7 +146,7 @@ export function RecentlyViewed({
                 <span className="block text-sm font-bold text-[color:var(--color-market-price)]">
                   {r.priceText}
                 </span>
-                <span className="block truncate text-xs text-[color:var(--color-market-text-muted)]">
+                <span className="block truncate text-xs text-[color:var(--color-market-text-secondary)]">
                   {r.place}
                 </span>
               </span>

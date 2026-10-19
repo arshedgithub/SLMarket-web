@@ -19,6 +19,7 @@ import { categoryIcon } from "@/config/const/categoryIcons";
 import { cardSpecs, isJustListed, listingKind } from "@/lib/listings/cardSpecs";
 import { useSavedAd } from "@/lib/listings/savedAds";
 import type { AdCard } from "./data";
+import { DEFAULT_JOB_THUMBNAIL } from "@/lib/listings/defaultImages";
 
 /*
  * One ad card, in two densities: grid and list. The same component serves
@@ -44,7 +45,10 @@ const BLUR =
   "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0IDMiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=";
 
 const detailHref = (l: AdCard) => `/ad/${l.slug}`;
-const hasPhoto = (l: AdCard) => !!l.image;
+// Jobs posted without a photo show the vacancy graphic.
+const photoSrc = (l: AdCard) =>
+  l.image || (l.categoryId === "jobs" ? DEFAULT_JOB_THUMBNAIL : "");
+const hasPhoto = (l: AdCard) => !!photoSrc(l);
 const objectPosition = (l: AdCard) =>
   l.focus ? `${l.focus.x * 100}% ${l.focus.y * 100}%` : undefined;
 
@@ -105,7 +109,7 @@ function StatusBadges({ listing }: { listing: AdCard }) {
         <span className="rounded-full bg-emerald-600 px-2 py-1 text-xs font-bold leading-none text-white shadow-sm">
           &minus;{pct}%
         </span>
-      ) : listing.deal === "coupon" ? (
+      ) : listing.deal === "coupon" || listing.deal === "offer" ? (
         <span className="rounded-full bg-emerald-600 px-2 py-1 text-xs font-bold leading-none text-white shadow-sm">
           {t("card.couponBadge")}
         </span>
@@ -190,7 +194,7 @@ function SaveButton({
 }
 
 // Coupon cards show only the saving ("10% off"); the code is on the ad
-// page. Other offers ("Buy 2 get 10% off") show in full.
+// page. Special offers ("Buy 2 get 10% off") show in full.
 export function offerSummary(l: AdCard): string | null {
   if (!l.offer) return null;
   if (l.deal !== "coupon") return l.offer;
@@ -337,21 +341,27 @@ function SellerLine({ listing }: { listing: AdCard }) {
 
 // Business ads: Call and WhatsApp. Private sellers: "Show phone" opens the
 // ad's contact panel (their number sits behind the email check). Jobs:
-// Apply.
+// Apply. `onPhoto` draws them solid (white, green) so they stand out over
+// the ad's photo; outline buttons vanish against a busy picture.
 function ContactButtons({
   listing,
   size,
+  onPhoto = false,
 }: {
   listing: AdCard;
   size: "sm" | "md";
+  onPhoto?: boolean;
 }) {
   const t = useTranslations("listings");
   const h = size === "sm" ? "h-10" : "h-11";
+  const plain = onPhoto
+    ? "flex-1 justify-center bg-white text-[#10213f] shadow-[0_6px_16px_-6px_rgba(0,0,0,0.5)] ring-1 ring-black/10 transition hover:bg-blue-50 hover:text-[#1557d6]"
+    : "btn-outline";
   if (listing.categoryId === "jobs") {
     return (
       <Link
         href={detailHref(listing)}
-        className={`btn-solid relative z-20 flex ${h} items-center gap-1.5 rounded-xl px-4 text-sm font-semibold`}
+        className={`btn-solid relative z-20 flex ${h} items-center gap-1.5 rounded-xl px-4 text-sm font-semibold ${onPhoto ? "flex-1 justify-center shadow-[0_6px_16px_-6px_rgba(0,0,0,0.5)]" : ""}`}
       >
         <Send aria-hidden className="h-4 w-4" />
         {t("card.apply")}
@@ -363,7 +373,7 @@ function ContactButtons({
     return (
       <Link
         href={`${detailHref(listing)}#contact`}
-        className={`btn-outline relative z-20 flex ${h} items-center gap-1.5 rounded-xl px-4 text-sm font-semibold`}
+        className={`${plain} relative z-20 flex ${h} items-center gap-1.5 rounded-xl px-4 text-sm font-semibold`}
       >
         <Phone aria-hidden className="h-4 w-4" />
         {t("card.showPhone")}
@@ -374,11 +384,11 @@ function ContactButtons({
     `Hi, I'm interested in your ${listing.title} on SLMarket.lk\n${SITE_URL}${detailHref(listing)}`,
   );
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${onPhoto ? "w-full" : ""}`}>
       <a
         href={`tel:+${phone}`}
         aria-label={t("card.call")}
-        className={`btn-outline relative z-20 flex ${h} min-w-11 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold`}
+        className={`${plain} relative z-20 flex ${h} min-w-11 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold`}
       >
         <Phone aria-hidden className="h-4 w-4" />
         <span className={size === "sm" ? "" : "hidden md:inline"}>
@@ -390,7 +400,11 @@ function ContactButtons({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={t("card.whatsapp")}
-        className={`relative z-20 flex ${h} min-w-11 items-center justify-center gap-1.5 rounded-xl border border-emerald-600/60 bg-[var(--color-market-surface)] px-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950`}
+        className={`relative z-20 flex ${h} min-w-11 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition ${
+          onPhoto
+            ? "flex-1 bg-emerald-600 text-white shadow-[0_6px_16px_-6px_rgba(0,0,0,0.5)] hover:bg-emerald-700"
+            : "border border-emerald-600/60 bg-[var(--color-market-surface)] text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950"
+        }`}
       >
         <MessageCircle aria-hidden className="h-4 w-4" />
         <span className={size === "sm" ? "" : "hidden md:inline"}>
@@ -412,7 +426,7 @@ function Photo({
 }) {
   return (
     <Image
-      src={listing.image}
+      src={photoSrc(listing)}
       alt={listing.title}
       fill
       sizes={sizes}
@@ -541,9 +555,14 @@ export function ListingCard({
           count={listing.photos ?? 1}
           className="absolute bottom-2 right-2 z-10 transition group-hover:opacity-0 group-focus-within:opacity-0"
         />
-        {/* Quick contact on hover or keyboard focus (desktop). */}
+        {/* Quick contact on hover or keyboard focus (desktop): solid
+            buttons over a dark fade so they read on any photo. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 hidden h-2/3 bg-gradient-to-t from-black/60 via-black/25 to-transparent opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:hover)]:lg:block"
+        />
         <div className="absolute inset-x-2 bottom-2 z-20 hidden translate-y-2 justify-center opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 [@media(hover:hover)]:lg:flex">
-          <ContactButtons listing={listing} size="sm" />
+          <ContactButtons listing={listing} size="sm" onPhoto />
         </div>
         <SaveButton listing={listing} className="absolute right-0.5 top-0.5" />
       </div>

@@ -14,14 +14,21 @@ import {
   X,
 } from "lucide-react";
 import { uploadImage } from "@/lib/uploadMedia";
+import {
+  MIN_PHOTO,
+  PhotoTooSmallError,
+  preparePhoto,
+} from "@/lib/postAd/preparePhoto";
 import { getImageLimits, type AdDraft } from "../types";
 
 const TIPS = [
-  "Use clear, recent photos",
-  "Show the actual item (not stock photos)",
-  "Good lighting, multiple angles",
+  "Use clear, recent photos of the actual item (not stock photos)",
+  "Landscape (4:3) photos fill the card best; keep the item in the middle",
+  "Good lighting, several angles",
   "Avoid text or contact numbers in images",
 ];
+
+const RECOMMENDED_PHOTOS = 3;
 
 export function StepPhotos({
   draft,
@@ -45,13 +52,27 @@ export function StepPhotos({
     const room = maxImages - draft.images.length;
     const picked = Array.from(files).slice(0, room);
     setUploading(true);
+    const added: string[] = [];
+    let tooSmall = 0;
     try {
-      const urls: string[] = [];
-      for (const file of picked) urls.push(await uploadImage(file, "listings"));
-      patch({ images: [...draft.images, ...urls] });
+      for (const file of picked) {
+        try {
+          // At least 800 x 600, and resized to 1600px before upload.
+          added.push(await uploadImage(await preparePhoto(file), "listings"));
+        } catch (e) {
+          if (e instanceof PhotoTooSmallError) tooSmall++;
+          else throw e;
+        }
+      }
+      if (tooSmall) {
+        setUploadError(
+          `${tooSmall === 1 ? "One photo was" : `${tooSmall} photos were`} too small. Use photos at least ${MIN_PHOTO.long} x ${MIN_PHOTO.short} pixels.`,
+        );
+      }
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Upload failed");
     } finally {
+      if (added.length) patch({ images: [...draft.images, ...added] });
       setUploading(false);
     }
   };
@@ -119,7 +140,8 @@ export function StepPhotos({
             Browse Files
           </span>
           <p className="mt-1 text-xs text-[var(--color-market-text-muted)]">
-            JPG, PNG up to 10MB each
+            JPG, PNG or WebP, at least {MIN_PHOTO.long} x {MIN_PHOTO.short}{" "}
+            pixels
           </p>
           <input
             type="file"
@@ -149,6 +171,13 @@ export function StepPhotos({
           </ul>
         </div>
       </div>
+
+      {draft.images.length > 0 && draft.images.length < RECOMMENDED_PHOTOS && (
+        <p className="rounded-xl bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
+          Add at least {RECOMMENDED_PHOTOS} photos so buyers can see the item
+          from every side.
+        </p>
+      )}
 
       {(uploadError || errors.images) && (
         <p className="text-xs font-medium text-[var(--color-market-danger)]">

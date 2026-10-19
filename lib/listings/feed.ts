@@ -155,7 +155,8 @@ export function toCard(row: FeedRow, now = Date.now()): AdCard {
   const perMonth = isPerMonth(details);
   const was = row.price === null ? null : wasPriceFrom(row.priceHistory, price);
   const business = row.businessProfile;
-  const coupon = row.promotionType === "COUPON" && row.promotionDetail;
+  const coupon = row.promotionType === "COUPON" && !!row.promotionDetail;
+  const offer = row.promotionType === "DISCOUNT" && !!row.promotionDetail;
   // Only a business's number is ever on a card; private numbers stay
   // behind the ad page's email check.
   const businessPhone =
@@ -199,9 +200,9 @@ export function toCard(row: FeedRow, now = Date.now()): AdCard {
     contactPhone: businessPhone ?? undefined,
     featured: row.isFeaturedHomepage,
     premium: row.isBoosted,
-    deal: coupon ? "coupon" : was ? "price-drop" : undefined,
+    deal: coupon ? "coupon" : offer ? "offer" : was ? "price-drop" : undefined,
     negotiable: row.negotiable,
-    offer: coupon ? row.promotionDetail! : undefined,
+    offer: coupon || offer ? row.promotionDetail! : undefined,
     description: row.description,
     attrs: highlights,
     postedAgo: postedAgoText(row.createdAt, now),
@@ -323,25 +324,15 @@ export function rankShops(shops: ShopCard[], seed = colomboDay()): ShopCard[] {
   );
 }
 
-const NEW_BUSINESS_DAYS = 30;
 export const STRIP_MIN_ADS = 3;
 
-export function isNewBusiness(shop: ShopCard, now = Date.now()): boolean {
-  return now - Date.parse(shop.createdAt) < NEW_BUSINESS_DAYS * 86_400_000;
-}
-
 /*
- * The "Featured businesses" strip: paid tiers only (not standard), with at
- * least 3 live ads, or newer than 30 days (shown with a "New" label).
+ * The "Featured businesses" strip: paid tiers only (not standard), each
+ * with at least 3 live ads (a business with one ad is not "featured").
  */
-export function featuredStripShops(
-  shops: ShopCard[],
-  now = Date.now(),
-): ShopCard[] {
+export function featuredStripShops(shops: ShopCard[]): ShopCard[] {
   return shops.filter(
-    (s) =>
-      s.tier !== "standard" &&
-      (s.listings >= STRIP_MIN_ADS || isNewBusiness(s, now)),
+    (s) => s.tier !== "standard" && s.listings >= STRIP_MIN_ADS,
   );
 }
 
