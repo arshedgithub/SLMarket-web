@@ -20,7 +20,7 @@ Only `dev` and `hotfix/*` may open PRs into `main`; CI enforces it.
 | Job                    | Checks                                                                                                 |
 | ---------------------- | ------------------------------------------------------------------------------------------------------ |
 | Lint                   | `npm run lint`: ESLint over the repo, no warnings allowed                                              |
-| Type-check             | `npm run typecheck`: no type errors beyond the legacy baseline (see below)                             |
+| Type-check             | `npm run typecheck`: `tsc --noEmit`, zero errors                                                       |
 | Unit tests             | `npm test` (Vitest)                                                                                    |
 | Build and smoke test   | migrations applied to an empty Postgres, schema drift check, `next build`, app started, key pages = 200 |
 | Dependency review      | PRs only: new dependencies with high-severity advisories fail                                          |
@@ -35,24 +35,6 @@ CI → `prisma migrate deploy` on that environment's database → `vercel build`
 **`codeql.yml`**: security analysis on PRs, pushes and weekly. Results: Security → Code scanning.
 
 **Dependabot**: weekly grouped dependency and GitHub Actions updates as PRs into `dev`.
-
-## The type-check baseline
-
-Some legacy code (seller subscriptions, PayHere billing, reels, the old dashboard
-and admin views) was written against an older schema and has type errors.
-They are listed, per file and error code, in `scripts/ci/typecheck-baseline.json`.
-CI fails if any file gets an error that is not in the baseline, and also when
-errors are fixed but the baseline still allows them, so it can only shrink:
-
-```bash
-npm run typecheck          # what CI runs
-npm run typecheck:update   # after fixing legacy errors; commit the baseline
-```
-
-Never run `typecheck:update` to hide a new error. Because CI owns type safety,
-`next.config.ts` sets `typescript.ignoreBuildErrors` (the build's all-or-nothing
-check would fail every deploy on the legacy code). Delete that line and the
-baseline once the legacy code is fixed or removed.
 
 ## One-time setup
 

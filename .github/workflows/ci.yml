@@ -55,7 +55,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      # Fails on any type error not in scripts/ci/typecheck-baseline.json.
       - run: npm run typecheck
 
   test:
