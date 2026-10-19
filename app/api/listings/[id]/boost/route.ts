@@ -3,7 +3,7 @@ import { BoostType } from "@prisma/client";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { boostSchema } from "@/lib/validations/subscription";
-import { buildPayhereFormData } from "@/lib/payhere";
+import { buildPayhereFormData, PAYHERE_CHECKOUT_URL } from "@/lib/payhere";
 import { invalidateListingsCache } from "@/lib/listings-cache";
 
 const BOOST_PRICES_USD: Record<string, number> = {
@@ -48,12 +48,19 @@ export async function POST(
     return NextResponse.json({ message: "Listing not found" }, { status: 404 });
   }
 
-  // Use free boost if requested
+  // Free boosts come with the plan of the business the ad is posted under.
   if (useFreeBoost) {
-    const subscription = await db.sellerSubscription.findUnique({
-      where: { sellerId: session.user.id },
-    });
-    if (!subscription || subscription.freeBoostsRemaining < 1) {
+    const subscription = listing.businessProfileId
+      ? await db.businessSubscription.findUnique({
+          where: { businessProfileId: listing.businessProfileId },
+        })
+      : null;
+    if (
+      !subscription ||
+      subscription.status !== "ACTIVE" ||
+      subscription.currentPeriodEnd < new Date() ||
+      subscription.freeBoostsRemaining < 1
+    ) {
       return NextResponse.json(
         { message: "No free boosts remaining this month" },
         { status: 400 },
@@ -79,8 +86,8 @@ export async function POST(
         where: { id: listingId },
         data: { isBoosted: true, boostEndAt: endDate },
       }),
-      db.sellerSubscription.update({
-        where: { sellerId: session.user.id },
+      db.businessSubscription.update({
+        where: { id: subscription.id },
         data: { freeBoostsRemaining: { decrement: 1 } },
       }),
     ]);
@@ -112,6 +119,6 @@ export async function POST(
   return NextResponse.json({
     gateway: "payhere",
     formData,
-    checkoutUrl: process.env.PAYHERE_CHECKOUT_URL,
+    checkoutUrl: PAYHERE_CHECKOUT_URL,
   });
 }

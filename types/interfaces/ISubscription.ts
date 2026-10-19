@@ -7,15 +7,14 @@ export interface ISubscriptionPlan {
   priceUsdAnnual: number | null;
   priceLkrAnnual: number | null;
   maxListings: number | null;
-  maxReelsPerMonth: number | null;
-  hasShopProfile: boolean;
+  maxBranches: number | null;
+  hasBusinessProfile: boolean;
   hasAnalytics: boolean;
   hasRealtimeAlerts: boolean;
   hasDigitalMarketing: boolean;
   hasWhatsappBroadcast: boolean;
   hasPrioritySearch: boolean;
   hasApiAccess: boolean;
-  hasWholesaleListings: boolean;
   monthlyFreeBoosts: number;
   supportLevel: string;
   badgeFastTrack: boolean;

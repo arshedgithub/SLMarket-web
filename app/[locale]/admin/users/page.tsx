@@ -8,7 +8,19 @@ export default async function AdminUsersPage() {
     db.user.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        subscription: { include: { plan: true } },
+        businessProfiles: {
+          select: {
+            id: true,
+            name: true,
+            subscription: {
+              select: {
+                status: true,
+                plan: { select: { id: true, name: true, displayName: true } },
+              },
+            },
+          },
+          orderBy: { createdAt: "asc" },
+        },
         _count: { select: { listings: true } },
       },
     }),
@@ -23,12 +35,21 @@ export default async function AdminUsersPage() {
     name: u.name,
     email: u.email,
     role: u.role,
-    isVerified: u.isVerified,
+    // Verified: confirmed their email or phone.
+    isVerified: !!u.emailVerified || u.phoneVerified,
     createdAt: u.createdAt.toISOString(),
     listingCount: u._count.listings,
-    planId: u.subscription?.plan.id ?? null,
-    planName: u.subscription?.plan.displayName ?? null,
-    planSlug: u.subscription?.plan.name ?? "free",
+    businesses: u.businessProfiles.map((b) => {
+      const plan =
+        b.subscription?.status === "ACTIVE" ? b.subscription.plan : null;
+      return {
+        id: b.id,
+        name: b.name,
+        planId: plan?.id ?? null,
+        planName: plan?.displayName ?? null,
+        planSlug: plan?.name ?? "free",
+      };
+    }),
   }));
 
   const planOptions = plans.map((p) => ({
@@ -42,7 +63,7 @@ export default async function AdminUsersPage() {
       <div>
         <h1 className="text-xl font-semibold text-gray-900">Users</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Manage registered users and seller plans.
+          Manage registered users and their business pages&apos; plans.
         </p>
       </div>
 

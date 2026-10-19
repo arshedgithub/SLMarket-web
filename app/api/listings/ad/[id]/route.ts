@@ -10,20 +10,24 @@ import {
 
 type Params = { params: Promise<{ id: string }> };
 
-async function ownListing(id: string, userId: string) {
+const LISTING_FIELDS = {
+  id: true,
+  sellerId: true,
+  slug: true,
+  status: true,
+  price: true,
+  title: true,
+  description: true,
+  categoryId: true,
+  subcategoryId: true,
+  images: true,
+} as const;
+
+// The owner's own ad; an admin may edit any ad (moderation).
+async function editableListing(id: string, userId: string, isAdmin: boolean) {
   return db.listing.findFirst({
-    where: { id, sellerId: userId },
-    select: {
-      id: true,
-      slug: true,
-      status: true,
-      price: true,
-      title: true,
-      description: true,
-      categoryId: true,
-      subcategoryId: true,
-      images: true,
-    },
+    where: isAdmin ? { id } : { id, sellerId: userId },
+    select: LISTING_FIELDS,
   });
 }
 
@@ -32,14 +36,16 @@ async function ownListing(id: string, userId: string) {
  * current PriceHistory row and opens a new one, so "Was" prices stay
  * genuine. Changing what the ad is (title, description, category, photos)
  * sends a live ad back through review; price and contact changes do not.
+ * An admin's edit keeps the ad's status: the admin is the reviewer.
  */
 export async function PUT(req: NextRequest, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Please sign in." }, { status: 401 });
   }
+  const isAdmin = session.user.role === "ADMIN";
   const { id } = await params;
-  const existing = await ownListing(id, session.user.id);
+  const existing = await editableListing(id, session.user.id, isAdmin);
   if (!existing)
     return NextResponse.json({ message: "Ad not found." }, { status: 404 });
 
@@ -57,10 +63,11 @@ export async function PUT(req: NextRequest, { params }: Params) {
     );
   }
 
+  // The business must belong to the ad's seller (not to an editing admin).
   let businessProfileId: string | null | undefined;
   if (body.sellerMode === "shop" && body.shopId) {
     const business = await db.businessProfile.findFirst({
-      where: { id: body.shopId, ownerId: session.user.id },
+      where: { id: body.shopId, ownerId: existing.sellerId },
       select: { id: true },
     });
     businessProfileId = business?.id ?? null;
@@ -70,7 +77,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
   const live = existing.status === "ACTIVE" || existing.status === "RESERVED";
   const status: ListingStatus =
-    live && needsReview(existing, parsed.fields)
+    !isAdmin && live && needsReview(existing, parsed.fields)
       ? "PENDING_REVIEW"
       : existing.status;
 
@@ -116,7 +123,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ message: "Please sign in." }, { status: 401 });
   }
   const { id } = await params;
-  const existing = await ownListing(id, session.user.id);
+  const existing = await editableListing(id, session.user.id, false);
   if (!existing)
     return NextResponse.json({ message: "Ad not found." }, { status: 404 });
 

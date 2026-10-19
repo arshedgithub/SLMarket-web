@@ -89,7 +89,7 @@ export default async function AnalyticsPage() {
       select: {
         id: true,
         title: true,
-        category: true,
+        categoryId: true,
         images: true,
         status: true,
         slug: true,

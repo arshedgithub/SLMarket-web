@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { adminPlanUpdateSchema } from "@/lib/validations/subscription";
+import {
+  activateBusinessPlan,
+  BUSINESS_CHOICE_MESSAGE,
+  resolveOwnedBusiness,
+} from "@/lib/billing/subscription";
 
 export async function PATCH(
   req: NextRequest,
@@ -33,27 +38,19 @@ export async function PATCH(
     return NextResponse.json({ message: "Plan not found" }, { status: 404 });
   }
 
-  const now = new Date();
-  const currentPeriodEnd = new Date(now);
-  currentPeriodEnd.setDate(currentPeriodEnd.getDate() + 30);
+  // Plans belong to business pages: the one named, or the user's only one.
+  const choice = await resolveOwnedBusiness(id, parsed.data.businessProfileId);
+  if (!choice.ok) {
+    return NextResponse.json(
+      { code: choice.code, message: BUSINESS_CHOICE_MESSAGE[choice.code] },
+      { status: choice.code === "not_found" ? 404 : 400 },
+    );
+  }
 
-  const subscription = await db.sellerSubscription.upsert({
-    where: { sellerId: id },
-    create: {
-      sellerId: id,
-      planId: plan.id,
-      status: "ACTIVE",
-      currentPeriodStart: now,
-      currentPeriodEnd,
-      freeBoostsRemaining: plan.monthlyFreeBoosts,
-    },
-    update: {
-      planId: plan.id,
-      status: "ACTIVE",
-      currentPeriodEnd,
-      freeBoostsRemaining: plan.monthlyFreeBoosts,
-    },
-    include: { plan: true },
+  const subscription = await activateBusinessPlan(db, {
+    businessProfileId: choice.business.id,
+    plan,
+    months: 1,
   });
 
   return NextResponse.json(subscription);
