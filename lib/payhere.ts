@@ -77,6 +77,11 @@ export function verifyPayhereWebhook(body: {
   status_code: string;
   md5sig: string;
 }): boolean {
+  // Without the merchant secret nothing can be verified: reject, never crash.
+  if (!SECRET || !body.md5sig) {
+    if (!SECRET) console.error("[payhere] PAYHERE_SECRET is not set");
+    return false;
+  }
   const merchantSecretHash = crypto
     .createHash("md5")
     .update(SECRET)

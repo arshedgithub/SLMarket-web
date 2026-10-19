@@ -27,15 +27,21 @@ export async function GET(req: NextRequest) {
   });
   results.expiredListings = expiredListings.count;
 
-  // ── 2. Downgrade subscriptions past their period end ──────────────────────
-  const expiredSubs = await db.sellerSubscription.findMany({
+  // ── 2. Downgrade business plans past their period end ─────────────────────
+  const expiredSubs = await db.businessSubscription.findMany({
     where: {
       status: "ACTIVE",
       currentPeriodEnd: { lt: now },
     },
     include: {
-      seller: { select: { id: true, name: true, email: true } },
-      plan: { select: { name: true } },
+      businessProfile: {
+        select: {
+          id: true,
+          name: true,
+          owner: { select: { name: true, email: true } },
+        },
+      },
+      plan: { select: { name: true, displayName: true } },
     },
   });
 
@@ -48,7 +54,7 @@ export async function GET(req: NextRequest) {
       if (!freePlan || sub.plan.name === "free") continue;
 
       // Downgrade to free
-      await db.sellerSubscription.update({
+      await db.businessSubscription.update({
         where: { id: sub.id },
         data: {
           planId: freePlan.id,
@@ -58,9 +64,9 @@ export async function GET(req: NextRequest) {
         },
       });
 
-      // Also pause their excess listings (keep only 3 active = free plan limit)
+      // Pause the business's ads beyond the free plan's limit (oldest stay).
       const activeListings = await db.listing.findMany({
-        where: { sellerId: sub.sellerId, status: "ACTIVE" },
+        where: { businessProfileId: sub.businessProfileId, status: "ACTIVE" },
         orderBy: { createdAt: "asc" },
       });
       if (activeListings.length > (freePlan.maxListings ?? 3)) {
@@ -74,12 +80,12 @@ export async function GET(req: NextRequest) {
       // Send downgrade notification
       try {
         await sendEmail({
-          to: sub.seller.email,
-          subject: "Your SLMarket.lk subscription has expired",
+          to: sub.businessProfile.owner.email,
+          subject: `Your SLMarket.lk plan for ${sub.businessProfile.name} has expired`,
           html: `
-            <h2>Subscription Expired</h2>
-            <p>Hi ${escapeHtml(sub.seller.name)},</p>
-            <p>Your <strong>${escapeHtml(sub.plan.name)}</strong> plan has expired and your account has been moved to the Free plan.</p>
+            <h2>Plan Expired</h2>
+            <p>Hi ${escapeHtml(sub.businessProfile.owner.name)},</p>
+            <p>The <strong>${escapeHtml(sub.plan.displayName)}</strong> plan for <strong>${escapeHtml(sub.businessProfile.name)}</strong> has expired and the business page has been moved to the Free plan.</p>
             <p>To restore your listings and features, please renew your subscription.</p>
             <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/upgrade"
                style="display:inline-block;padding:10px 20px;background:#2563eb;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
@@ -104,13 +110,15 @@ export async function GET(req: NextRequest) {
   const oneDayFromNow = new Date(now);
   oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
 
-  const expiringSoon = await db.sellerSubscription.findMany({
+  const expiringSoon = await db.businessSubscription.findMany({
     where: {
       status: "ACTIVE",
       currentPeriodEnd: { gte: oneDayFromNow, lte: threeDaysFromNow },
     },
     include: {
-      seller: { select: { name: true, email: true } },
+      businessProfile: {
+        select: { name: true, owner: { select: { name: true, email: true } } },
+      },
       plan: { select: { name: true, displayName: true, priceLkr: true } },
     },
   });
@@ -122,12 +130,12 @@ export async function GET(req: NextRequest) {
     );
     try {
       await sendEmail({
-        to: sub.seller.email,
-        subject: `Your SLMarket.lk ${sub.plan.displayName} plan expires in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}`,
+        to: sub.businessProfile.owner.email,
+        subject: `Your SLMarket.lk ${sub.plan.displayName} plan for ${sub.businessProfile.name} expires in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}`,
         html: `
-          <h2>Subscription Renewal Reminder</h2>
-          <p>Hi ${escapeHtml(sub.seller.name)},</p>
-          <p>Your <strong>${escapeHtml(sub.plan.displayName)}</strong> plan expires in <strong>${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong>.</p>
+          <h2>Plan Renewal Reminder</h2>
+          <p>Hi ${escapeHtml(sub.businessProfile.owner.name)},</p>
+          <p>The <strong>${escapeHtml(sub.plan.displayName)}</strong> plan for <strong>${escapeHtml(sub.businessProfile.name)}</strong> expires in <strong>${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong>.</p>
           <p>Renew now to keep your listings active and avoid interruption.</p>
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/upgrade"
              style="display:inline-block;padding:10px 20px;background:#2563eb;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">

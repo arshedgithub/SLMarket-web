@@ -45,9 +45,18 @@ export default async function SubscriptionPage({ searchParams }: Props) {
     orderBy: { sortOrder: "asc" },
   });
 
-  // Plans now attach to a BusinessProfile, not a bare account, so there's no
-  // single "current plan" to read here without knowing which business.
-  const currentPlanId: string | null = null;
+  // Plans belong to business pages: with exactly one, its plan is "current";
+  // with several, none is singled out (the upgrade page asks which).
+  let currentPlanId: string | null = null;
+  if (session?.user?.id) {
+    const businesses = await db.businessProfile.findMany({
+      where: { ownerId: session.user.id, status: { not: "DISABLED" } },
+      select: { subscription: { select: { planId: true, status: true } } },
+      take: 2,
+    });
+    const sub = businesses.length === 1 ? businesses[0].subscription : null;
+    currentPlanId = sub?.status === "ACTIVE" ? sub.planId : null;
+  }
 
   let couponInfo: CouponInfo | null = null;
   let couponForDiscount: CouponForDiscount | null = null;
@@ -138,16 +147,15 @@ export default async function SubscriptionPage({ searchParams }: Props) {
       name: plan.name,
       displayName: plan.displayName,
       maxListings: plan.maxListings,
-      maxReelsPerMonth: plan.maxReelsPerMonth,
+      maxBranches: plan.maxBranches,
       listingDurationDays: plan.listingDurationDays,
-      hasShopProfile: plan.hasShopProfile,
+      hasBusinessProfile: plan.hasBusinessProfile,
       hasAnalytics: plan.hasAnalytics,
       hasRealtimeAlerts: plan.hasRealtimeAlerts,
       hasDigitalMarketing: plan.hasDigitalMarketing,
       hasWhatsappBroadcast: plan.hasWhatsappBroadcast,
       hasPrioritySearch: plan.hasPrioritySearch,
       hasApiAccess: plan.hasApiAccess,
-      hasWholesaleListings: plan.hasWholesaleListings,
       monthlyFreeBoosts: plan.monthlyFreeBoosts,
       supportLevel: plan.supportLevel,
       badgeFastTrack: plan.badgeFastTrack,
@@ -173,7 +181,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           plans={planData}
           couponInfo={couponInfo}
           currency={currency}
-          isSriLankanSeller={isSriLankanSeller}
+          isSriLankanSeller={isFromSriLanka}
           isLoggedIn={!!session}
           currentPlanId={currentPlanId}
         />

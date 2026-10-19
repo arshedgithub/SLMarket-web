@@ -31,11 +31,13 @@ export default async function AdminListingsPage({
     where: activeStatus === "ALL" ? {} : { status: activeStatus },
     orderBy: { createdAt: "desc" },
     include: {
-      seller: {
+      seller: { select: { name: true, email: true } },
+      businessProfile: {
         select: {
           name: true,
-          email: true,
-          subscription: { select: { plan: { select: { displayName: true } } } },
+          subscription: {
+            select: { status: true, plan: { select: { displayName: true } } },
+          },
         },
       },
     },
@@ -53,7 +55,14 @@ export default async function AdminListingsPage({
     createdAt: l.createdAt.toISOString(),
     sellerName: l.seller.name,
     sellerEmail: l.seller.email,
-    sellerPlan: l.seller.subscription?.plan.displayName ?? "Free",
+    // Personal ads have no plan; business ads show the business's plan.
+    sellerPlan: l.businessProfile
+      ? `${l.businessProfile.name}: ${
+          l.businessProfile.subscription?.status === "ACTIVE"
+            ? l.businessProfile.subscription.plan.displayName
+            : "Free"
+        } plan`
+      : "Personal ad",
   }));
 
   return (

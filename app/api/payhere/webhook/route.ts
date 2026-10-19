@@ -3,6 +3,11 @@ import { db } from "@/lib/db";
 import { verifyPayhereWebhook } from "@/lib/payhere";
 import { sendSubscriptionConfirmation } from "@/lib/email";
 import { invalidateListingsCache } from "@/lib/listings-cache";
+import {
+  activateBusinessPlan,
+  parseSubscriptionOrderId,
+  planPrice,
+} from "@/lib/billing/subscription";
 
 export async function POST(req: NextRequest) {
   const body = await req.formData();
@@ -40,52 +45,38 @@ export async function POST(req: NextRequest) {
 
   // Parse order type from orderId prefix
   if (orderId.startsWith("sub_")) {
-    // sub_<sellerId>_<planId>_<timestamp>
-    const parts = orderId.split("_");
-    const sellerId = parts[1];
-    const planId = parts[2];
+    // sub_<businessProfileId>_<planId>_<M|A>_<timestamp>
+    const order = parseSubscriptionOrderId(orderId);
+    const [plan, business] = order
+      ? await Promise.all([
+          db.subscriptionPlan.findUnique({ where: { id: order.planId } }),
+          db.businessProfile.findUnique({
+            where: { id: order.businessProfileId },
+            include: {
+              owner: { select: { id: true, name: true, email: true } },
+            },
+          }),
+        ])
+      : [null, null];
 
-    const plan = await db.subscriptionPlan.findUnique({
-      where: { id: planId },
-    });
-    const seller = await db.user.findUnique({ where: { id: sellerId } });
-
-    if (!plan || !seller) {
+    if (!order || !plan || !business) {
       return NextResponse.json(
-        { message: "Plan or seller not found" },
+        { message: "Plan or business not found" },
         { status: 404 },
       );
     }
 
-    const now = new Date();
-    const periodEnd = new Date(now);
-    periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-    await db.$transaction([
-      db.sellerSubscription.upsert({
-        where: { sellerId },
-        create: {
-          sellerId,
-          planId,
-          status: "ACTIVE",
-          currentPeriodStart: now,
-          currentPeriodEnd: periodEnd,
-          payhereOrderId: params.payment_id,
-          freeBoostsRemaining: plan.monthlyFreeBoosts,
-        },
-        update: {
-          planId,
-          status: "ACTIVE",
-          currentPeriodStart: now,
-          currentPeriodEnd: periodEnd,
-          payhereOrderId: params.payment_id,
-          freeBoostsRemaining: plan.monthlyFreeBoosts,
-          cancelAtPeriodEnd: false,
-        },
-      }),
-      db.paymentTransaction.create({
+    const { months } = planPrice(plan, order.cycle);
+    const sub = await db.$transaction(async (tx) => {
+      const activated = await activateBusinessPlan(tx, {
+        businessProfileId: business.id,
+        plan,
+        months,
+        payhereOrderId: params.payment_id,
+      });
+      await tx.paymentTransaction.create({
         data: {
-          userId: sellerId,
+          userId: business.ownerId,
           type: "SUBSCRIPTION",
           amountUsd: Number(params.payhere_amount) / 330,
           amountLkr: Number(params.payhere_amount),
@@ -93,16 +84,22 @@ export async function POST(req: NextRequest) {
           gateway: "PAYHERE",
           gatewayRef: params.payment_id,
           status: "COMPLETED",
-          metadata: { orderId, planId },
+          metadata: {
+            orderId,
+            planId: plan.id,
+            businessProfileId: business.id,
+            cycle: order.cycle,
+          },
         },
-      }),
-    ]);
+      });
+      return activated;
+    });
 
     await sendSubscriptionConfirmation(
-      seller.email,
-      seller.name,
-      plan.displayName,
-      periodEnd,
+      business.owner.email,
+      business.owner.name,
+      `${plan.displayName} (${business.name})`,
+      sub.currentPeriodEnd,
     ).catch(() => {});
   }
 
