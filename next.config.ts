@@ -38,6 +38,12 @@ const nextConfig: NextConfig = {
 
   serverExternalPackages: ["bcryptjs"],
 
+  // Type errors are gated in CI by `npm run typecheck` (a ratchet over the
+  // legacy errors in scripts/ci/typecheck-baseline.json: no new ones can
+  // merge). The build's own all-or-nothing check would fail every deploy on
+  // that legacy code, so it is skipped here; CI must pass before deploying.
+  typescript: { ignoreBuildErrors: true },
+
   // Turbopack's on-disk dev cache (.next/dev/cache) grows to ~2 GB. On a
   // machine short of disk space, set NEXT_DEV_FS_CACHE=off in .env.local:
   // dev restarts are slower, nothing else changes.
