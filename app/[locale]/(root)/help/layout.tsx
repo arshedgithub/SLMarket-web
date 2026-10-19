@@ -14,8 +14,10 @@ export default function CustomerServiceLayout({
   const sidebarLinks = [
     { href: "/help/contact", label: "Contact Us" },
     { href: "/help/faq", label: "FAQ" },
+    { href: "/help/safety", label: "Safety tips" },
     { href: "/help/complaints", label: "Complaints" },
     { href: "/help/privacy-policy", label: "Privacy Policy" },
+    { href: "/help/terms", label: "Terms of Service" },
   ];
 
   return (

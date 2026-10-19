@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
-import { sampleOnly, withTimeout } from "./dbGuard";
+import { withTimeout } from "./dbGuard";
 import { DEFAULT_HOURS } from "./responseTime";
-import { getSampleStorefront } from "./sampleStorefronts";
 import {
   itemsKindFor,
   toInternationalPhone,
@@ -12,9 +11,8 @@ import {
 import { categories } from "@/config/const/navLinks";
 
 /*
- * One entry point for the storefront page. A real BusinessProfile always
- * wins; the sample businesses (Digital Hub and friends) only answer for
- * slugs no real profile has, so demo content never shadows real data.
+ * One entry point for the storefront page, from the BusinessProfile row
+ * (there is no sample data; demo businesses are seeded into the database).
  * Fields the schema doesn't hold yet (reviews, followers, highlights,
  * hours, collections...) come back empty, which the page renders as its
  * "new business" state rather than inventing numbers.
@@ -149,6 +147,9 @@ async function fromDatabase(slug: string): Promise<StorefrontBusiness | null> {
       main: i === 0,
     })),
     isNew: true,
+    ...(profile.latitude != null && profile.longitude != null
+      ? { location: { lat: profile.latitude, lng: profile.longitude } }
+      : {}),
   };
 }
 
@@ -156,11 +157,9 @@ export async function getStorefront(
   slug: string,
 ): Promise<StorefrontBusiness | null> {
   try {
-    const real = sampleOnly() ? null : await fromDatabase(slug);
-    if (real) return real;
+    return await fromDatabase(slug);
   } catch {
-    // Database unreachable (or not migrated in this environment): fall
-    // through to the sample businesses rather than failing the page.
+    // Database unreachable: no page rather than a crash.
+    return null;
   }
-  return getSampleStorefront(slug);
 }

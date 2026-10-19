@@ -92,7 +92,7 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col gap-1 p-3">
         {(product.condition || product.warranty) && (
-          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-[var(--color-market-text-muted)]">
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-[var(--color-market-text-muted)]">
             {product.condition && (
               <span className="rounded bg-[var(--color-market-blue-light)] px-1.5 py-0.5 font-semibold text-blue-700 dark:text-blue-300">
                 {t(`condition.${product.condition}`)}
@@ -166,7 +166,7 @@ export function ProductCard({
               </span>
             </p>
             {product.deliveryDays && !sold && (
-              <p className="truncate pl-3.5 text-[11px] text-[var(--color-market-text-muted)]">
+              <p className="truncate pl-3.5 text-xs text-[var(--color-market-text-muted)]">
                 {t("product.delivery", {
                   min: product.deliveryDays[0],
                   max: product.deliveryDays[1],

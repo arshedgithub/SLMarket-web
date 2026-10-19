@@ -4,7 +4,6 @@ import { useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   ChevronDown,
-  MapPin,
   Wallet,
   Sparkles,
   UserRound,
@@ -26,39 +25,13 @@ import {
   type DealTag,
   type SellerType,
 } from "./data";
+import {
+  activeFilterCount,
+  DEFAULT_FILTERS,
+  type FiltersState,
+} from "./adQuery";
 
-export type FiltersState = {
-  location: string | null;
-  priceMin: number | null;
-  priceMax: number | null;
-  pricePresetKey: string | null;
-  condition: Condition;
-  seller: SellerType | "all";
-  deals: DealTag[];
-  extra: Record<string, string>;
-};
-
-export const DEFAULT_FILTERS: FiltersState = {
-  location: null,
-  priceMin: null,
-  priceMax: null,
-  pricePresetKey: null,
-  condition: "na",
-  seller: "all",
-  deals: [],
-  extra: {},
-};
-
-export function activeFilterCount(f: FiltersState): number {
-  let n = 0;
-  if (f.location) n++;
-  if (f.priceMin !== null || f.priceMax !== null) n++;
-  if (f.condition !== "na") n++;
-  if (f.seller !== "all") n++;
-  n += f.deals.length;
-  n += Object.keys(f.extra).length;
-  return n;
-}
+export { activeFilterCount, DEFAULT_FILTERS, type FiltersState };
 
 /* ============================================================
  * Small building blocks
@@ -77,7 +50,8 @@ function PillButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+      aria-pressed={active}
+      className={`rounded-full border px-3.5 py-2 text-sm font-semibold transition ${
         active
           ? "border-blue-600 bg-blue-600 text-white"
           : "border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text-secondary)] hover:border-blue-300 hover:text-blue-600"
@@ -88,16 +62,26 @@ function PillButton({
   );
 }
 
+function CountBadge({ count }: { count: number }) {
+  return (
+    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs font-bold text-white">
+      {count}
+    </span>
+  );
+}
+
 function FilterPopover({
   label,
   icon: Icon,
   active,
+  count = active ? 1 : 0,
   panelClassName = "w-72",
   children,
 }: {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   active: boolean;
+  count?: number;
   panelClassName?: string;
   children: ReactNode;
 }) {
@@ -111,7 +95,7 @@ function FilterPopover({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+        className={`flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border px-3.5 text-sm font-semibold transition ${
           active
             ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
             : "border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text-secondary)] hover:border-blue-200 hover:text-blue-600"
@@ -119,6 +103,7 @@ function FilterPopover({
       >
         <Icon className="h-4 w-4" />
         {label}
+        {count > 0 && <CountBadge count={count} />}
         <ChevronDown
           className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
         />
@@ -165,11 +150,12 @@ function LocationFields({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("filters.locationSearchPlaceholder")}
-          className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
+          aria-label={t("filters.locationSearchPlaceholder")}
+          className="min-w-0 flex-1 bg-transparent text-sm outline-none "
         />
       </div>
       {!query && (
-        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-market-text-muted)]">
+        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-market-text-secondary)]">
           {t("filters.popular")}
         </p>
       )}
@@ -212,6 +198,8 @@ function PriceFields({
       <div className="mb-3 flex items-center gap-2">
         <input
           type="number"
+          inputMode="numeric"
+          aria-label={t("filters.min")}
           placeholder={t("filters.min")}
           value={min ?? ""}
           onChange={(e) =>
@@ -224,6 +212,8 @@ function PriceFields({
         </span>
         <input
           type="number"
+          inputMode="numeric"
+          aria-label={t("filters.max")}
           placeholder={t("filters.max")}
           value={max ?? ""}
           onChange={(e) =>
@@ -232,7 +222,7 @@ function PriceFields({
           className="w-full min-w-0 rounded-xl border border-[var(--color-market-border)] px-3 py-2 text-sm outline-none focus:border-blue-400"
         />
       </div>
-      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-market-text-muted)]">
+      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-market-text-secondary)]">
         {t("filters.quickPicks")}
       </p>
       <div className="flex flex-wrap gap-1.5">
@@ -490,6 +480,45 @@ export function FiltersSheet({
               onChange={(v) => onFiltersChange({ ...filters, deals: v })}
             />
           )}
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-[var(--color-market-text)]">
+              {t("filters.moreFilters")}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  onFiltersChange({
+                    ...filters,
+                    negotiable: !filters.negotiable,
+                  })
+                }
+                className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                  filters.negotiable
+                    ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                    : "border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text-secondary)]"
+                }`}
+              >
+                {t("filters.negotiable")}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  onFiltersChange({
+                    ...filters,
+                    verifiedOnly: !filters.verifiedOnly,
+                  })
+                }
+                className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                  filters.verifiedOnly
+                    ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                    : "border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text-secondary)]"
+                }`}
+              >
+                {t("filters.verifiedOnly")}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 border-t border-[var(--color-market-border)] px-5 py-4">
@@ -527,6 +556,7 @@ export function FilterBar({
   mobileSort,
   mobileView,
   trailing,
+  chipsTrailing,
 }: {
   filters: FiltersState;
   onFiltersChange: (next: FiltersState) => void;
@@ -539,9 +569,12 @@ export function FilterBar({
   mobileView?: ReactNode;
   // Desktop-only content pinned to the right end of the command bar.
   trailing?: ReactNode;
+  // Shown at the end of the active-filters row (e.g. Save search).
+  chipsTrailing?: ReactNode;
 }) {
   const t = useTranslations("listings");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const activeCount = activeFilterCount(filters);
   const hasExtraFields =
     categoryId && (CATEGORY_FILTER_FIELDS[categoryId]?.length ?? 0) > 0;
 
@@ -588,6 +621,20 @@ export function FilterBar({
       onRemove: () => onFiltersChange({ ...filters, seller: "all" }),
     });
   }
+  if (filters.negotiable) {
+    chips.push({
+      key: "negotiable",
+      label: t("filters.negotiable"),
+      onRemove: () => onFiltersChange({ ...filters, negotiable: false }),
+    });
+  }
+  if (filters.verifiedOnly) {
+    chips.push({
+      key: "verifiedOnly",
+      label: t("filters.verifiedOnly"),
+      onRemove: () => onFiltersChange({ ...filters, verifiedOnly: false }),
+    });
+  }
   filters.deals.forEach((d) => {
     chips.push({
       key: `deal-${d}`,
@@ -602,7 +649,7 @@ export function FilterBar({
   Object.entries(filters.extra).forEach(([key, val]) => {
     chips.push({
       key: `extra-${key}`,
-      label: val,
+      label: `${t(`categoryFields.${categoryId}.${key}`)}: ${val}`,
       onRemove: () => {
         const extra = { ...filters.extra };
         delete extra[key];
@@ -616,17 +663,8 @@ export function FilterBar({
       {/* Desktop / tablet command bar — no "Category" button here, the
           category row above the toolbar already covers navigation. */}
       <div className="hidden flex-wrap items-center gap-2 sm:flex">
-        <FilterPopover
-          label={t("filters.location")}
-          icon={MapPin}
-          active={!!filters.location}
-        >
-          <LocationFields
-            value={filters.location}
-            onChange={(v) => onFiltersChange({ ...filters, location: v })}
-          />
-        </FilterPopover>
-
+        {/* No Location button: the search bar's location picker is the one
+            control for it. */}
         <FilterPopover
           label={t("filters.price")}
           icon={Wallet}
@@ -673,6 +711,7 @@ export function FilterBar({
           label={t("filters.deals")}
           icon={Percent}
           active={filters.deals.length > 0}
+          count={filters.deals.length}
         >
           <DealsFields
             value={filters.deals}
@@ -680,20 +719,42 @@ export function FilterBar({
           />
         </FilterPopover>
 
-        {hasExtraFields && (
+        {(
+          [
+            ["negotiable", filters.negotiable],
+            ["verifiedOnly", filters.verifiedOnly],
+          ] as const
+        ).map(([key, on]) => (
           <button
+            key={key}
             type="button"
-            onClick={() => setSheetOpen(true)}
-            className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl border px-3 py-2 text-sm font-semibold transition ${
-              Object.keys(filters.extra).length > 0
+            aria-pressed={on}
+            onClick={() => onFiltersChange({ ...filters, [key]: !on })}
+            className={`flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border px-3.5 text-sm font-semibold transition ${
+              on
                 ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
                 : "border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text-secondary)] hover:border-blue-200 hover:text-blue-600"
             }`}
           >
-            <SlidersHorizontal className="h-4 w-4" />
-            {t("filters.moreFilters")}
+            {t(`filters.${key}`)}
           </button>
-        )}
+        ))}
+
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          className={`flex h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border px-3.5 text-sm font-semibold transition ${
+            activeCount > 0
+              ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+              : "border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text-secondary)] hover:border-blue-200 hover:text-blue-600"
+          }`}
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          {hasExtraFields
+            ? t("filters.categoryFilters", { category: categoryName })
+            : t("filters.allFilters")}
+          {activeCount > 0 && <CountBadge count={activeCount} />}
+        </button>
 
         {trailing && (
           <div className="ml-auto flex items-center gap-3">{trailing}</div>
@@ -711,11 +772,7 @@ export function FilterBar({
         >
           <SlidersHorizontal className="h-4 w-4" />
           {t("filters.filters")}
-          {activeFilterCount(filters) > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">
-              {activeFilterCount(filters)}
-            </span>
-          )}
+          {activeCount > 0 && <CountBadge count={activeCount} />}
         </button>
         {mobileSort}
         <div className="scrollbar-hide flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
@@ -752,27 +809,29 @@ export function FilterBar({
       {/* Active filter chips */}
       {chips.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-[var(--color-market-text-muted)]">
-            {t("filters.active")}
+          <span className="text-sm font-semibold text-[var(--color-market-text)]">
+            {t("filters.resultsCount", { count: resultsCount })}
           </span>
           {chips.map((chip) => (
             <button
               key={chip.key}
               type="button"
               onClick={chip.onRemove}
-              className="flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 transition hover:border-blue-300 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300"
+              aria-label={t("filters.removeFilter", { filter: chip.label })}
+              className="flex h-8 items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 text-sm font-semibold text-blue-700 transition hover:border-blue-300 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300"
             >
               {chip.label}
-              <X className="h-3 w-3" />
+              <X aria-hidden className="h-3.5 w-3.5" />
             </button>
           ))}
           <button
             type="button"
             onClick={onClearAll}
-            className="text-xs font-semibold text-[var(--color-market-text-muted)] underline-offset-2 hover:text-rose-600 hover:underline"
+            className="text-sm font-semibold text-[var(--color-market-text-secondary)] underline-offset-2 hover:text-rose-600 hover:underline"
           >
             {t("filters.clearAll")}
           </button>
+          {chipsTrailing && <div className="ml-auto">{chipsTrailing}</div>}
         </div>
       )}
 

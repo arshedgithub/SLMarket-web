@@ -51,11 +51,18 @@ async function getUploadSignature(
   return { timestamp, signature, folder: cloudFolder, apiKey, cloudName };
 }
 
-async function uploadToCloudinary(
+type CloudinaryUpload = {
+  secure_url: string;
+  public_id: string;
+  width: number;
+  height: number;
+};
+
+async function uploadRaw(
   file: File,
   folder: string,
   resourceType: "image" | "video",
-): Promise<string> {
+): Promise<CloudinaryUpload> {
   const {
     timestamp,
     signature,
@@ -83,7 +90,15 @@ async function uploadToCloudinary(
     );
   }
 
-  return uploadData.secure_url as string;
+  return uploadData as CloudinaryUpload;
+}
+
+async function uploadToCloudinary(
+  file: File,
+  folder: string,
+  resourceType: "image" | "video",
+): Promise<string> {
+  return (await uploadRaw(file, folder, resourceType)).secure_url;
 }
 
 export async function uploadImage(
@@ -98,4 +113,18 @@ export async function uploadVideo(
   folder: "reels" = "reels",
 ): Promise<string> {
   return uploadToCloudinary(file, folder, "video");
+}
+
+// Spotlight campaign images (admins): the public id and pixel size, which
+// the focal-point crops need.
+export async function uploadSpotlightImage(
+  file: File,
+): Promise<{ publicId: string; width: number; height: number; url: string }> {
+  const d = await uploadRaw(file, "spotlight", "image");
+  return {
+    publicId: d.public_id,
+    width: d.width,
+    height: d.height,
+    url: d.secure_url,
+  };
 }

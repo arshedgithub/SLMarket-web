@@ -10,8 +10,8 @@ import {
 /*
  * The one shape every storefront section reads. It is plain JSON (ISO date
  * strings, no Dates or functions) so the server page can hand it straight to
- * the client components. Sample businesses and real BusinessProfile rows are
- * both mapped into it (see getStorefront.ts).
+ * the client components. BusinessProfile rows are mapped into it (see
+ * getStorefront.ts).
  */
 
 // What the business sells sets the word used in the section bar, counts and
@@ -29,8 +29,7 @@ export type Condition = "new" | "used" | "reconditioned";
 export type WarrantyKind = "company" | "shop";
 export type PrimaryAction = "whatsapp" | "call" | "enquire";
 
-// Sample images share a few source photos, so a card can show a different
-// part of one: focal point (percent) and zoom.
+// An optional focal point (percent) and zoom, to show one part of a photo.
 export type ImageCrop = { x: number; y: number; zoom: number };
 
 export type StorefrontProduct = {
@@ -172,6 +171,8 @@ export type StorefrontBusiness = {
   };
   branches: StorefrontBranch[];
   isNew: boolean;
+  // The shop pin (ad page map, directions). Absent: district area only.
+  location?: { lat: number; lng: number };
 };
 
 /* ------------------------------------------------------------------ */

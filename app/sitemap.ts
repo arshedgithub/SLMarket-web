@@ -44,15 +44,6 @@ const staticHubs: MetadataRoute.Sitemap = [
     priority: 0.6,
     changeFrequency: "daily",
   }),
-  // The directory, each category and subcategory with businesses in it, and
-  // each category-and-district page with enough businesses to be worth
-  // indexing (see lib/business/directory/seo.ts). Filtered views are not here.
-  ...directorySitemapPaths().flatMap((path) =>
-    localizedUrls(path, {
-      priority: path === "/businesses" ? 0.8 : 0.7,
-      changeFrequency: "daily",
-    }),
-  ),
   ...localizedUrls("/about", { priority: 0.5, changeFrequency: "monthly" }),
   ...localizedUrls("/help", {
     priority: 0.4,
@@ -67,6 +58,14 @@ const staticHubs: MetadataRoute.Sitemap = [
     changeFrequency: "monthly",
   }),
   ...localizedUrls("/help/privacy-policy", {
+    priority: 0.3,
+    changeFrequency: "yearly",
+  }),
+  ...localizedUrls("/help/safety", {
+    priority: 0.4,
+    changeFrequency: "yearly",
+  }),
+  ...localizedUrls("/help/terms", {
     priority: 0.3,
     changeFrequency: "yearly",
   }),
@@ -87,9 +86,22 @@ const staticHubs: MetadataRoute.Sitemap = [
   ]),
 ];
 
+// The directory, each category and subcategory with businesses in it, and
+// each category-and-district page with enough businesses to be worth
+// indexing (see lib/business/directory/seo.ts). Filtered views are not here.
+async function directoryUrls(): Promise<MetadataRoute.Sitemap> {
+  return (await directorySitemapPaths()).flatMap((path) =>
+    localizedUrls(path, {
+      priority: path === "/businesses" ? 0.8 : 0.7,
+      changeFrequency: "daily",
+    }),
+  );
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    const [listings, businesses] = await Promise.all([
+    const [directory, listings, businesses] = await Promise.all([
+      directoryUrls(),
       db.listing.findMany({
         where: { status: "ACTIVE" },
         select: { slug: true, updatedAt: true },
@@ -116,7 +128,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
     );
 
-    return [...staticHubs, ...listingUrls, ...businessUrls];
+    return [...staticHubs, ...directory, ...listingUrls, ...businessUrls];
   } catch {
     return staticHubs;
   }

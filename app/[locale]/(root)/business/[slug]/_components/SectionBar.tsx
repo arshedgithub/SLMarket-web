@@ -197,7 +197,7 @@ export function SectionBar({
                 {s.label}
                 {s.count !== undefined && (
                   <span
-                    className={`rounded-full px-1.5 text-[11px] font-bold ${
+                    className={`rounded-full px-1.5 text-xs font-bold ${
                       active === s.id
                         ? "bg-blue-600 text-white"
                         : "bg-[var(--color-market-blue-light)] text-blue-700 dark:text-blue-300"

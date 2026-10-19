@@ -1,14 +1,9 @@
 /*
  * Business pages must never hang or fail because the database is slow or
- * down. Database calls for them go through here: a short timeout, and an
- * explicit switch for development:
- *   BUSINESS_SOURCE=sample   answer from the built-in sample businesses only
- *                            (no database calls at all)
+ * down. Database calls for them go through here, with a short timeout.
  */
 
 export const DB_TIMEOUT_MS = 1500;
-
-export const sampleOnly = () => process.env.BUSINESS_SOURCE === "sample";
 
 export function withTimeout<T>(
   promise: Promise<T>,

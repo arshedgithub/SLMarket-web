@@ -100,7 +100,7 @@ function ReviewCard({
             <span className="text-sm font-bold text-[var(--color-market-text)]">
               {review.name}
             </span>
-            <span className="flex items-center gap-1 rounded-md bg-blue-50 px-1.5 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+            <span className="flex items-center gap-1 rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
               <BadgeCheck className="h-3 w-3" />
               {t("reviews.contacted")}
             </span>

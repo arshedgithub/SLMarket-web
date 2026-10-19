@@ -417,7 +417,7 @@ export function EnquiryCard({ business }: { business: StorefrontBusiness }) {
           name="website"
         />
 
-        <p className="text-[11px] leading-snug text-[var(--color-market-text-muted)]">
+        <p className="text-xs leading-snug text-[var(--color-market-text-muted)]">
           {t("enquiry.consent", { name: business.name })}{" "}
           <Link
             href="/help/privacy-policy"

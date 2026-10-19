@@ -1,8 +1,7 @@
 {
   "breadcrumb": {
     "home": "Home",
-    "listings": "Ads",
-    "allListings": "All Ads",
+    "allListings": "All ads",
     "deals": "Deals & Offers"
   },
   "header": {
@@ -13,14 +12,9 @@
     "subtitle": "Discover products, properties, vehicles, services and opportunities across Sri Lanka.",
     "listingsStat": "ads",
     "statsLine": "{total} ads · {postedToday} posted today",
-    "newOpportunities": "New opportunities, every day"
-  },
-  "marketplaceToday": {
-    "label": "SLMarket Live",
-    "newAds": "new ads, last 24 hours",
-    "acrossDistricts": "across {count} districts nationwide",
-    "otherDistricts": "Other",
-    "weekAbbr": "7d"
+    "newOpportunities": "New opportunities, every day",
+    "totalAds": "{count, plural, one {# ad} other {# ads}}",
+    "newToday": "{count} new today"
   },
   "search": {
     "placeholder": "What are you looking for?",
@@ -36,7 +30,9 @@
     }
   },
   "categorySwitcher": {
-    "all": "All"
+    "all": "All",
+    "label": "Categories",
+    "more": "More"
   },
   "shops": {
     "heading": "Featured Businesses",
@@ -56,7 +52,9 @@
       "toprated": "Top Rated",
       "premium": "Premium",
       "verified": "Verified"
-    }
+    },
+    "new": "New",
+    "viewAds": "View {count, plural, one {# ad} other {# ads}}"
   },
   "filters": {
     "location": "Location",
@@ -65,7 +63,7 @@
     "sellerLabel": "Seller",
     "deals": "Deals",
     "moreFilters": "More Filters",
-    "allFilters": "All Filters",
+    "allFilters": "All filters",
     "locationLabel": "Location",
     "locationSearchPlaceholder": "Search location...",
     "popular": "Popular",
@@ -100,53 +98,83 @@
     "active": "Active:",
     "clearAll": "Clear all",
     "clear": "Clear",
-    "showResults": "Show {count} Results",
+    "showResults": "{count, plural, =0 {No results} one {Show # result} other {Show # results}}",
     "refineResults": "Refine Results",
     "categoryFilters": "{category} filters",
     "close": "Close",
     "category": "Category",
-    "filters": "Filters"
+    "filters": "Filters",
+    "negotiable": "Negotiable",
+    "verifiedOnly": "Verified sellers only",
+    "resultsCount": "{count, plural, one {# result} other {# results}}",
+    "removeFilter": "Remove filter: {filter}"
   },
   "categoryFields": {
     "vehicles": {
       "brand": "Brand",
       "year": "Year",
       "fuel": "Fuel",
-      "transmission": "Transmission"
+      "transmission": "Transmission",
+      "model": "Model",
+      "mileage": "Mileage",
+      "fuelType": "Fuel type"
     },
     "property": {
       "propertyType": "Property Type",
       "bedrooms": "Bedrooms",
       "bathrooms": "Bathrooms",
-      "furnished": "Furnished"
+      "furnished": "Furnished",
+      "listingType": "For sale or rent",
+      "furnishing": "Furnishing"
     },
     "electronics": {
       "brand": "Brand",
       "storage": "Storage",
-      "warranty": "Warranty"
+      "warranty": "Warranty",
+      "deviceType": "Device type"
     },
     "jobs": {
       "jobType": "Job Type",
-      "experience": "Experience"
+      "experience": "Experience",
+      "employmentType": "Job type",
+      "workMode": "Work mode"
     }
   },
   "toolbar": {
-    "resultsFound": "{count} ads found",
+    "resultsFound": "{count, plural, =0 {No ads found} one {# ad found} other {# ads found}}",
     "sort": {
-      "newest": "Newest First",
+      "newest": "Featured first, then newest",
       "price-asc": "Price: Low to High",
-      "price-desc": "Price: High to Low"
+      "price-desc": "Price: High to Low",
+      "nearest": "Nearest First"
     },
     "gridView": "Grid view",
     "listView": "List view",
-    "sortShort": "Sort"
+    "sortShort": "Sort",
+    "sortLabel": "Sort ads"
+  },
+  "spotlight": {
+    "sponsored": "Sponsored",
+    "opensNewTab": "opens in new tab",
+    "visitShop": "Visit shop"
   },
   "card": {
     "featured": "Featured",
     "coupon": "Coupons & Offers",
     "price-drop": "Price Drop",
     "negotiable": "Negotiable",
+    "fixedPrice": "Fixed price",
     "saveListing": "Save ad",
+    "save": "Save {title}",
+    "unsave": "Unsave {title}",
+    "couponBadge": "Offer",
+    "showPhone": "Show phone",
+    "verifiedTip": "Verified business: documents checked",
+    "justListed": "Just listed",
+    "urgent": "Urgent",
+    "privateSeller": "Private seller",
+    "privateSellerSince": "Member since {year}",
+    "openAd": "Open listing",
     "shop": "Business",
     "call": "Call",
     "whatsapp": "WhatsApp",
@@ -156,10 +184,10 @@
     "sponsoredIn": "Sponsored",
     "viewAll": "View all",
     "nearYou": "{category} businesses near you",
-    "adsCount": "{count} ads",
-    "reviews": "{count} reviews",
+    "adsCount": "{count, plural, one {# ad} other {# ads}}",
+    "reviews": "{count, plural, one {# review} other {# reviews}}",
     "exploreNear": "Explore businesses near you",
-    "photos": "{count} photos",
+    "photos": "{count, plural, one {# photo} other {# photos}}",
     "latest": "Latest",
     "nearYouShort": "{category} near you",
     "exploreBusinesses": "Explore businesses",
@@ -167,23 +195,27 @@
       "job": "Job",
       "rent": "Rent",
       "sale": "Sale"
-    }
+    },
+    "reserved": "Reserved"
   },
   "premiumCard": {
     "premium": "Premium",
     "ad": "Ad",
     "verified": "Verified business",
-    "visitShop": "Visit shop · {count} ads",
+    "visitShop": "Visit shop · {count, plural, one {# ad} other {# ads}}",
     "logoAlt": "{name} logo"
   },
   "empty": {
     "title": "No ads match your filters",
     "desc": "Try clearing a filter or searching for something else.",
-    "clear": "Clear all filters"
+    "clear": "Clear all filters",
+    "firstTitle": "Be the first to post in {category}",
+    "firstDesc": "There are no ads here yet. Post yours free and buyers browsing this category will see it first.",
+    "firstCta": "Post a free ad"
   },
   "loadMore": "Load More Ads",
   "pagination": {
-    "showing": "Showing {from} to {to} of {total} ads",
+    "showing": "Showing {from} to {to} of {total, plural, one {# ad} other {# ads}}",
     "showingCount": "Showing {shown} of {total} ads",
     "previous": "Previous",
     "next": "Next",
@@ -191,7 +223,8 @@
     "label": "Pagination",
     "showMore": "Show more ads",
     "narrowTitle": "Narrow your search to see more ads",
-    "narrowDesc": "Try a specific category, location or keyword."
+    "narrowDesc": "Try a specific category, location or keyword.",
+    "backToTop": "Back to top"
   },
   "business": {
     "openNow": "Open now",
@@ -229,6 +262,106 @@
     "from": "From {price}",
     "posted": "Posted {date}",
     "delivery": "Delivery available",
-    "description": "Description"
+    "description": "Description",
+    "was": "Was {price}",
+    "wasSince": "Was {price} ({date})",
+    "instalment": "or {amount} a month with {provider}",
+    "warrantyMonths": "{type}, {months} months",
+    "keyDetails": "Key details",
+    "yes": "Yes",
+    "no": "No",
+    "readMore": "Read more",
+    "showLess": "Show less",
+    "policies": "Delivery, warranty and returns",
+    "policyDelivery": "Delivery",
+    "policyWarranty": "Warranty",
+    "policyReturns": "Returns",
+    "location": "Location",
+    "locationApprox": "Approximate area. The seller shares the exact place when you contact them.",
+    "locationBusiness": "Approximate area of the shop",
+    "directions": "Get directions",
+    "mapLabel": "Map of the area around {place}",
+    "adDetailsTitle": "Ad details",
+    "adId": "Ad ID {code}",
+    "views": "{count, plural, one {# view} other {# views}}",
+    "report": "Report this ad",
+    "safety": "Safety tips: never pay in advance, and check the item before you buy.",
+    "safetyMore": "All safety tips",
+    "rating": "{rating} ({count, plural, one {# review} other {# reviews}})",
+    "memberSince": "On SLMarket since {year}",
+    "viewBusinessAds": "View business · {count, plural, one {# ad} other {# ads}}",
+    "phoneVerified": "Phone verified",
+    "otherAds": "{count, plural, one {# other ad} other {# other ads}} by this seller",
+    "privateSeller": "Private seller",
+    "business": "Business",
+    "moreFrom": "More from {name}",
+    "theirOtherAds": "Their other ads",
+    "similar1": "Similar {sub} near {place}",
+    "similar2": "Similar {sub} in other districts",
+    "similar3": "Other {category} near you",
+    "similar4": "Popular near you",
+    "businessesNear": "Businesses selling {sub} near you",
+    "sponsored": "Sponsored",
+    "visitShop": "Visit shop",
+    "recent": "Recently viewed",
+    "viewAll": "View all",
+    "soldTitle": "This item has been sold",
+    "soldBody": "The seller marked it as sold. Here are similar ads you may like.",
+    "expiredTitle": "This ad is no longer available",
+    "expiredBody": "It has expired or the seller removed it. Here are similar ads you may like.",
+    "ownerTitle": "Your ad",
+    "ownerBody": "Buyers see the contact buttons here. Leads and saves are counted from now on.",
+    "ownerViews": "{count, plural, one {# view} other {# views}}",
+    "edit": "Edit ad",
+    "manage": "Manage your ads",
+    "boost": "Feature this ad",
+    "contact": {
+      "whatsapp": "WhatsApp",
+      "showNumber": "Show number",
+      "call": "Call",
+      "chat": "Chat",
+      "save": "Save",
+      "saved": "Saved",
+      "share": "Share",
+      "copied": "Link copied",
+      "tooMany": "Too many numbers shown. Please try again later.",
+      "failed": "Something went wrong. Please try again.",
+      "close": "Close",
+      "askNext": "Ask to be next"
+    },
+    "gallery": {
+      "previous": "Previous photo",
+      "next": "Next photo",
+      "fullScreen": "View full screen",
+      "close": "Close",
+      "photoOf": "Photo {n} of {total}",
+      "video": "Video",
+      "zoom": "Zoom in or out"
+    },
+    "useMyLocation": "Use my location",
+    "locating": "Finding you…",
+    "reservedTitle": "This item is reserved",
+    "reservedBody": "A buyer is lined up. You can still contact the seller and ask to be next if the sale falls through.",
+    "locationShop": "Shop location",
+    "markSold": "Mark as sold",
+    "markReserved": "Mark reserved",
+    "markAvailable": "Available again",
+    "emailCheck": {
+      "title": "Confirm your email",
+      "body": "To protect private sellers, confirm your email once to see their numbers. We send a 6-digit code; no account needed.",
+      "emailLabel": "Email address",
+      "sendCode": "Send code",
+      "codeLabel": "6-digit code",
+      "codeSent": "We sent a code to {email}. It expires in 5 minutes.",
+      "confirm": "Confirm and continue",
+      "changeEmail": "Use a different email"
+    }
+  },
+  "savedSearch": {
+    "save": "Save search",
+    "saved": "Search saved",
+    "saveHint": "Get an email when new ads match this search",
+    "savedHint": "Alerts are on. Select to remove this saved search",
+    "failed": "Try again"
   }
 }

@@ -6,8 +6,8 @@ import type { LatLng } from "./geo";
 
 /*
  * What the Businesses directory needs to know about a business. The
- * directory reads a list of these; today it comes from sample data
- * (sampleDirectory.ts) and later from the database and the search index.
+ * directory reads a list of these, built from the database
+ * (fromDatabase.ts).
  */
 
 // 1 phone, 2 + business registration, 3 + address, 4 + authorised dealer proof.

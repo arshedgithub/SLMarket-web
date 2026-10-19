@@ -7,7 +7,7 @@ import { categories } from "@/config/const/navLinks";
 import { districtFromSlug } from "@/lib/business/directory/geo";
 import { RESERVED_SLUGS } from "@/lib/business/slug";
 import { businessStatus, isShortLinkTarget } from "@/lib/business/status";
-import { isLiveListing } from "@/lib/listings/status";
+import { isLiveAd } from "@/lib/listings/adView";
 import { redis } from "@/lib/redis";
 import {
   canonicalDealsUrl,
@@ -173,7 +173,7 @@ export default auth(async (req) => {
     if (
       !slug ||
       (deeper && !ogImage) ||
-      (!ogImage && !(await isLiveListing(slug)))
+      (!ogImage && !(await isLiveAd(slug)))
     ) {
       return notFound(req, locale, "ad");
     }

@@ -1,11 +1,38 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { cookies, headers } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { categories as categoryConfig } from "@/config/const/navLinks";
 import { localeAlternates } from "@/lib/seo/hreflang";
 import { ListingsExperience, type CategoryOption } from "./ListingsExperience";
 import { DEAL_ROUTE_TYPES, type DealRouteType } from "./dealRoutes";
 import { DEAL_VALUES } from "./data";
+import {
+  featuredStripShops,
+  feedStats,
+  getAdFeed,
+  getShopFeed,
+} from "@/lib/listings/feed";
+import {
+  GPS_COOKIE,
+  PLACE_COOKIE,
+  resolveOrigin,
+} from "@/lib/listings/nearYou";
+import { VIEWPORT_COOKIE, type Bucket } from "./adQuery";
+
+const BUCKET_NAMES: Bucket[] = ["mobile", "tablet", "laptop", "desktop"];
+
+// The server's guess at the screen size, for ads per page: the size saved
+// on the last visit, else the browser's mobile hint or user agent.
+function guessBucket(saved: string | undefined, h: Headers): Bucket {
+  if (saved && (BUCKET_NAMES as string[]).includes(saved))
+    return saved as Bucket;
+  if (h.get("sec-ch-ua-mobile") === "?1") return "mobile";
+  const ua = h.get("user-agent") ?? "";
+  if (/iPad|Tablet/i.test(ua)) return "tablet";
+  if (/Mobi|Android/i.test(ua)) return "mobile";
+  return "desktop";
+}
 
 // Shared between the /ads index route, /ads/<category> and
 // /ads/<category>/<sub> routes, and /ads/deals[/<type>] — all build the
@@ -101,6 +128,19 @@ export async function ListingsPageShell({
     })),
   }));
 
+  const [ads, shops, jar, h] = await Promise.all([
+    getAdFeed(),
+    getShopFeed(),
+    cookies(),
+    headers(),
+  ]);
+  const stats = feedStats(ads);
+  const now = Date.now();
+  const origin = resolveOrigin({
+    gps: decodeURIComponent(jar.get(GPS_COOKIE)?.value ?? ""),
+    chosen: decodeURIComponent(jar.get(PLACE_COOKIE)?.value ?? ""),
+  }).district;
+
   const dealScope = isDeals
     ? dealType
       ? [DEAL_ROUTE_TYPES[dealType].tag]
@@ -119,6 +159,12 @@ export async function ListingsPageShell({
         initialCategoryId={categoryId}
         initialSubcategoryId={subcategoryId}
         dealScope={dealScope}
+        ads={ads}
+        stats={stats}
+        stripShops={featuredStripShops(shops, now)}
+        now={now}
+        initialBucket={guessBucket(jar.get(VIEWPORT_COOKIE)?.value, h)}
+        initialOrigin={origin}
       />
     </Suspense>
   );

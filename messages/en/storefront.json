@@ -20,7 +20,7 @@
   },
   "hero": {
     "verified": "Verified business",
-    "followers": "{count} followers",
+    "followers": "{count, plural, one {# follower} other {# followers}}",
     "since": "On SLMarket since {year}",
     "whatsapp": "WhatsApp",
     "showNumber": "Show number",
@@ -134,7 +134,7 @@
     "title": "Customer reviews ({count})",
     "subtitle": "Only buyers who contacted {name} through SLMarket can review.",
     "outOf": "out of 5",
-    "count": "{count} reviews",
+    "count": "{count, plural, one {# review} other {# reviews}}",
     "write": "Write a review",
     "contactFirst": "Contact {name} first to leave a review",
     "signIn": "Sign in to write a review",
@@ -178,7 +178,7 @@
     "hours": "Opening hours",
     "today": "Today",
     "directions": "Get directions",
-    "branches": "{count} branches"
+    "branches": "{count, plural, one {# branch} other {# branches}}"
   },
   "trust": {
     "title": "Verified business",

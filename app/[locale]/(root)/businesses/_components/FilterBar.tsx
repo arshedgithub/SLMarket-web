@@ -166,7 +166,7 @@ export function DirectoryFilterBar({
         <SlidersHorizontal className="h-4 w-4" />
         {t("directory.allFilters")}
         {count > 0 && (
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs font-bold text-white">
             {count}
           </span>
         )}

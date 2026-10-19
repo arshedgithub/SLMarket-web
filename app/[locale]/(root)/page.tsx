@@ -8,39 +8,39 @@ import { localeAlternates } from "@/lib/seo/hreflang";
 
 import {
   ArrowRight,
-  Award,
   BadgeCheck,
   Bell,
-  Car,
-  ChevronRight,
+  Camera,
   Clock,
-  Crown,
-  GraduationCap,
+  Eye,
+  Flag,
   Heart,
-  Home,
-  Leaf,
   MapPin,
-  PawPrint,
-  Search,
-  Shirt,
+  Rocket,
+  ShieldCheck,
   Smartphone,
   Sparkles,
-  Star,
   Store,
   Tag,
-  TrendingUp,
   Users,
-  Utensils,
-  Wrench,
-  Zap,
+  Wallet,
 } from "lucide-react";
 import { categories as categoryConfig } from "@/config/const/navLinks";
+import { CategoryGrid } from "./_components/CategoryGrid";
+import { LatestAds } from "./_components/LatestAds";
+import { SavedSearchesStrip } from "./_components/SavedSearchesStrip";
+import { RecentlyViewed } from "./ad/[slug]/_components/RecentlyViewed";
 import {
-  CategoryRail,
-  type CategoryRailItem,
-} from "./_components/CategoryRail";
+  featuredStripShops,
+  feedStats,
+  getAdFeed,
+  getShopFeed,
+} from "@/lib/listings/feed";
+import { popularSearches as derivePopularSearches } from "@/lib/listings/popularSearches";
+import { showCount, showNewToday } from "@/lib/listings/socialProof";
+import { ALL_DISTRICTS } from "./ads/_components/data";
+import { FeaturedBusinessesStrip } from "./ads/_components/BusinessCards";
 import { HeroSearch } from "./_components/HeroSearch";
-import { Rail } from "./_components/Rail";
 import { SectionEyebrow } from "./_components/SectionHeader";
 import { getPriceDropCount } from "@/lib/deals/priceDrops";
 import { getActiveOfferCount } from "@/lib/deals/offers";
@@ -53,45 +53,17 @@ import { getActiveOfferCount } from "@/lib/deals/offers";
 
 type IconComponent = React.ComponentType<{ className?: string }>;
 
-type PopularSearch = {
-  label: string;
-  href: string;
-};
-
-type SampleListing = {
-  title: string;
-  location: string;
-  price: string;
-  image: string;
-  badge?: string;
-  tags: string[];
-};
-
-/*
- * ============================================================
- * POPULAR SEARCHES
- * ============================================================
- */
-
-const popularSearches: PopularSearch[] = [
-  { label: "Toyota Aqua", href: "/search?q=Toyota%20Aqua" },
-  { label: "House for rent", href: "/search?q=house%20for%20rent" },
-  { label: "iPhone 13", href: "/search?q=iPhone%2013" },
-  { label: "Part time job", href: "/search?q=part%20time%20job" },
-  { label: "Land for sale", href: "/search?q=land%20for%20sale" },
-  { label: "Laptop", href: "/search?q=laptop" },
+// The districts most people search in, for "Browse by district".
+const HOME_DISTRICTS = [
+  "Colombo",
+  "Gampaha",
+  "Kandy",
+  "Kurunegala",
+  "Galle",
+  "Kalutara",
+  "Jaffna",
+  "Matara",
 ];
-
-/*
- * ============================================================
- * SAMPLE / FALLBACK LISTINGS
- *
- * Placeholder data that gives the design a complete visual state. Swap
- * for a real database query / listing component later.
- * ============================================================
- */
-
-const CAT_IMG = "/images/marketplace/categories";
 
 const DEAL_ICON_DIR = "/images/marketplace/deals/icons";
 const DEAL_ICON = {
@@ -110,299 +82,6 @@ const MOBILE_APP_FEATURES: {
   { key: "f2", icon: Bell },
   { key: "f3", icon: Heart },
   { key: "f4", icon: MapPin },
-];
-
-const recommendedListings: SampleListing[] = [
-  {
-    title: "3BR House, Negombo",
-    location: "Negombo",
-    price: "Rs. 18.5M",
-    image: `${CAT_IMG}/property.webp`,
-    badge: "Verified Seller",
-    tags: ["House", "3 Beds"],
-  },
-  {
-    title: "Toyota Aqua 2015",
-    location: "Colombo",
-    price: "Rs. 6.2M",
-    image: `${CAT_IMG}/vehicles.webp`,
-    badge: "Negotiable",
-    tags: ["Hybrid", "Auto", "2015"],
-  },
-  {
-    title: "iPhone 13, 128GB",
-    location: "Colombo",
-    price: "Rs. 145,000",
-    image: `${CAT_IMG}/electronics.webp`,
-    badge: "Verified Seller",
-    tags: ["128GB", "Excellent"],
-  },
-  {
-    title: "Accountant (Full-time)",
-    location: "Colombo",
-    price: "Rs. 80,000 to 120,000",
-    image: `${CAT_IMG}/jobs.webp`,
-    badge: "Verified Business",
-    tags: ["Full-time", "Colombo"],
-  },
-  {
-    title: "10 Perches Land",
-    location: "Gampaha",
-    price: "Rs. 2.8M",
-    image: `${CAT_IMG}/agriculture.webp`,
-    badge: "Verified Seller",
-    tags: ["Land", "10 Perches"],
-  },
-  {
-    title: "L-Shape Sofa Set",
-    location: "Kandy",
-    price: "Rs. 95,000",
-    image: `${CAT_IMG}/home-garden.webp`,
-    badge: "Negotiable",
-    tags: ["Furniture", "6 Seater"],
-  },
-  {
-    title: "Designer Party Dress",
-    location: "Colombo",
-    price: "Rs. 6,500",
-    image: `${CAT_IMG}/fashion.webp`,
-    badge: "New Arrival",
-    tags: ["Women", "Size M"],
-  },
-  {
-    title: "Organic Spice Pack",
-    location: "Matale",
-    price: "Rs. 1,200",
-    image: `${CAT_IMG}/food.webp`,
-    badge: "Verified Seller",
-    tags: ["Organic", "1kg"],
-  },
-  {
-    title: "Home Deep Cleaning",
-    location: "Colombo",
-    price: "Rs. 4,500",
-    image: `${CAT_IMG}/services.webp`,
-    badge: "Verified Business",
-    tags: ["Same Day", "Insured"],
-  },
-  {
-    title: "Mountain Bike, 21-Speed",
-    location: "Nuwara Eliya",
-    price: "Rs. 32,000",
-    image: `${CAT_IMG}/hobbies.webp`,
-    badge: "Negotiable",
-    tags: ["21-Speed", "Good Condition"],
-  },
-];
-
-/*
- * ============================================================
- * SAMPLE FEATURED SHOPS
- *
- * Placeholder data. Real shops (with a mix of personal-account and
- * premium-shop listings) come from the database once the schema is
- * extended for the general marketplace.
- * ============================================================
- */
-
-type ShopTier = "toprated" | "premium" | "verified";
-
-type SampleShop = {
-  name: string;
-  category: string;
-  location: string;
-  rating: number;
-  listings: string;
-  tagline: string;
-  tier: ShopTier;
-  cover: string;
-  thumbs: string[];
-  tags: string[];
-  accent: "blue" | "orange" | "dark" | "green" | "purple" | "teal";
-  icon: IconComponent;
-};
-
-const featuredShops: SampleShop[] = [
-  {
-    name: "TechZone Sri Lanka",
-    category: "Electronics",
-    location: "Colombo",
-    rating: 4.8,
-    listings: "120+",
-    tagline: "Latest Tech for a Better You",
-    tier: "verified",
-    cover: `${CAT_IMG}/electronics.webp`,
-    thumbs: [
-      `${CAT_IMG}/electronics.webp`,
-      `${CAT_IMG}/jobs.webp`,
-      `${CAT_IMG}/home-garden.webp`,
-    ],
-    tags: ["Laptops", "Phones", "Accessories"],
-    accent: "blue",
-    icon: Store,
-  },
-  {
-    name: "HomeNest",
-    category: "Home & Living",
-    location: "Kandy",
-    rating: 4.7,
-    listings: "85+",
-    tagline: "Make Your House a Home",
-    tier: "premium",
-    cover: `${CAT_IMG}/home-garden.webp`,
-    thumbs: [
-      `${CAT_IMG}/home-garden.webp`,
-      `${CAT_IMG}/fashion.webp`,
-      `${CAT_IMG}/food.webp`,
-    ],
-    tags: ["Furniture", "Decor", "Kitchen"],
-    accent: "orange",
-    icon: Home,
-  },
-  {
-    name: "AutoHub LK",
-    category: "Vehicles",
-    location: "Colombo",
-    rating: 4.6,
-    listings: "60+",
-    tagline: "Drive Your Dreams",
-    tier: "verified",
-    cover: `${CAT_IMG}/vehicles.webp`,
-    thumbs: [
-      `${CAT_IMG}/vehicles.webp`,
-      `${CAT_IMG}/services.webp`,
-      `${CAT_IMG}/electronics.webp`,
-    ],
-    tags: ["Cars", "Motorbikes", "Parts"],
-    accent: "dark",
-    icon: Car,
-  },
-  {
-    name: "GreenFields",
-    category: "Agriculture",
-    location: "Kurunegala",
-    rating: 4.8,
-    listings: "95+",
-    tagline: "For a Greener Tomorrow",
-    tier: "toprated",
-    cover: `${CAT_IMG}/agriculture.webp`,
-    thumbs: [
-      `${CAT_IMG}/agriculture.webp`,
-      `${CAT_IMG}/animals.webp`,
-      `${CAT_IMG}/food.webp`,
-    ],
-    tags: ["Plants", "Fertilizers", "Tools"],
-    accent: "green",
-    icon: Leaf,
-  },
-  {
-    name: "StyleHub",
-    category: "Fashion",
-    location: "Colombo",
-    rating: 4.7,
-    listings: "150+",
-    tagline: "Look Good, Feel Great",
-    tier: "premium",
-    cover: `${CAT_IMG}/fashion.webp`,
-    thumbs: [
-      `${CAT_IMG}/fashion.webp`,
-      `${CAT_IMG}/health-beauty.webp`,
-      `${CAT_IMG}/home-garden.webp`,
-    ],
-    tags: ["Clothing", "Shoes", "Bags"],
-    accent: "purple",
-    icon: Shirt,
-  },
-  {
-    name: "TasteBuds Kitchen",
-    category: "Food & Groceries",
-    location: "Galle",
-    rating: 4.6,
-    listings: "70+",
-    tagline: "Fresh Flavours, Every Day",
-    tier: "verified",
-    cover: `${CAT_IMG}/food.webp`,
-    thumbs: [
-      `${CAT_IMG}/food.webp`,
-      `${CAT_IMG}/agriculture.webp`,
-      `${CAT_IMG}/jobs.webp`,
-    ],
-    tags: ["Homemade", "Catering", "Bakery"],
-    accent: "teal",
-    icon: Utensils,
-  },
-  {
-    name: "EduPro Institute",
-    category: "Education",
-    location: "Kandy",
-    rating: 4.9,
-    listings: "40+",
-    tagline: "Learn Without Limits",
-    tier: "toprated",
-    cover: `${CAT_IMG}/education.webp`,
-    thumbs: [
-      `${CAT_IMG}/education.webp`,
-      `${CAT_IMG}/jobs.webp`,
-      `${CAT_IMG}/electronics.webp`,
-    ],
-    tags: ["Tuition", "Online", "Exam Prep"],
-    accent: "blue",
-    icon: GraduationCap,
-  },
-  {
-    name: "PetCare Lanka",
-    category: "Animals & Pets",
-    location: "Negombo",
-    rating: 4.7,
-    listings: "55+",
-    tagline: "Happy Pets, Happy Homes",
-    tier: "verified",
-    cover: `${CAT_IMG}/animals.webp`,
-    thumbs: [
-      `${CAT_IMG}/animals.webp`,
-      `${CAT_IMG}/agriculture.webp`,
-      `${CAT_IMG}/home-garden.webp`,
-    ],
-    tags: ["Pet Food", "Grooming", "Accessories"],
-    accent: "orange",
-    icon: PawPrint,
-  },
-  {
-    name: "FixIt Services",
-    category: "Services",
-    location: "Colombo",
-    rating: 4.6,
-    listings: "110+",
-    tagline: "Repairs Done Right",
-    tier: "premium",
-    cover: `${CAT_IMG}/services.webp`,
-    thumbs: [
-      `${CAT_IMG}/services.webp`,
-      `${CAT_IMG}/electronics.webp`,
-      `${CAT_IMG}/home-garden.webp`,
-    ],
-    tags: ["Repairs", "Cleaning", "Movers"],
-    accent: "dark",
-    icon: Wrench,
-  },
-  {
-    name: "GlowBeauty",
-    category: "Health & Beauty",
-    location: "Jaffna",
-    rating: 4.8,
-    listings: "65+",
-    tagline: "Shine From Within",
-    tier: "toprated",
-    cover: `${CAT_IMG}/health-beauty.webp`,
-    thumbs: [
-      `${CAT_IMG}/health-beauty.webp`,
-      `${CAT_IMG}/fashion.webp`,
-      `${CAT_IMG}/hobbies.webp`,
-    ],
-    tags: ["Skincare", "Makeup", "Wellness"],
-    accent: "purple",
-    icon: Sparkles,
-  },
 ];
 
 /*
@@ -444,59 +123,6 @@ export async function generateMetadata({
       languages: localeAlternates("/"),
     },
   };
-}
-
-/*
- * ============================================================
- * LISTING CARD
- * ============================================================
- */
-
-function ListingCard({ listing }: { listing: SampleListing }) {
-  return (
-    <Link href="/search" className="market-listing-card group block">
-      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-        <Image
-          src={listing.image}
-          alt={listing.title}
-          fill
-          sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 240px"
-          className="object-cover transition duration-500 group-hover:scale-105"
-        />
-
-        {listing.badge && (
-          <span className="absolute left-2.5 top-2.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-blue-700 shadow-sm">
-            {listing.badge}
-          </span>
-        )}
-      </div>
-
-      <div className="p-3.5">
-        <h3 className="truncate text-sm font-semibold text-[var(--color-market-text)]">
-          {listing.title}
-        </h3>
-
-        <p className="mt-1 text-xs text-[var(--color-market-text-muted)]">
-          {listing.location}
-        </p>
-
-        <p className="mt-2 text-base font-bold text-[#1557d6]">
-          {listing.price}
-        </p>
-
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
-          {listing.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </Link>
-  );
 }
 
 /*
@@ -657,152 +283,186 @@ export default async function HomePage({
     getActiveOfferCount().catch(() => 0),
   ]);
 
-  const catItems: CategoryRailItem[] = categoryConfig.map((category) => ({
+  // Real ads, newest first (lib/listings/feed.ts), and the counts around them.
+  const [latestListings, shops] = await Promise.all([
+    getAdFeed(),
+    getShopFeed(),
+  ]);
+  const stats = feedStats(latestListings);
+  const heroSearches = derivePopularSearches(latestListings, 6);
+  const now = Date.now();
+
+  const heroCategories = categoryConfig.map((category) => ({
     id: category.id,
     name: tCat(`${category.id}.name`),
-    href: category.href,
-    image: category.image,
-    description: t(`categoryTaglines.${category.id}`),
     iconName: category.icon,
   }));
+
+  const trust = [
+    { icon: BadgeCheck, label: t("hero.trustVerified"), href: null },
+    { icon: Tag, label: t("hero.trustFree"), href: null },
+    { icon: ShieldCheck, label: t("hero.trustSafety"), href: "/help/safety" },
+    { icon: MapPin, label: t("hero.trustIslandwide"), href: null },
+  ];
 
   return (
     <div className="marketplace-page">
       {/* ======================================================
-          HERO — contained so it doesn't sprawl on wide screens
+          HERO: benefit, search, trust. Kept short so the first ads
+          start within the first screen on a laptop.
           ====================================================== */}
 
-      <section className="marketplace-hero mx-auto max-w-7xl">
-        {/* Desktop / tablet: full-bleed background photo with legibility overlays */}
-        <div className="marketplace-hero-photo hidden sm:block">
-          <Image
-            src="/images/hero-bg.webp"
-            alt=""
-            fill
-            priority
-            sizes="(max-width: 1320px) 100vw, 1280px"
-            className="object-cover object-[center_top]"
-          />
-        </div>
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-[#eaf3ff] to-[var(--color-market-background)] dark:from-[#0c1a30]">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(55%_80%_at_50%_0%,rgba(21,87,214,0.10),transparent_70%)]"
+        />
+        {/* A faint dotted texture, fading out towards the content. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(rgba(21,87,214,0.10)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(70%_90%_at_50%_0%,black,transparent)] dark:bg-[radial-gradient(rgba(147,180,255,0.08)_1px,transparent_1px)]"
+        />
+        <div className="mx-auto max-w-4xl px-4 pb-6 pt-6 text-center sm:px-6 sm:pb-7 sm:pt-8 lg:pt-10">
+          <h1 className="font-heading text-balance text-[28px] font-extrabold leading-tight tracking-[-0.03em] text-[#10213f] sm:text-4xl lg:text-[44px] dark:text-white">
+            {t("hero.title")}
+          </h1>
+          <p className="mx-auto mt-2 max-w-xl text-balance text-[15px] text-slate-700 sm:text-base dark:text-slate-300">
+            {t("hero.subline")}
+          </p>
 
-        <div className="marketplace-hero-edges hidden sm:block" />
-        <div className="marketplace-hero-scrim hidden sm:block" />
-        <div className="marketplace-hero-basefade hidden sm:block" />
-
-        <div className="px-5 pt-8 sm:px-10 sm:pb-12 sm:pt-14 lg:px-14 lg:pt-16">
-          <div className="relative z-10 max-w-2xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-blue-700 shadow-sm backdrop-blur dark:border-blue-900 dark:bg-slate-900/70 dark:text-blue-300">
-              <span className="h-2 w-2 rounded-full bg-green-500" />
-              {t("hero.badge")}
-            </div>
-
-            <h1 className="font-heading text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-[#10213f] sm:text-5xl lg:text-[58px] dark:text-white">
-              {t("hero.titleLine1")}
-              <br />
-              {t("hero.titleLine2")}
-              <br />
-              <span className="text-[#1557d6] dark:text-[#72a1ff]">
-                {t("hero.titleHighlight")}
-              </span>
-            </h1>
-
-            <p className="mt-5 max-w-xl text-base font-medium leading-7 text-slate-700 sm:text-lg dark:text-slate-200">
-              {t("hero.subtitle")}
-            </p>
-
-            {/* SEARCH — input, premium category dropdown, then an icon button */}
+          <div className="mx-auto mt-5 max-w-3xl text-left">
             <HeroSearch
-              items={catItems}
-              allLabel={t("hero.searchAllCategories")}
-              placeholder={t("hero.searchPlaceholder")}
-              searchLabel={t("hero.searchLabel")}
-              categoryLabel={t("hero.searchCategoryLabel")}
-              searchButtonLabel={t("hero.searchButton")}
+              categories={heroCategories}
+              districts={ALL_DISTRICTS}
+              labels={{
+                allCategories: t("hero.searchAllCategories"),
+                category: t("hero.searchCategoryLabel"),
+                allSriLanka: t("hero.allSriLanka"),
+                location: t("hero.searchLocationLabel"),
+                useMyLocation: t("hero.useMyLocation"),
+                placeholder: t("hero.searchPlaceholder"),
+                search: t("hero.searchLabel"),
+                searchButton: t("hero.searchButton"),
+              }}
             />
+          </div>
 
-            {/* POPULAR SEARCH — desktop (inline under the search bar) */}
-            <div className="mt-4 hidden flex-wrap items-center gap-2 lg:flex">
-              <span className="mr-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] font-medium text-slate-700 sm:text-sm dark:text-slate-300">
+            {trust.map(({ icon: Icon, label, href }) => (
+              <li key={label}>
+                {href ? (
+                  <Link
+                    href={href}
+                    className="inline-flex items-center gap-1.5 underline-offset-2 hover:text-blue-700 hover:underline"
+                  >
+                    <Icon aria-hidden className="h-4 w-4 text-blue-600" />
+                    {label}
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Icon aria-hidden className="h-4 w-4 text-blue-600" />
+                    {label}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {heroSearches.length > 0 && (
+            <div className="scrollbar-hide -mx-4 mt-4 flex items-center gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0">
+              <span className="shrink-0 text-[13px] font-semibold text-slate-700 sm:text-sm dark:text-slate-300">
                 {t("hero.popularLabel")}
               </span>
-
-              {popularSearches.slice(0, 4).map((search) => (
+              {heroSearches.map((search) => (
                 <Link
                   key={search.label}
                   href={search.href}
-                  className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm backdrop-blur transition hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300"
+                  className="inline-flex h-9 shrink-0 items-center rounded-full border border-slate-200 bg-white/90 px-3.5 text-[13px] font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700 sm:text-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
                 >
                   {search.label}
                 </Link>
               ))}
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Phone: the hero art flows below the copy, its top edge fading
-            into the page so the box + app mock-up stay fully visible. */}
-        <div className="relative mt-4 aspect-[4/3] w-full overflow-hidden sm:hidden">
-          <Image
-            src="/images/hero-bg-mobile.webp"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[50%_72%]"
-          />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[var(--color-market-background)] via-[var(--color-market-background)]/75 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[var(--color-market-background)] to-transparent" />
-        </div>
-      </section>
-
-      {/* ======================================================
-          POPULAR SEARCHES — mobile / tablet
-          ====================================================== */}
-
-      <section className="relative z-10 mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:hidden">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
-              <TrendingUp className="h-4 w-4" />
-            </span>
-            <h2 className="text-base font-bold text-[var(--color-market-text)]">
-              {t("hero.popularLabel")}
-            </h2>
-          </div>
           <Link
-            href="/search"
-            className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blue-600"
+            href="/ads"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-300"
           >
-            {t("hero.popularMore")}
-            <ChevronRight className="h-4 w-4" />
+            {showNewToday(stats.postedToday) && (
+              <span aria-hidden className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 motion-safe:animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+            )}
+            {showNewToday(stats.postedToday)
+              ? t("hero.newToday", { count: stats.postedToday })
+              : t("hero.browseLatest")}
+            <ArrowRight aria-hidden className="h-4 w-4" />
           </Link>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {popularSearches.map((search) => (
-            <Link
-              key={search.label}
-              href={search.href}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-market-border)] bg-[var(--color-market-surface)] px-3 py-2 text-xs font-medium text-[var(--color-market-text-secondary)] transition hover:border-blue-300 hover:text-blue-600"
-            >
-              <Search className="h-3.5 w-3.5 text-blue-500" />
-              {search.label}
-            </Link>
-          ))}
-        </div>
       </section>
 
       {/* ======================================================
-          CATEGORY RAIL — one horizontal row, overlaps the hero fade
+          CATEGORIES: the busiest ones, the rest behind "More"
           ====================================================== */}
 
-      <section className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:mt-5 sm:px-6">
-        <CategoryRail
-          items={catItems}
+      <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-6">
+        <CategoryGrid
           heading={t("browse.heading")}
-          subheading={t("browse.subheading")}
-          viewAllLabel={t("browse.viewAll")}
+          moreLabel={t("browse.more")}
+          lessLabel={t("browse.less")}
+          emptyLabel={t("browse.beFirst")}
+          items={categoryConfig.map((category) => {
+            const count = stats.byCategory[category.id] ?? 0;
+            return {
+              id: category.id,
+              name: tCat(`${category.id}.name`),
+              count,
+              // Small numbers read as an empty marketplace (socialProof.ts).
+              countLabel: showCount(count)
+                ? t("browse.countLabel", { count })
+                : count > 0
+                  ? t("browse.countNew")
+                  : "",
+            };
+          })}
         />
       </section>
+
+      {/* ======================================================
+          LATEST ADS: real ads on the first screen
+          ====================================================== */}
+
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <LatestAds
+          heading={t("latest.heading")}
+          listings={latestListings}
+          labels={{
+            tabs: t("latest.tabsLabel"),
+            latest: t("latest.latest"),
+            featured: t("latest.featured"),
+            deals: t("latest.deals"),
+            near: t("latest.near"),
+            nearIn: t("latest.nearIn", { district: "{district}" }),
+            nearEmpty: t("latest.nearEmpty", { district: "{district}" }),
+            nearAsk: t("latest.nearAsk"),
+            useMyLocation: t("hero.useMyLocation"),
+            chooseDistrict: t("latest.chooseDistrict"),
+            viewAll: t("latest.viewAll"),
+          }}
+        />
+      </section>
+
+      {/* Returning visitors: their saved searches and recently viewed ads
+          (each hidden when empty). */}
+      <SavedSearchesStrip
+        heading={t("forYou.savedSearches")}
+        manageLabel={t("forYou.manage")}
+      />
+      <div className="mx-auto max-w-7xl px-4 empty:hidden sm:px-6">
+        <RecentlyViewed currentSlug="" heading={t("forYou.recentlyViewed")} />
+      </div>
 
       {/* ======================================================
           DEALS & OFFERS
@@ -831,49 +491,56 @@ export default async function HomePage({
       />
 
       {/* ======================================================
-          FEATURED LISTINGS
+          FEATURED BUSINESSES (3 or more, else not shown)
           ====================================================== */}
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <Rail
-          heading={t("featured.heading")}
-          subheading={t("featured.subheading")}
-          viewAllHref="/search"
-          viewAllLabel={t("featured.viewAll")}
-          dotsCount={recommendedListings.length}
-        >
-          {recommendedListings.map((listing) => (
-            <div
-              key={listing.title}
-              className="w-[210px] shrink-0 snap-start sm:w-[236px]"
-            >
-              <ListingCard listing={listing} />
-            </div>
-          ))}
-        </Rail>
-      </section>
+      <div className="mx-auto max-w-7xl px-4 py-8 empty:hidden sm:px-6">
+        <FeaturedBusinessesStrip
+          shops={featuredStripShops(shops, now)}
+          now={now}
+        />
+      </div>
 
       {/* ======================================================
-          FEATURED SHOPS
+          BROWSE BY DISTRICT
           ====================================================== */}
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <Rail
-          heading={t("shops.heading")}
-          subheading={t("shops.subheading")}
-          viewAllHref="/businesses"
-          viewAllLabel={t("shops.viewAll")}
-          dotsCount={featuredShops.length}
+      <section
+        aria-labelledby="districts-heading"
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6"
+      >
+        <h2
+          id="districts-heading"
+          className="font-heading text-xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-3xl"
         >
-          {featuredShops.map((shop) => (
-            <ShopCard
-              key={shop.name}
-              shop={shop}
-              visitLabel={t("shops.visit")}
-              listingsLabel={t("shops.listings")}
-            />
+          {t("districts.heading")}
+        </h2>
+        <p className="mt-1 text-[15px] text-[var(--color-market-text-secondary)]">
+          {t("districts.desc")}
+        </p>
+        <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-8">
+          {HOME_DISTRICTS.map((d) => (
+            <li key={d}>
+              <Link
+                href={`/ads?location=${encodeURIComponent(d)}`}
+                className="flex h-12 items-center gap-2 rounded-xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] px-3.5 text-[15px] font-semibold text-[var(--color-market-text)] transition hover:border-blue-300 hover:text-blue-700"
+              >
+                <MapPin
+                  aria-hidden
+                  className="h-4 w-4 shrink-0 text-blue-600"
+                />
+                <span className="truncate">{d}</span>
+              </Link>
+            </li>
           ))}
-        </Rail>
+        </ul>
+        <Link
+          href="/ads"
+          className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-300"
+        >
+          {t("districts.all")}
+          <ArrowRight aria-hidden className="h-4 w-4" />
+        </Link>
       </section>
 
       {/* ======================================================
@@ -892,7 +559,7 @@ export default async function HomePage({
           />
           {/* Desktop / tablet: the seller photo */}
           <Image
-            src="/images/marketplace/sell/background.webp"
+            src="/images/marketplace/pages/sell/background.webp"
             alt=""
             fill
             priority={false}
@@ -935,24 +602,96 @@ export default async function HomePage({
               </Link>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-4">
-              <MiniFeature
-                icon={Tag}
-                title={t("sell.freeTitle")}
-                desc={t("sell.freeDesc")}
-              />
-              <MiniFeature
-                icon={Users}
-                title={t("sell.reachTitle")}
-                desc={t("sell.reachDesc")}
-              />
-              <MiniFeature
-                icon={Zap}
-                title={t("sell.quickTitle")}
-                desc={t("sell.quickDesc")}
-              />
-            </div>
+            {/* How it works: three steps, about a minute. */}
+            <p className="mt-7 text-sm font-bold uppercase tracking-wide text-[var(--color-market-text-secondary)]">
+              {t("sell.stepsTitle")}
+            </p>
+            <ol className="mt-3 grid gap-3 sm:grid-cols-3">
+              {(
+                [
+                  [Camera, "step1"],
+                  [Wallet, "step2"],
+                  [Rocket, "step3"],
+                ] as const
+              ).map(([Icon, key], i) => (
+                <li
+                  key={key}
+                  className="flex items-start gap-2.5 rounded-xl bg-white/80 p-3 backdrop-blur dark:bg-white/5"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                    <Icon aria-hidden className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[var(--color-market-text)]">
+                      {i + 1}. {t(`sell.${key}Title`)}
+                    </p>
+                    <p className="text-[13px] leading-5 text-[var(--color-market-text-secondary)]">
+                      {t(`sell.${key}Desc`)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
+        </div>
+      </section>
+
+      {/* ======================================================
+          SAFETY: trust before the transaction
+          ====================================================== */}
+
+      <section
+        aria-labelledby="safety-heading"
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6"
+      >
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-5 sm:p-8 dark:border-emerald-900 dark:bg-emerald-950/30">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <SectionEyebrow icon={ShieldCheck}>
+                {t("safety.eyebrow")}
+              </SectionEyebrow>
+              <h2
+                id="safety-heading"
+                className="font-heading mt-3 text-2xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-3xl"
+              >
+                {t("safety.heading")}
+              </h2>
+            </div>
+            <Link
+              href="/help/safety"
+              className="btn-outline inline-flex h-11 items-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold dark:bg-transparent"
+            >
+              {t("safety.cta")}
+              <ArrowRight aria-hidden className="h-4 w-4" />
+            </Link>
+          </div>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {(
+              [
+                [Wallet, "tip1"],
+                [Users, "tip2"],
+                [Eye, "tip3"],
+                [Flag, "tip4"],
+              ] as const
+            ).map(([Icon, key]) => (
+              <li
+                key={key}
+                className="flex items-start gap-3 rounded-2xl bg-[var(--color-market-surface)] p-4 shadow-sm"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  <Icon aria-hidden className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[15px] font-bold text-[var(--color-market-text)]">
+                    {t(`safety.${key}Title`)}
+                  </p>
+                  <p className="mt-0.5 text-sm leading-5 text-[var(--color-market-text-secondary)]">
+                    {t(`safety.${key}Desc`)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -975,32 +714,32 @@ export default async function HomePage({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <WhyCard
             tint="bg-blue-50 dark:bg-blue-950/40"
-            badge="/images/marketplace/why/icon-built.webp"
+            badge="/images/marketplace/pages/why/icon-built.webp"
             title={t("whyUs.builtTitle")}
             desc={t("whyUs.builtDesc")}
-            image="/images/marketplace/why/sri-lanka.webp"
+            image="/images/marketplace/pages/why/sri-lanka.webp"
           />
           <WhyCard
             tint="bg-pink-50 dark:bg-pink-950/30"
-            badge="/images/marketplace/why/icon-discover.webp"
+            badge="/images/marketplace/pages/why/icon-discover.webp"
             title={t("whyUs.discoverTitle")}
             desc={t("whyUs.discoverDesc")}
-            image="/images/marketplace/why/discovery.webp"
+            image="/images/marketplace/pages/why/discovery.webp"
             imageInset
           />
           <WhyCard
             tint="bg-emerald-50 dark:bg-emerald-950/30"
-            badge="/images/marketplace/why/icon-exposure.webp"
+            badge="/images/marketplace/pages/why/icon-exposure.webp"
             title={t("whyUs.exposureTitle")}
             desc={t("whyUs.exposureDesc")}
             socials
           />
           <WhyCard
             tint="bg-amber-50 dark:bg-amber-950/30"
-            badge="/images/marketplace/why/icon-everyone.webp"
+            badge="/images/marketplace/pages/why/icon-everyone.webp"
             title={t("whyUs.everyoneTitle")}
             desc={t("whyUs.everyoneDesc")}
-            image="/images/marketplace/why/storefront.webp"
+            image="/images/marketplace/pages/why/storefront.webp"
           />
         </div>
       </section>
@@ -1016,7 +755,7 @@ export default async function HomePage({
         <div className="relative isolate overflow-hidden rounded-3xl border border-[var(--color-market-border)] shadow-[0_20px_55px_-24px_rgba(16,33,63,0.22)] sm:min-h-[460px]">
           {/* Mobile: a tailored portrait shot (phones sit below the copy). */}
           <Image
-            src="/images/marketplace/mobile-app/background-mobile.webp"
+            src="/images/marketplace/pages/mobile-app/background-mobile.webp"
             alt=""
             fill
             sizes="100vw"
@@ -1024,7 +763,7 @@ export default async function HomePage({
           />
           {/* Desktop / tablet: the wide phone photo, anchored right. */}
           <Image
-            src="/images/marketplace/mobile-app/background.webp"
+            src="/images/marketplace/pages/mobile-app/background.webp"
             alt=""
             fill
             sizes="(max-width: 1320px) 100vw, 1240px"
@@ -1361,7 +1100,7 @@ function DealsSection({
                   <h3 className="text-[12px] font-bold leading-tight text-[var(--color-market-text)]">
                     {c.title}
                   </h3>
-                  <p className="mt-1 text-[10px] leading-tight text-[var(--color-market-text-muted)]">
+                  <p className="mt-1 text-xs leading-tight text-[var(--color-market-text-muted)]">
                     {c.tag}
                   </p>
                 </div>
@@ -1432,128 +1171,3 @@ function DealsSection({
  * SMALL COMPONENTS
  * ============================================================
  */
-
-const SHOP_ACCENT: Record<SampleShop["accent"], string> = {
-  blue: "bg-blue-600",
-  orange: "bg-orange-500",
-  dark: "bg-[#10213f]",
-  green: "bg-green-600",
-  purple: "bg-violet-600",
-  teal: "bg-teal-600",
-};
-
-// Credibility label shown on the cover: Top Rated > Premium > Verified.
-const SHOP_TIER: Record<
-  ShopTier,
-  { label: string; icon: IconComponent; cls: string }
-> = {
-  toprated: {
-    label: "Top Rated",
-    icon: Award,
-    cls: "text-amber-600 dark:text-amber-300",
-  },
-  premium: {
-    label: "Premium",
-    icon: Crown,
-    cls: "text-violet-600 dark:text-violet-300",
-  },
-  verified: {
-    label: "Verified",
-    icon: BadgeCheck,
-    cls: "text-emerald-600 dark:text-emerald-300",
-  },
-};
-
-function ShopCard({
-  shop,
-  visitLabel,
-  listingsLabel,
-}: {
-  shop: SampleShop;
-  visitLabel: string;
-  listingsLabel: string;
-}) {
-  const Icon = shop.icon;
-  const tier = SHOP_TIER[shop.tier];
-  const TierIcon = tier.icon;
-
-  return (
-    <article className="flex w-[300px] shrink-0 snap-start flex-col overflow-hidden rounded-3xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] shadow-sm transition hover:shadow-lg sm:w-[338px]">
-      {/* Cover */}
-      <div className="relative h-36">
-        <Image
-          src={shop.cover}
-          alt=""
-          fill
-          sizes="338px"
-          className="object-cover"
-        />
-        <span
-          className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm ${tier.cls}`}
-        >
-          <TierIcon className="h-3.5 w-3.5" />
-          {tier.label}
-        </span>
-      </div>
-
-      {/* Full-width identity panel, overlapping the cover */}
-      <div className="relative z-10 -mt-6 rounded-t-2xl bg-[var(--color-market-surface)] px-4 pb-3 pt-4">
-        <div className="flex items-start gap-2.5">
-          <span
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${
-              SHOP_ACCENT[shop.accent]
-            }`}
-          >
-            <Icon className="h-5 w-5" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1 text-sm font-bold text-[var(--color-market-text)]">
-              <span className="truncate">{shop.name}</span>
-              <BadgeCheck className="h-4 w-4 shrink-0 text-blue-500" />
-            </p>
-            <p className="truncate text-xs text-[var(--color-market-text-muted)]">
-              {shop.category} &middot; {shop.location}
-            </p>
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--color-market-text-muted)]">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span className="font-semibold text-[var(--color-market-text)]">
-                {shop.rating.toFixed(1)}
-              </span>
-              <span className="text-[var(--color-market-border-strong)]">
-                |
-              </span>
-              {shop.listings} {listingsLabel}
-            </p>
-          </div>
-        </div>
-
-        {/* Listing thumbnails */}
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {shop.thumbs.slice(0, 3).map((src, i) => (
-            <div
-              key={i}
-              className="relative aspect-square overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800"
-            >
-              <Image
-                src={src}
-                alt=""
-                fill
-                sizes="96px"
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Visit — full-width bar, flush to the card edges */}
-      <Link
-        href="/businesses"
-        className="mt-auto flex items-center justify-center gap-1.5 bg-blue-50 py-3.5 text-sm font-bold text-blue-600 transition hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
-      >
-        {visitLabel}
-        <ArrowRight className="h-4 w-4" />
-      </Link>
-    </article>
-  );
-}

@@ -4,7 +4,7 @@ export type LatLng = { lat: number; lng: number };
 
 /*
  * District centre points, used for "Distance" when the visitor hasn't shared
- * their location, and to seed sample coordinates. Approximate centres of the
+ * their location, and for businesses without a pin. Approximate centres of the
  * district towns; replace with the boundaries table from OpenStreetMap or
  * government data once it lives in the database (PostGIS).
  */

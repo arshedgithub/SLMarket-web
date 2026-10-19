@@ -1,7 +1,7 @@
 import { categories } from "@/config/const/navLinks";
 import { districtSlug, DISTRICT_CENTRES } from "./geo";
 import { isListed, runDirectory } from "./query";
-import { getSampleDirectory } from "./sampleDirectory";
+import { getDirectory } from "./fromDatabase";
 import { DEFAULT_FILTERS } from "./types";
 
 // Directory categories, in the order the chips show them.
@@ -27,8 +27,8 @@ const KNOWN = new Set(categories.map((c) => c.id));
 // Every directory URL that is worth putting in the sitemap: the directory,
 // each category with something in it, each subcategory with something in it,
 // and each category-and-district page that meets the threshold.
-export function directorySitemapPaths(): string[] {
-  const all = getSampleDirectory().filter(isListed);
+export async function directorySitemapPaths(): Promise<string[]> {
+  const all = (await getDirectory()).filter(isListed);
   const ctx = { now: new Date(), origin: null, userDistrict: null };
   const count = (filters: Partial<typeof DEFAULT_FILTERS>) =>
     runDirectory(all, { ...DEFAULT_FILTERS, ...filters }, ctx).results.length;

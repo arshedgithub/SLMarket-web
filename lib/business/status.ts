@@ -1,13 +1,11 @@
 import { db } from "@/lib/db";
 import { getOrSetCached } from "@/lib/redis";
-import { sampleOnly, withTimeout } from "./dbGuard";
-import { getSampleStorefront } from "./sampleStorefronts";
+import { withTimeout } from "./dbGuard";
 
 /*
  * "Does this business page exist, and can it be reached by its short link?"
  * asked on every request for /business/<slug> and /<slug>, so it is cached
- * (a few minutes) and must never be slow or fatal. A real BusinessProfile
- * wins over the sample businesses. Clear the cache key when a business is
+ * (a few minutes) and must never be slow or fatal. Clear the cache key when a business is
  * renamed or suspended:  invalidateCache(`bizstatus:${slug}`).
  */
 
@@ -31,18 +29,16 @@ async function fromDatabase(slug: string): Promise<string> {
 }
 
 async function lookup(slug: string): Promise<Answer> {
-  let raw: string | null = "none";
-  if (!sampleOnly()) {
+  let raw: string | null;
+  try {
+    raw = await getOrSetCached<string>(`bizstatus:${slug}`, TTL_SECONDS, () =>
+      fromDatabase(slug),
+    );
+  } catch {
     try {
-      raw = await getOrSetCached<string>(`bizstatus:${slug}`, TTL_SECONDS, () =>
-        fromDatabase(slug),
-      );
+      raw = await fromDatabase(slug); // the cache is down
     } catch {
-      try {
-        raw = await fromDatabase(slug); // the cache is down
-      } catch {
-        raw = null; // the database is down
-      }
+      raw = null; // the database is down
     }
   }
 
@@ -50,9 +46,6 @@ async function lookup(slug: string): Promise<Answer> {
     const [status, verified] = raw.split("|");
     return { status: status as BusinessStatus, verified: verified === "1" };
   }
-  // No real profile (or no way to ask): the sample businesses answer.
-  const sample = getSampleStorefront(slug);
-  if (sample) return { status: "active", verified: sample.verified };
   return { status: raw === null ? "unknown" : "missing", verified: false };
 }
 

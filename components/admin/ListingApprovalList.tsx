@@ -13,15 +13,10 @@ import {
   Eye,
   Gem,
 } from "lucide-react";
+import type { ListingStatus as PrismaListingStatus } from "@prisma/client";
 
-type ListingStatus =
-  | "ACTIVE"
-  | "SOLD"
-  | "PAUSED"
-  | "EXPIRED"
-  | "PENDING_REVIEW"
-  | "CHANGES_REQUESTED"
-  | "REJECTED";
+// The database enum itself, so a new status can never be missing here.
+type ListingStatus = PrismaListingStatus;
 
 interface ListingItem {
   id: string;
@@ -43,6 +38,7 @@ const STATUS_TABS: { label: string; value: ListingStatus | "ALL" }[] = [
   { label: "Changes Requested", value: "CHANGES_REQUESTED" },
   { label: "Rejected", value: "REJECTED" },
   { label: "Active", value: "ACTIVE" },
+  { label: "Reserved", value: "RESERVED" },
   { label: "Sold", value: "SOLD" },
   { label: "Expired", value: "EXPIRED" },
   { label: "All", value: "ALL" },
@@ -52,6 +48,8 @@ function statusBadgeClass(status: ListingStatus) {
   switch (status) {
     case "ACTIVE":
       return "bg-green-100 text-green-700";
+    case "RESERVED":
+      return "bg-sky-100 text-sky-700";
     case "SOLD":
       return "bg-gray-100 text-gray-600";
     case "PENDING_REVIEW":

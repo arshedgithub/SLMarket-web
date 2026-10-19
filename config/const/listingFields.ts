@@ -273,6 +273,49 @@ export const LISTING_FIELDS: Record<string, FieldGroup[]> = {
       ],
     },
     {
+      title: "Specs",
+      fields: [
+        {
+          key: "processor",
+          label: "Processor",
+          type: "text",
+          placeholder: "Intel Core i7, Apple M1…",
+          showWhen: { key: "deviceType", equals: ["Laptop"] },
+        },
+        {
+          key: "ram",
+          label: "RAM",
+          type: "text",
+          placeholder: "8GB, 16GB…",
+          showWhen: {
+            key: "deviceType",
+            equals: ["Laptop", "Phone", "Tablet"],
+          },
+        },
+        {
+          key: "storage",
+          label: "Storage",
+          type: "text",
+          placeholder: "128GB, 512GB SSD…",
+          showWhen: {
+            key: "deviceType",
+            equals: ["Laptop", "Phone", "Tablet"],
+          },
+        },
+        {
+          key: "screenSize",
+          label: "Screen size",
+          type: "number",
+          unit: "in",
+          placeholder: "13.3",
+          showWhen: {
+            key: "deviceType",
+            equals: ["Laptop", "Phone", "Tablet", "TV"],
+          },
+        },
+      ],
+    },
+    {
       title: "Good to know",
       fields: [
         {
@@ -280,6 +323,23 @@ export const LISTING_FIELDS: Record<string, FieldGroup[]> = {
           label: "Warranty",
           type: "segmented",
           options: ["No warranty", "Under warranty", "Seller warranty"],
+        },
+        {
+          key: "warrantyMonths",
+          label: "Warranty left",
+          type: "number",
+          unit: "months",
+          placeholder: "6",
+          showWhen: {
+            key: "warranty",
+            equals: ["Under warranty", "Seller warranty"],
+          },
+        },
+        {
+          key: "availability",
+          label: "Availability",
+          type: "segmented",
+          options: ["In stock", "Few left", "Pre-order"],
         },
         {
           key: "accessories",

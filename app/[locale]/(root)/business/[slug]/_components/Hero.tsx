@@ -288,9 +288,7 @@ export function TrustLine({ business }: { business: StorefrontBusiness }) {
       )}
       <OpenStatus business={business} />
       {business.followers > 0 && (
-        <span>
-          {t("hero.followers", { count: follow.count.toLocaleString("en-US") })}
-        </span>
+        <span>{t("hero.followers", { count: follow.count })}</span>
       )}
       <span>{t("hero.since", { year: business.sinceYear })}</span>
     </div>

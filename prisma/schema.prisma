@@ -44,6 +44,9 @@ model User {
   whatsappBroadcastSubs   WhatsappBroadcastOptIn[] @relation("BuyerOptIns")
   fcmTokens               FcmToken[]
   accounts                Account[]
+  savedAds                SavedAd[]
+  savedSearches           SavedSearch[]
+  recentlyViewedAds       RecentlyViewedAd[]
 
   @@map("users")
 }
@@ -136,6 +139,10 @@ model BusinessProfile {
   district       String?
   city           String?
   tags           String[]            @default([])
+  // The shop's pin on the ad page map and "Get directions". Null: the
+  // map shows the district area instead.
+  latitude       Float?
+  longitude      Float?
   isVerified     Boolean             @default(false)
   tier           BusinessProfileTier @default(STANDARD)
   businessType   BusinessType?
@@ -162,6 +169,7 @@ model BusinessProfile {
   listings     Listing[]
   verification VerificationRequest?
   offers       BusinessOffer[]
+  spotlights   SpotlightCampaign[]
 
   @@index([ownerId])
   @@index([status])
@@ -416,6 +424,10 @@ model Listing {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
+  // Focal point per photo, same order as images: [{ x, y }] from 0 to 1.
+  // Crops (cards, thumbnails) keep that point in view. Missing = centre.
+  photoFocus Json?
+
   seller          User             @relation(fields: [sellerId], references: [id])
   businessProfile BusinessProfile? @relation(fields: [businessProfileId], references: [id])
   branches        ListingBranch[]
@@ -490,6 +502,7 @@ enum ListingStatus {
   CHANGES_REQUESTED
   REJECTED
   SOLD
+  RESERVED // a buyer is lined up; others can still ask to be next
   PAUSED
   EXPIRED
 }
@@ -719,4 +732,137 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+}
+
+// ─── Buyer lists ──────────────────────────────────────────────────────────────
+// Kept by ad slug, not listing id: the ad pages also serve sample ads that
+// have no row yet, and a slug never changes once an ad is published.
+
+model SavedAd {
+  id        String   @id @default(cuid())
+  userId    String
+  adSlug    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, adSlug])
+  @@map("saved_ads")
+}
+
+model RecentlyViewedAd {
+  id       String   @id @default(cuid())
+  userId   String
+  adSlug   String
+  // What the row shows (title, price text, photo, place) as last seen, so
+  // the list needs no lookup per ad.
+  snapshot Json
+  viewedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, adSlug])
+  @@index([userId, viewedAt])
+  @@map("recently_viewed_ads")
+}
+
+// A search a user saved on /ads (its query string), with optional alerts:
+// new matching ads are emailed (app/api/cron/search-alerts).
+model SavedSearch {
+  id             String    @id @default(cuid())
+  userId         String
+  label          String
+  query          String // the /ads path and query, e.g. "/ads/vehicles?location=Colombo"
+  alerts         Boolean   @default(true)
+  lastNotifiedAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, query])
+  @@index([alerts])
+  @@map("saved_searches")
+}
+
+// Spotlight slots in the ad lists: admin image campaigns, and paid
+// placements for businesses. Premium-tier businesses also fill slots
+// without a row here (lib/spotlight/pool.ts).
+enum SpotlightKind {
+  IMAGE
+  BUSINESS
+}
+
+enum SpotlightStatus {
+  DRAFT
+  SCHEDULED
+  LIVE
+  PAUSED
+}
+
+enum SpotlightDestination {
+  STORE // a business page, by slug
+  LIST // an /ads path and query
+  AD // an ad, by slug
+  EXTERNAL // an https URL
+}
+
+model SpotlightCampaign {
+  id     String          @id @default(cuid())
+  kind   SpotlightKind   @default(IMAGE)
+  status SpotlightStatus @default(DRAFT)
+
+  // The business it advertises (required for BUSINESS, optional for IMAGE).
+  businessProfileId String?
+  // Who pays: one slot per advertiser per page. Defaults to the business,
+  // else the campaign itself.
+  advertiser        String?
+
+  tier   Int     @default(3) // 1 highest .. 4
+  pinned Boolean @default(false)
+
+  headline  String?              @db.VarChar(60)
+  subline   String?              @db.VarChar(80)
+  ctaLabel  String               @default("View") @db.VarChar(24)
+  destType  SpotlightDestination
+  destValue String
+
+  // Master image (Cloudinary public id, or a site path) and its focal point.
+  imageId       String?
+  // The master image size, so the focal point can be given in pixels
+  // (Cloudinary g_xy_center takes pixel coordinates).
+  imageWidth    Int?
+  imageHeight   Int?
+  focalX        Float   @default(0.5)
+  focalY        Float   @default(0.5)
+  altText       String?
+  imageOnly     Boolean @default(false)
+  logoId        String?
+  // Optional replacements for single crops: { grid?, wide?, list? } image ids.
+  cropOverrides Json?
+
+  targetCategory String?
+  targetDistrict String?
+
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  businessProfile BusinessProfile? @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+
+  @@index([status, tier, pinned])
+  @@map("spotlight_campaigns")
+}
+
+// Impressions and clicks per placement per day (Asia/Colombo). `spotId` is
+// "c:<campaign id>" or "b:<business id>" (premium businesses without a
+// campaign), so both share the fair rotation.
+model SpotlightStatDaily {
+  spotId      String
+  day         DateTime @db.Date
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+
+  @@id([spotId, day])
+  @@map("spotlight_stats_daily")
 }

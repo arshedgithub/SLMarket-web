@@ -9,24 +9,14 @@ import type {
   Map as MapLibreMap,
   Marker,
   Popup,
-  StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./map.css";
-import { Protocol } from "pmtiles";
-import { layers, namedFlavor } from "@protomaps/basemaps";
 import Supercluster from "supercluster";
 import { LocateFixed, Minus, Plus, Search } from "lucide-react";
 import { circlePolygon, type LatLng } from "@/lib/business/directory/geo";
-import {
-  DEFAULT_GLYPHS,
-  DEFAULT_SPRITE,
-  MAP_ATTRIBUTION,
-  SRI_LANKA_BOUNDS,
-  TILE_EXTENT,
-  labelLanguage,
-  pmtilesUrl,
-} from "@/lib/business/directory/map";
+import { SRI_LANKA_BOUNDS, TILE_EXTENT } from "@/lib/business/directory/map";
+import { buildStyle, registerProtocol } from "@/components/map/mapStyle";
 import type { DirectoryResult } from "@/lib/business/directory/query";
 import type { DirectoryBusiness } from "@/lib/business/directory/types";
 
@@ -36,41 +26,6 @@ export type MapBounds = {
   east: number;
   north: number;
 };
-
-let protocolRegistered = false;
-function registerProtocol() {
-  if (protocolRegistered) return;
-  // The engine's web worker is served from public/vendor (see
-  // scripts/copy-maplibre-worker.mjs).
-  maplibregl.setWorkerUrl("/vendor/maplibre/maplibre-gl-worker.mjs");
-  const protocol = new Protocol();
-  maplibregl.addProtocol("pmtiles", protocol.tile);
-  protocolRegistered = true;
-}
-
-function buildStyle(origin: string, locale: string): StyleSpecification {
-  // A single quiet style in SLMarket's blues: no layer options.
-  const flavor = {
-    ...namedFlavor("light"),
-    water: "#cfe0f5",
-    earth: "#f4f6fb",
-    park_a: "#e3efe4",
-    park_b: "#e3efe4",
-  };
-  return {
-    version: 8,
-    glyphs: process.env.NEXT_PUBLIC_MAP_GLYPHS_URL ?? DEFAULT_GLYPHS,
-    sprite: DEFAULT_SPRITE,
-    sources: {
-      protomaps: {
-        type: "vector",
-        url: `pmtiles://${pmtilesUrl(origin)}`,
-        attribution: MAP_ATTRIBUTION,
-      },
-    },
-    layers: layers("protomaps", flavor, { lang: labelLanguage(locale) }),
-  } as StyleSpecification;
-}
 
 const initials = (name: string) =>
   name

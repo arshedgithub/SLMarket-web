@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { PostAdFlow } from "@/components/post-ad/PostAdFlow";
+import { getUserShops } from "@/lib/business/userShops";
 
 export const metadata: Metadata = {
   title: "Post your ad",
@@ -24,15 +25,19 @@ export default async function SellPage({
     redirect(`/${locale}/login?next=/post-ad`);
   }
 
-  const user = await db.user.findUnique({
-    where: { id: session.user.id },
-    select: { phone: true },
-  });
+  const [user, shops] = await Promise.all([
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true },
+    }),
+    getUserShops(session.user.id),
+  ]);
 
   return (
     <PostAdFlow
       sellerPhone={user?.phone ?? ""}
       sellerName={session.user.name ?? "Your account"}
+      shops={shops}
       closeHref="/"
     />
   );

@@ -1,25 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Check, ChevronDown } from "lucide-react";
-import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { routing, type Locale } from "@/i18n/routing";
+import { type Locale } from "@/i18n/routing";
 
-const LANGUAGE_LABELS: Record<Locale, string> = {
-  en: "English",
-  ta: "தமிழ்",
-  si: "සිංහල",
-};
-
-// Short form for the tablet-width nav, where there isn't room for the full
-// language name next to the logo, nav links and auth buttons.
-const LANGUAGE_LABELS_SHORT: Record<Locale, string> = {
-  en: "En",
-  ta: "தமி",
-  si: "සිං",
-};
+// Each language in its own script, so a Sinhala or Tamil reader finds it
+// without reading English first.
+const LANGUAGES: { code: Locale; short: string; name: string }[] = [
+  { code: "en", short: "EN", name: "English" },
+  { code: "si", short: "සිං", name: "සිංහල" },
+  { code: "ta", short: "த", name: "தமிழ்" },
+];
 
 export default function LanguageSwitcher({
   compact = false,
@@ -30,49 +21,34 @@ export default function LanguageSwitcher({
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-  useOutsideClick([ref], () => setIsOpen(false));
-
-  const selectLocale = (nextLocale: Locale) => {
-    setIsOpen(false);
-    router.replace(pathname, { locale: nextLocale });
-  };
 
   return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-1 whitespace-nowrap text-sm font-medium text-light-text hover:text-text transition-colors"
-        aria-label={t("changeLanguage")}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-      >
-        {compact ? LANGUAGE_LABELS_SHORT[locale] : LANGUAGE_LABELS[locale]}
-        <ChevronDown
-          className={`h-3.5 w-3.5 shrink-0 transform transition-transform ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {isOpen && (
-        <div
-          role="listbox"
-          className="absolute right-0 top-full mt-2 w-36 rounded-lg border border-border bg-surface shadow-lg z-50 overflow-hidden"
-        >
-          {routing.locales.map((code) => (
-            <button
-              key={code}
-              role="option"
-              aria-selected={code === locale}
-              onClick={() => selectLocale(code)}
-              className="flex w-full items-center justify-between px-3 py-2 text-sm text-text hover:bg-background"
-            >
-              {LANGUAGE_LABELS[code]}
-              {code === locale && <Check className="h-4 w-4 text-primary" />}
-            </button>
-          ))}
-        </div>
-      )}
+    <div
+      role="group"
+      aria-label={t("changeLanguage")}
+      className="flex items-center rounded-full border border-border bg-surface p-0.5"
+    >
+      {LANGUAGES.map(({ code, short, name }) => {
+        const active = code === locale;
+        return (
+          <button
+            key={code}
+            type="button"
+            lang={code}
+            aria-pressed={active}
+            aria-label={name}
+            title={name}
+            onClick={() =>
+              !active && router.replace(pathname, { locale: code })
+            }
+            className={`flex h-8 items-center justify-center rounded-full font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-600 ${
+              compact ? "min-w-8 px-1.5 text-xs" : "min-w-9 px-2.5 text-[13px]"
+            } ${active ? "bg-primary text-white" : "text-light-text hover:text-text"}`}
+          >
+            {compact || code === "en" ? short : name}
+          </button>
+        );
+      })}
     </div>
   );
 }

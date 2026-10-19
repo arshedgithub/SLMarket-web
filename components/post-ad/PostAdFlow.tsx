@@ -13,7 +13,7 @@ import { StepPriceDeal } from "./steps/StepPriceDeal";
 import { StepLocation } from "./steps/StepLocation";
 import { StepSeller } from "./steps/StepSeller";
 import { StepPreview } from "./steps/StepPreview";
-import { SAMPLE_USER_SHOPS } from "@/lib/sampleUserShops";
+import type { UserShop } from "@/lib/business/userShops";
 import { EMPTY_DRAFT, STEPS, getImageLimits, type AdDraft } from "./types";
 
 const DRAFT_KEY = "slmarket:ad-draft:v1";
@@ -22,11 +22,19 @@ export function PostAdFlow({
   sellerPhone = "",
   sellerName = "Your account",
   closeHref = "/",
+  shops = [],
+  edit,
 }: {
   sellerPhone?: string;
   sellerName?: string;
   closeHref?: string;
+  // The seller's own business profiles (lib/business/userShops.ts).
+  shops?: UserShop[];
+  // Edit mode: the listing being changed, as a draft. Saves with PUT to
+  // /api/listings/ad/<id>, and keeps its own draft per ad.
+  edit?: { listingId: string; draft: AdDraft };
 }) {
+  const draftKey = edit ? `slmarket:ad-edit:${edit.listingId}:v1` : DRAFT_KEY;
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -42,27 +50,37 @@ export function PostAdFlow({
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
     "idle",
   );
+  // After an edit: the ad's address, and whether it went back to review.
+  const [result, setResult] = useState<{
+    slug: string;
+    reviewing: boolean;
+  } | null>(null);
 
   // Load any saved draft. A brand-new draft (nothing saved yet) defaults to
   // the seller's first business profile when they have one — a shop owner
   // is almost always posting for the shop, not their personal account.
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(DRAFT_KEY);
-      if (raw) {
+      const raw = localStorage.getItem(draftKey);
+      if (edit && !raw) {
+        // Editing: start from the listing, every step already filled in.
+        setDraft({ ...EMPTY_DRAFT, ...edit.draft });
+        setMaxReached(STEPS.length - 1);
+      } else if (raw) {
         const parsed = JSON.parse(raw) as { draft: AdDraft; step: number };
         setDraft({ ...EMPTY_DRAFT, ...parsed.draft });
         const s = Math.min(parsed.step ?? 0, STEPS.length - 1);
         setStep(s);
-        setMaxReached(s);
-      } else if (SAMPLE_USER_SHOPS.length > 0) {
-        const firstShop = SAMPLE_USER_SHOPS[0];
+        setMaxReached(edit ? STEPS.length - 1 : s);
+      } else if (shops.length > 0) {
+        const firstShop = shops[0];
         setDraft((d) => ({ ...d, sellerMode: "shop", shopId: firstShop.id }));
       }
     } catch {
       /* ignore corrupt draft */
     }
     setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Prefill phone from the signed-in seller once, if empty.
@@ -77,16 +95,16 @@ export function PostAdFlow({
   useEffect(() => {
     if (!hydrated || submitted) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft, step }));
+      localStorage.setItem(draftKey, JSON.stringify({ draft, step }));
     } catch {
       /* storage full / disabled */
     }
-  }, [draft, step, hydrated, submitted]);
+  }, [draft, step, hydrated, submitted, draftKey]);
 
   const saveDraftNow = () => {
     setSaveState("saving");
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ draft, step }));
+      localStorage.setItem(draftKey, JSON.stringify({ draft, step }));
     } catch {
       /* ignore */
     }
@@ -181,11 +199,14 @@ export function PostAdFlow({
     setSubmitting(true);
     setSubmitError("");
     try {
-      const res = await fetch("/api/listings/ad", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draft),
-      });
+      const res = await fetch(
+        edit ? `/api/listings/ad/${edit.listingId}` : "/api/listings/ad",
+        {
+          method: edit ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(draft),
+        },
+      );
       // The endpoint always resolves the flow: a real save returns ok,
       // and if the backend can't persist yet it still returns 202 so the
       // user isn't blocked by work that's out of their hands.
@@ -193,8 +214,12 @@ export function PostAdFlow({
         const data = await res.json().catch(() => ({}));
         throw new Error(data.message || "Could not publish right now.");
       }
+      if (edit) {
+        const data = await res.json().catch(() => ({}));
+        setResult({ slug: data.slug ?? "", reviewing: !!data.reviewing });
+      }
       try {
-        localStorage.removeItem(DRAFT_KEY);
+        localStorage.removeItem(draftKey);
       } catch {
         /* ignore */
       }
@@ -252,13 +277,25 @@ export function PostAdFlow({
             <CheckCircle2 className="h-8 w-8" />
           </div>
           <h2 className="mt-5 text-2xl font-bold text-[var(--color-market-text)]">
-            Your listing is in
+            {edit ? "Your changes are saved" : "Your listing is in"}
           </h2>
           <p className="mt-2 text-sm text-[var(--color-market-text-muted)]">
-            We&apos;re giving it a quick review and it&apos;ll be live within a
-            few hours. You&apos;ll get a notification the moment it goes public.
+            {!edit
+              ? "We're giving it a quick review and it'll be live within a few hours. You'll get a notification the moment it goes public."
+              : result?.reviewing
+                ? "You changed what the ad is, so it gets a quick review before buyers see the new version."
+                : "Buyers see the update right away."}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
+            {edit && result?.slug && !result.reviewing && (
+              <button
+                type="button"
+                onClick={() => router.push(`/ad/${result.slug}`)}
+                className="btn-solid rounded-full px-5 py-2.5 text-sm font-semibold"
+              >
+                <span className="text-sm font-semibold">View your ad</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => router.push("/dashboard/ads")}
@@ -266,18 +303,20 @@ export function PostAdFlow({
             >
               View my listings
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setDraft(EMPTY_DRAFT);
-                setStep(0);
-                setMaxReached(0);
-                setSubmitted(false);
-              }}
-              className="btn-outline rounded-full px-5 py-2.5 text-sm font-semibold"
-            >
-              Post another
-            </button>
+            {!edit && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft(EMPTY_DRAFT);
+                  setStep(0);
+                  setMaxReached(0);
+                  setSubmitted(false);
+                }}
+                className="btn-outline rounded-full px-5 py-2.5 text-sm font-semibold"
+              >
+                Post another
+              </button>
+            )}
           </div>
         </div>
       </>,
@@ -313,7 +352,12 @@ export function PostAdFlow({
           <StepPriceDeal draft={draft} patch={patch} errors={errors} />
         )}
         {step === 3 && (
-          <StepLocation draft={draft} patch={patch} errors={errors} />
+          <StepLocation
+            draft={draft}
+            patch={patch}
+            errors={errors}
+            shops={shops}
+          />
         )}
         {step === 4 && (
           <StepSeller
@@ -321,6 +365,7 @@ export function PostAdFlow({
             patch={patch}
             errors={errors}
             sellerName={sellerName}
+            shops={shops}
           />
         )}
         {step === 5 && (
@@ -332,7 +377,10 @@ export function PostAdFlow({
             submitting={submitting}
             submitError={submitError}
             onPublish={publish}
+            publishLabel={edit ? "Save changes" : undefined}
+            submittingLabel={edit ? "Saving…" : undefined}
             onOpenPolicy={() => setPolicyOpen(true)}
+            shops={shops}
           />
         )}
       </div>

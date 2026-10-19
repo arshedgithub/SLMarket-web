@@ -15,7 +15,7 @@ import {
   Truck,
 } from "lucide-react";
 import { categories } from "@/config/const/navLinks";
-import { SAMPLE_USER_SHOPS } from "@/lib/sampleUserShops";
+import type { UserShop } from "@/lib/business/userShops";
 import { getCoverImage, type AdDraft } from "../types";
 
 function priceText(draft: AdDraft) {
@@ -43,6 +43,9 @@ export function StepPreview({
   submitError,
   onPublish,
   onOpenPolicy,
+  shops,
+  publishLabel = "Publish Listing",
+  submittingLabel = "Publishing…",
 }: {
   draft: AdDraft;
   patch: (p: Partial<AdDraft>) => void;
@@ -52,10 +55,13 @@ export function StepPreview({
   submitError: string;
   onPublish: () => void;
   onOpenPolicy: () => void;
+  shops: UserShop[];
+  publishLabel?: string;
+  submittingLabel?: string;
 }) {
   const cat = categories.find((c) => c.id === draft.categoryId);
   const sub = cat?.subcategories.find((s) => s.id === draft.subcategoryId);
-  const shop = SAMPLE_USER_SHOPS.find((s) => s.id === draft.shopId);
+  const shop = shops.find((s) => s.id === draft.shopId);
   const coverImage = getCoverImage(draft);
 
   const checklist = [
@@ -261,7 +267,7 @@ export function StepPreview({
             className="btn-solid inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             <CheckCircle2 className="h-4 w-4" />
-            {submitting ? "Publishing…" : "Publish Listing"}
+            {submitting ? submittingLabel : publishLabel}
           </button>
         </div>
       )}

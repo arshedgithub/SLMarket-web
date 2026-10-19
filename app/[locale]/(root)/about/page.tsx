@@ -32,7 +32,7 @@ export default function About() {
         </p>
         <div className="relative w-full h-64 rounded-lg mb-8 overflow-hidden">
           <Image
-            src="/images/hero-bg.webp"
+            src="/images/ui/hero-bg.webp"
             alt="SLMarket.lk marketplace"
             fill
             sizes="(max-width: 768px) 100vw, 768px"

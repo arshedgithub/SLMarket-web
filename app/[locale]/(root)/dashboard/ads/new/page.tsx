@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { PostAdFlow } from "@/components/post-ad/PostAdFlow";
+import { getUserShops } from "@/lib/business/userShops";
 
 export const metadata: Metadata = { title: "New Listing" };
 
@@ -12,15 +13,19 @@ export default async function NewListingPage() {
     redirect("/login?next=/dashboard/ads/new");
   }
 
-  const seller = await db.user.findUnique({
-    where: { id: session.user.id },
-    select: { phone: true },
-  });
+  const [seller, shops] = await Promise.all([
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true },
+    }),
+    getUserShops(session.user.id),
+  ]);
 
   return (
     <PostAdFlow
       sellerPhone={seller?.phone ?? ""}
       sellerName={session.user.name ?? "Your account"}
+      shops={shops}
       closeHref="/dashboard/ads"
     />
   );

@@ -300,7 +300,7 @@ export function MapPreview({
     >
       <span className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
         <MapPin className="h-8 w-8 fill-rose-500 text-white drop-shadow" />
-        <span className="mt-0.5 rounded-md bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm">
+        <span className="mt-0.5 rounded-md bg-white/90 px-2 py-0.5 text-xs font-semibold text-slate-700 shadow-sm">
           {label}
         </span>
       </span>
@@ -338,7 +338,7 @@ export function HoursTable({ business }: { business: StorefrontBusiness }) {
               <th scope="row" className="py-1 pr-3 text-left font-[inherit]">
                 {row.label}
                 {isToday && (
-                  <span className="ml-1.5 rounded bg-blue-50 px-1 text-[10px] font-bold uppercase text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                  <span className="ml-1.5 rounded bg-blue-50 px-1 text-xs font-bold uppercase text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                     {t("location.today")}
                   </span>
                 )}
@@ -381,7 +381,7 @@ export function LocationSection({
               <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--color-market-text)]">
                 {b.label}
                 {b.main && (
-                  <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                  <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                     {t("location.mainBranch")}
                   </span>
                 )}

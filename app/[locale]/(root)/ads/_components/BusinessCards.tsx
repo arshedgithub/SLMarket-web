@@ -4,104 +4,157 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
-  ArrowRight,
   Award,
   BadgeCheck,
   ChevronLeft,
   ChevronRight,
   Crown,
-  Star,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { businessHref } from "@/lib/business/slug";
-import type { SampleShop } from "./data";
+import type { ShopCard } from "./data";
 
-const TIER = {
-  toprated: { icon: Award, cls: "text-amber-600" },
-  premium: { icon: Crown, cls: "text-violet-600" },
-  verified: { icon: BadgeCheck, cls: "text-blue-600" },
-} as const;
+// Fewer than this and the strip is not shown (a "featured" row of one or
+// two businesses looks empty).
+export const STRIP_MIN_BUSINESSES = 3;
+const NEW_BUSINESS_DAYS = 30;
 
-const LOGO_COLORS = [
-  "bg-[#0c1f5e]",
-  "bg-blue-600",
-  "bg-[#1557d6]",
-  "bg-pink-600",
-  "bg-[#0b5bd3]",
-];
+const isNew = (shop: ShopCard, now: number) =>
+  now - Date.parse(shop.createdAt) < NEW_BUSINESS_DAYS * 86_400_000;
 
-function BusinessCard({ shop, index }: { shop: SampleShop; index: number }) {
+function TierPill({ tier }: { tier: ShopCard["tier"] }) {
   const t = useTranslations("listings");
-  const tier = TIER[shop.tier];
-  const TierIcon = tier.icon;
+  if (tier === "premium") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-market-gold-soft)] px-2.5 py-1 text-xs font-bold text-[color:var(--color-market-gold-text)] shadow-sm ring-1 ring-[color:var(--color-market-gold-line)]">
+        <Crown aria-hidden className="h-3.5 w-3.5" />
+        {t("shops.tier.premium")}
+      </span>
+    );
+  }
+  if (tier === "toprated") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-sm">
+        <Award
+          aria-hidden
+          className="h-3.5 w-3.5 text-[color:var(--color-market-gold-text)]"
+        />
+        {t("shops.tier.toprated")}
+      </span>
+    );
+  }
+  return null;
+}
+
+function BusinessCard({ shop, now }: { shop: ShopCard; now: number }) {
+  const t = useTranslations("listings");
+  const fresh = isNew(shop, now);
 
   return (
     <Link
-      href={businessHref(shop.name)}
-      className="group flex w-full min-w-0 flex-col overflow-hidden rounded-xl bg-[var(--color-market-surface)] shadow-[0_4px_18px_rgba(15,50,120,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_26px_rgba(15,50,120,0.14)]"
+      href={`/business/${shop.slug}`}
+      className="group flex h-full w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--color-market-border)] bg-[var(--color-market-surface)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(16,33,63,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
     >
-      <div className="relative h-24">
-        <Image
-          src={shop.cover}
-          alt=""
-          fill
-          sizes="320px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <span
-          className={`absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold shadow-sm ${tier.cls}`}
-        >
-          <TierIcon className="h-3.5 w-3.5" />
-          {t(`shops.tier.${shop.tier}`)}
-        </span>
+      <div className="relative h-28 shrink-0 bg-slate-100 dark:bg-slate-800">
+        {shop.cover ? (
+          <Image
+            src={shop.cover}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 300px, (min-width: 640px) 33vw, 85vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <span
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900"
+          />
+        )}
+        <div className="absolute right-2 top-2">
+          <TierPill tier={shop.tier} />
+        </div>
       </div>
 
-      <div className="relative px-3 pb-2.5">
-        {/* Thin white ring (larger radius) around the smaller logo circle;
-            about 1/4 of it overlaps the cover, and the text is centred on the
-            part that sits in the card body. */}
-        <span className="absolute -top-[15px] left-3 flex h-[68px] w-[68px] items-center justify-center rounded-full bg-[var(--color-market-surface)] p-1.5">
-          <span
-            className={`flex h-full w-full items-center justify-center rounded-full text-base font-bold text-white ${
-              LOGO_COLORS[index % LOGO_COLORS.length]
-            }`}
-          >
-            {shop.name.slice(0, 2).toUpperCase()}
-          </span>
+      <div className="relative flex flex-1 flex-col px-4 pb-4">
+        {/* Real logo in a neutral ring; grey initials only as a fallback. */}
+        <span className="absolute -top-7 left-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border-2 border-[var(--color-market-surface)] bg-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
+          {shop.logo ? (
+            <Image
+              src={shop.logo}
+              alt=""
+              width={56}
+              height={56}
+              className="h-full w-full object-contain"
+            />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center bg-slate-100 text-sm font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              {shop.name.slice(0, 2).toUpperCase()}
+            </span>
+          )}
         </span>
 
-        <div className="flex h-[53px] items-center gap-2 pl-[80px]">
-          <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1 text-[13px] font-bold text-[var(--color-market-text)]">
-              <span className="truncate">{shop.name}</span>
-              <BadgeCheck className="h-4 w-4 shrink-0 fill-blue-600 text-white" />
+        <div className="pt-9">
+          <p className="flex items-center gap-1.5 text-[15px] font-bold text-[var(--color-market-text)]">
+            <span className="truncate">{shop.name}</span>
+            {shop.verified && (
+              <BadgeCheck
+                aria-label={t("card.verifiedTip")}
+                className="h-4 w-4 shrink-0 fill-blue-600 text-white"
+              >
+                <title>{t("card.verifiedTip")}</title>
+              </BadgeCheck>
+            )}
+            {fresh && (
+              <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                {t("shops.new")}
+              </span>
+            )}
+          </p>
+          <p className="mt-0.5 truncate text-[13px] text-[var(--color-market-text-secondary)]">
+            {shop.category}
+            {shop.location ? ` · ${shop.location}` : ""}
+          </p>
+          {shop.tagline && (
+            <p className="mt-1.5 line-clamp-2 text-[13px] leading-5 text-[var(--color-market-text-secondary)]">
+              {shop.tagline}
             </p>
-            <p className="mt-0.5 truncate text-[11px] text-[var(--color-market-text-muted)]">
-              {shop.category} &middot; {shop.location}
-            </p>
-          </div>
-
-          <div className="shrink-0 text-right">
-            <p className="flex items-center justify-end gap-1 text-[13px] font-bold text-[var(--color-market-text)]">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              {shop.rating.toFixed(1)}
-            </p>
-            <p className="mt-0.5 whitespace-nowrap text-[11px] text-[var(--color-market-text-muted)]">
-              {shop.listings} {t("shops.listings")}
-            </p>
-          </div>
+          )}
         </div>
+
+        <span className="mt-auto inline-flex items-center gap-1 pt-3 text-sm font-semibold text-blue-700 group-hover:text-blue-800 dark:text-blue-300">
+          {t("shops.viewAds", { count: shop.listings })}
+          <ChevronRight
+            aria-hidden
+            className="h-4 w-4 transition group-hover:translate-x-0.5"
+          />
+        </span>
       </div>
     </Link>
   );
 }
 
-/* Compact strip near the top: guaranteed exposure for featured businesses. */
-export function FeaturedBusinessesStrip({ shops }: { shops: SampleShop[] }) {
+/*
+ * Featured businesses: paid tiers, in tier order then the daily rotation
+ * (lib/listings/feed.ts featuredStripShops + rankShops). Whole cards per
+ * breakpoint (4 desktop, 3 tablet, one and a bit on phones), snapping,
+ * with 40px arrows only when there is something to scroll to. Businesses
+ * already shown in a spotlight slot on the page are left out, and with
+ * fewer than 3 left the strip is not shown at all.
+ */
+export function FeaturedBusinessesStrip({
+  shops,
+  now,
+  hideIds = [],
+}: {
+  shops: ShopCard[];
+  // Server time, so "New" renders the same on server and client.
+  now: number;
+  hideIds?: string[];
+}) {
   const t = useTranslations("listings");
   const ref = useRef<HTMLDivElement | null>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
+  const shown = shops.filter((s) => !hideIds.includes(s.id));
 
   const update = useCallback(() => {
     const el = ref.current;
@@ -116,83 +169,41 @@ export function FeaturedBusinessesStrip({ shops }: { shops: SampleShop[] }) {
     if (!el) return;
     update();
     el.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
     const ro =
       typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
     ro?.observe(el);
     return () => {
       el.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
       ro?.disconnect();
     };
-  }, [update]);
+  }, [update, shown.length]);
+
+  if (shown.length < STRIP_MIN_BUSINESSES) return null;
 
   const scrollBy = (dir: 1 | -1) =>
     ref.current?.scrollBy({
-      left: dir * Math.round(ref.current.clientWidth * 0.8),
+      left: dir * ref.current.clientWidth,
       behavior: "smooth",
     });
 
-  // Auto-advance so the featured slots get exposure without a click, same
-  // pause-on-manual-scroll behaviour as the homepage rails.
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let pausedUntil = 0;
-    let programmatic = false;
-    let programmaticTimer: number | undefined;
-
-    const onScroll = () => {
-      if (programmatic) return;
-      pausedUntil = Date.now() + 6000;
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-
-    const id = window.setInterval(() => {
-      if (Date.now() < pausedUntil) return;
-      const overflow = el.scrollWidth - el.clientWidth;
-      if (overflow <= 8) return;
-
-      programmatic = true;
-      window.clearTimeout(programmaticTimer);
-      programmaticTimer = window.setTimeout(() => {
-        programmatic = false;
-      }, 1600);
-
-      if (el.scrollLeft >= overflow - 8) {
-        el.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        el.scrollBy({
-          left: Math.round(el.clientWidth * 0.9),
-          behavior: "smooth",
-        });
-      }
-    }, 3500);
-
-    return () => {
-      window.clearInterval(id);
-      window.clearTimeout(programmaticTimer);
-      el.removeEventListener("scroll", onScroll);
-    };
-  }, []);
-
-  if (shops.length === 0) return null;
-
+  const scrollable = canLeft || canRight;
   const arrowCls =
-    "hidden h-8 w-8 items-center justify-center rounded-full border border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text)] transition hover:border-blue-300 hover:text-blue-600 disabled:opacity-40 lg:flex";
+    "hidden h-10 w-10 items-center justify-center rounded-full border border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text)] shadow-sm transition hover:border-blue-300 hover:text-blue-600 disabled:opacity-40 sm:flex";
+  const fade = `linear-gradient(to right, ${canLeft ? "transparent, black 24px" : "black"}, ${
+    canRight ? "black calc(100% - 24px), transparent" : "black"
+  })`;
 
   return (
-    <section>
-      <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-        <div className="flex min-w-0 items-center gap-3">
-          <Star className="h-6 w-6 shrink-0 fill-amber-400 text-amber-400" />
-          <h2 className="font-heading text-lg font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-xl">
+    <section aria-labelledby="featured-businesses">
+      <div className="mb-4 flex flex-wrap items-end gap-x-4 gap-y-1">
+        <div className="min-w-0">
+          <h2
+            id="featured-businesses"
+            className="font-heading text-xl font-extrabold tracking-tight text-[var(--color-market-text)] sm:text-2xl"
+          >
             {t("shops.heading")}
           </h2>
-          <span className="hidden h-5 w-px bg-[var(--color-market-border-strong)] md:block" />
-          <p className="hidden truncate text-sm text-[var(--color-market-text-muted)] md:block">
+          <p className="mt-0.5 text-sm text-[var(--color-market-text-secondary)]">
             {t("shops.subheading")}
           </p>
         </div>
@@ -200,42 +211,47 @@ export function FeaturedBusinessesStrip({ shops }: { shops: SampleShop[] }) {
         <div className="ml-auto flex items-center gap-2">
           <Link
             href="/businesses"
-            className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-blue-600 hover:text-blue-700"
+            className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-300"
           >
             {t("shops.exploreAll")}
-            <ArrowRight className="h-4 w-4" />
+            <ChevronRight aria-hidden className="h-4 w-4" />
           </Link>
-          <button
-            type="button"
-            onClick={() => scrollBy(-1)}
-            disabled={!canLeft}
-            aria-label={t("shops.scrollLeft")}
-            className={arrowCls}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollBy(1)}
-            disabled={!canRight}
-            aria-label={t("shops.scrollRight")}
-            className={arrowCls}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          {scrollable && (
+            <>
+              <button
+                type="button"
+                onClick={() => scrollBy(-1)}
+                disabled={!canLeft}
+                aria-label={t("shops.scrollLeft")}
+                className={arrowCls}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollBy(1)}
+                disabled={!canRight}
+                aria-label={t("shops.scrollRight")}
+                className={arrowCls}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       <div
         ref={ref}
-        className="scrollbar-hide flex snap-x gap-3 overflow-x-auto pb-1 pt-1"
+        className="scrollbar-hide -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 pt-1 sm:gap-4"
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
       >
-        {shops.map((shop, i) => (
+        {shown.map((shop) => (
           <div
-            key={shop.name}
-            className="w-[310px] shrink-0 snap-start sm:w-[320px]"
+            key={shop.id}
+            className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3rem)/4)]"
           >
-            <BusinessCard shop={shop} index={i} />
+            <BusinessCard shop={shop} now={now} />
           </div>
         ))}
       </div>

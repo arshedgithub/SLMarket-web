@@ -5,7 +5,7 @@ import type { DirectoryBusiness, DirectoryItem } from "./types";
 /*
  * The search behaviour, as pure functions: typo tolerance, synonyms, price
  * terms ("under 1 lakh", "50k"), brands ("Apple dealer Kandy") and a
- * district. It runs over the sample data today; the same rules map onto a
+ * district. It runs over the directory in memory today; the same rules map onto a
  * real engine (Typesense, Meilisearch, OpenSearch) with two indexes:
  * businesses, and ads grouped by business.
  */

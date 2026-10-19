@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { Pagination } from "@/app/[locale]/(root)/ads/_components/Pagination";
-import { useIsMdUp } from "@/app/[locale]/(root)/ads/_components/SponsoredUnit";
+import { useIsMdUp } from "@/hooks/useMediaQuery";
 import { priceDropPercent } from "@/lib/business/pricing";
 import {
   activeOffers,
@@ -187,7 +187,7 @@ export function CollectionsSection({
             <span className="mt-1.5 block truncate px-0.5 text-[13px] font-semibold text-[var(--color-market-text)]">
               {nameOf(c)}
             </span>
-            <span className="block px-0.5 text-[11px] text-[var(--color-market-text-muted)]">
+            <span className="block px-0.5 text-xs text-[var(--color-market-text-muted)]">
               {t("collections.count", { count: c.count })}
             </span>
           </button>
@@ -315,7 +315,7 @@ export function OffersSection({ business }: { business: StorefrontBusiness }) {
                   style={cropStyle(o.crop)}
                 />
               )}
-              <span className="absolute left-1.5 top-1.5 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+              <span className="absolute left-1.5 top-1.5 rounded-md bg-rose-600 px-1.5 py-0.5 text-xs font-bold text-white">
                 {o.badge}
               </span>
             </span>
@@ -373,12 +373,12 @@ export function BrandsSection({ business }: { business: StorefrontBusiness }) {
                 <span className="text-lg font-extrabold tracking-tight text-[var(--color-market-text)]">
                   {b.name}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
+                <span className="flex items-center gap-1 text-xs font-semibold text-blue-700 dark:text-blue-300">
                   <BadgeCheck className="h-3.5 w-3.5 fill-blue-600 text-white" />
                   {t("brands.authorised")}
                 </span>
                 {b.proofVerifiedAt && (
-                  <span className="text-[11px] text-[var(--color-market-text-muted)]">
+                  <span className="text-xs text-[var(--color-market-text-muted)]">
                     {t("brands.proof", {
                       date: formatDate(b.proofVerifiedAt, locale),
                     })}
@@ -666,7 +666,7 @@ export function AllProductsSection({
             <SlidersHorizontal className="h-4 w-4" />
             {t("filters.title")}
             {activeCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs font-bold text-white">
                 {activeCount}
               </span>
             )}
@@ -691,7 +691,7 @@ export function AllProductsSection({
               >
                 {id === "all" ? t("catalogue.all") : humanize(id)}
                 <span
-                  className={`text-[11px] ${filters.category === id ? "text-white/80" : "text-[var(--color-market-text-muted)]"}`}
+                  className={`text-xs ${filters.category === id ? "text-white/80" : "text-[var(--color-market-text-muted)]"}`}
                 >
                   {count}
                 </span>

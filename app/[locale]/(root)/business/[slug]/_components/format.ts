@@ -33,7 +33,7 @@ export function useNow(intervalMs = 60_000) {
   return now;
 }
 
-// A different part of a shared sample photo.
+// Show one part of a photo: focal point and zoom.
 export function cropStyle(crop?: ImageCrop): CSSProperties | undefined {
   if (!crop) return undefined;
   return {

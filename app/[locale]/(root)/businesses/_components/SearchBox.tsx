@@ -110,7 +110,7 @@ export function SearchBox({
   const row =
     "flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-[var(--color-market-text)] hover:bg-[var(--color-market-blue-light)]";
   const heading =
-    "px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-[var(--color-market-text-muted)]";
+    "px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-wide text-[var(--color-market-text-muted)]";
 
   return (
     <div ref={wrapRef} className="relative min-w-0 flex-1">
@@ -211,7 +211,7 @@ export function SearchBox({
                     <span className="truncate font-semibold">
                       {sponsoredSuggestion.name}
                     </span>
-                    <span className="ml-auto shrink-0 rounded-full bg-slate-900/75 px-2 py-0.5 text-[10px] font-semibold text-white">
+                    <span className="ml-auto shrink-0 rounded-full bg-slate-900/75 px-2 py-0.5 text-xs font-semibold text-white">
                       {t("directory.sponsored")}
                     </span>
                   </button>

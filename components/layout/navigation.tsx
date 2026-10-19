@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -31,8 +31,8 @@ import {
 } from "lucide-react";
 import { categories } from "@/config/const/navLinks";
 import { categoryIcon } from "@/config/const/categoryIcons";
-import { POPULAR_SEARCHES } from "@/config/const/popularSearches";
-import { SAMPLE_USER_SHOPS } from "@/lib/sampleUserShops";
+import type { PopularSearch } from "@/lib/listings/popularSearches";
+import type { UserShop } from "@/lib/business/userShops";
 import { useCategoryModalStore } from "@/store/categoryModalStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useTheme } from "next-themes";
@@ -45,8 +45,10 @@ import type { MegaMenuAdSlide } from "@/lib/getMegaMenuAds";
 
 export default function Navigation({
   megaMenuAds,
+  popularSearches = [],
 }: {
   megaMenuAds?: MegaMenuAdSlide[];
+  popularSearches?: PopularSearch[];
 }) {
   const t = useTranslations("nav");
   const tCategories = useTranslations("categories");
@@ -74,16 +76,37 @@ export default function Navigation({
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const catHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   // Listing pages carry their own one-row mobile header (logo mark +
   // search + location), so the global top bar is desktop/tablet only there.
   const onBusinessPage =
     pathname.startsWith("/business/") && pathname !== "/business/new";
   const onListingPage = pathname.startsWith("/ads") || onBusinessPage;
+  // An ad page has its own sticky contact bar in place of the bottom nav.
+  const onAdPage = pathname.startsWith("/ad/");
   const [hideBottomNav, setHideBottomNav] = useState(false);
 
   const { isDarkMode, toggleDarkMode } = useThemeStore();
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+
+  // The signed-in user's businesses, for the account menu.
+  const [myShops, setMyShops] = useState<UserShop[]>([]);
+  const userId = session?.user?.id;
+  useEffect(() => {
+    if (!userId) {
+      setMyShops([]);
+      return;
+    }
+    let live = true;
+    fetch("/api/user/businesses")
+      .then((r) => (r.ok ? r.json() : { shops: [] }))
+      .then((d: { shops?: UserShop[] }) => live && setMyShops(d.shops ?? []))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [userId]);
 
   const adSlides = megaMenuAds && megaMenuAds.length > 0 ? megaMenuAds : [];
   const activeAd = adSlides[adIndex % Math.max(adSlides.length, 1)];
@@ -162,6 +185,24 @@ export default function Navigation({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // A compact search takes the place of the main links once the page is
+  // scrolled past its own search (not on /ads, which keeps its search bar
+  // and filters at hand).
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  const [headerQuery, setHeaderQuery] = useState("");
+  useEffect(() => {
+    const onScroll = () => setScrolledPastHero(window.scrollY > 360);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const showHeaderSearch = scrolledPastHero && !pathname.startsWith("/ads");
+  const submitHeaderSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = headerQuery.trim();
+    router.push(q ? `/ads?q=${encodeURIComponent(q)}` : "/ads");
+  };
+
   const changeTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
     toggleDarkMode();
@@ -222,27 +263,27 @@ export default function Navigation({
         </div>
         <div className="border-b border-border px-4 py-3">
           <div className="mb-1.5 flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-light-text">
+            <p className="text-xs font-semibold uppercase tracking-wide text-light-text">
               {t("yourBusinesses")}
             </p>
             <Link
               href="/dashboard"
               onClick={() => setIsProfileMenuOpen(false)}
-              className="flex items-center gap-0.5 text-[11px] font-semibold text-primary hover:underline"
+              className="flex items-center gap-0.5 text-xs font-semibold text-primary hover:underline"
             >
               {t("manageAll")}
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
           <div className="space-y-0.5">
-            {SAMPLE_USER_SHOPS.map((shop, i) => (
+            {myShops.map((shop, i) => (
               <Link
                 key={shop.id}
                 href="/dashboard"
                 onClick={() => setIsProfileMenuOpen(false)}
                 className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-text hover:bg-background"
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   {shop.name.slice(0, 2).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{shop.name}</span>
@@ -250,7 +291,7 @@ export default function Navigation({
                   <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
                 )}
                 {i === 0 && (
-                  <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                  <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                     {t("active")}
                   </span>
                 )}
@@ -348,7 +389,8 @@ export default function Navigation({
             {/* Logo */}
             <Link
               href="/"
-              className="flex flex-shrink-0 flex-col justify-center"
+              aria-label="SLMarket.lk"
+              className="flex flex-shrink-0 items-center"
             >
               <Image
                 src="/logo.webp"
@@ -356,73 +398,68 @@ export default function Navigation({
                 width={760}
                 height={147}
                 priority
-                className="relative -top-1.25 h-7 w-auto sm:h-8"
+                className="h-7 w-auto sm:h-8"
               />
-              <span className="hidden -mt-0.5 text-[10px] font-medium italic text-light-text lg:block">
-                {t("tagline")}
-              </span>
             </Link>
 
-            {/* Center nav (tablet — a condensed row: no Deals) */}
-            <div className="hidden items-center gap-2.5 md:flex lg:hidden">
-              <button
-                type="button"
-                onClick={openCatModal}
-                className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
+            {/* Center: the main links, or (once the page is scrolled) a
+                compact search so it never takes a trip back to the top. */}
+            {showHeaderSearch ? (
+              <form
+                role="search"
+                onSubmit={submitHeaderSearch}
+                className="hidden min-w-0 max-w-md flex-1 items-center gap-2 rounded-xl border border-border bg-background px-3 md:flex"
               >
-                <LayoutGrid className="h-4 w-4" />
-                {t("categories")}
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-              <Link
-                href="/businesses"
-                className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <Store className="h-4 w-4" />
-                {t("businesses")}
-              </Link>
-              <Link
-                href="/help/contact"
-                className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <HelpCircle className="h-4 w-4" />
-                {t("help")}
-              </Link>
-            </div>
-
-            {/* Center nav (desktop) */}
-            <div className="hidden items-center gap-5 lg:flex lg:gap-7">
-              <button
-                type="button"
-                onClick={openCatModal}
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                {t("categories")}
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-              <Link
-                href="/ads/deals"
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <Tag className="h-4 w-4" />
-                {t("deals")}
-              </Link>
-              <Link
-                href="/businesses"
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <Store className="h-4 w-4" />
-                {t("businesses")}
-              </Link>
-              <Link
-                href="/help/contact"
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-text transition-colors hover:text-primary"
-              >
-                <HelpCircle className="h-4 w-4" />
-                {t("help")}
-              </Link>
-            </div>
+                <Search
+                  aria-hidden
+                  className="h-4 w-4 shrink-0 text-light-text"
+                />
+                <input
+                  type="search"
+                  enterKeyHint="search"
+                  value={headerQuery}
+                  onChange={(e) => setHeaderQuery(e.target.value)}
+                  placeholder={t("searchPlaceholder")}
+                  aria-label={t("searchPlaceholder")}
+                  className="h-10 min-w-0 flex-1 bg-transparent text-[15px] text-text outline-none placeholder:text-light-text"
+                />
+              </form>
+            ) : (
+              <div className="hidden items-center gap-5 md:flex lg:gap-8">
+                <button
+                  type="button"
+                  onClick={openCatModal}
+                  aria-haspopup="dialog"
+                  aria-expanded={isCatModalOpen}
+                  className="flex items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold text-text transition-colors hover:text-primary"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  {t("browseAds")}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+                <Link
+                  href="/ads/deals"
+                  className="hidden items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold text-text transition-colors hover:text-primary lg:flex"
+                >
+                  <Tag className="h-4 w-4" />
+                  {t("deals")}
+                </Link>
+                <Link
+                  href="/businesses"
+                  className="hidden items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold text-text transition-colors hover:text-primary lg:flex"
+                >
+                  <Store className="h-4 w-4" />
+                  {t("businesses")}
+                </Link>
+                <Link
+                  href="/help"
+                  className="hidden items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold text-text transition-colors hover:text-primary lg:flex"
+                >
+                  <HelpCircle className="h-4 w-4" />
+                  {t("help")}
+                </Link>
+              </div>
+            )}
 
             {/* Right cluster (tablet) */}
             <div className="hidden items-center gap-1 md:flex lg:hidden">
@@ -449,7 +486,7 @@ export default function Navigation({
                   >
                     <Bell className="h-5 w-5" />
                     {unreadNotificationsTotal > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-premium text-[10px] text-white">
+                      <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-premium px-1 text-xs text-white">
                         {unreadNotificationsTotal > 9
                           ? "9+"
                           : unreadNotificationsTotal}
@@ -484,7 +521,7 @@ export default function Navigation({
                   {isProfileMenuOpen && renderProfileDropdown("below")}
                 </div>
               ) : (
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1.5">
                   <Link
                     href="/login"
                     className="whitespace-nowrap px-1.5 py-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
@@ -492,17 +529,11 @@ export default function Navigation({
                     {t("signIn")}
                   </Link>
                   <Link
-                    href="/register"
-                    className="btn-outline whitespace-nowrap rounded-xl px-2 py-2 text-sm font-semibold"
-                  >
-                    {t("register")}
-                  </Link>
-                  <Link
                     href="/post-ad"
-                    aria-label={t("postFreeAd")}
-                    className="btn-solid flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                    className="btn-solid flex items-center gap-1 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold"
                   >
                     <Plus className="h-4 w-4" />
+                    {t("postFreeAd")}
                   </Link>
                 </div>
               )}
@@ -510,7 +541,12 @@ export default function Navigation({
 
             {/* Right cluster (desktop) */}
             <div className="hidden items-center gap-2 lg:flex">
-              <LanguageSwitcher />
+              <div className="xl:hidden">
+                <LanguageSwitcher compact />
+              </div>
+              <div className="hidden xl:block">
+                <LanguageSwitcher />
+              </div>
 
               <button
                 onClick={changeTheme}
@@ -534,7 +570,7 @@ export default function Navigation({
                     >
                       <Bell className="h-5 w-5" />
                       {unreadNotificationsTotal > 0 && (
-                        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-premium text-[10px] text-white">
+                        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-premium px-1 text-xs text-white">
                           {unreadNotificationsTotal > 9
                             ? "9+"
                             : unreadNotificationsTotal}
@@ -579,15 +615,9 @@ export default function Navigation({
                 <div className="flex items-center gap-2">
                   <Link
                     href="/login"
-                    className="whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-text transition-colors hover:text-primary"
+                    className="whitespace-nowrap px-3 py-1.5 text-[15px] font-semibold text-text transition-colors hover:text-primary"
                   >
-                    {t("signIn")}
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="btn-outline whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold"
-                  >
-                    {t("register")}
+                    {t("signInRegister")}
                   </Link>
                   <Link
                     href="/post-ad"
@@ -796,7 +826,7 @@ export default function Navigation({
       <nav
         aria-label="Mobile navigation"
         className={`fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] transition-transform duration-200 dark:bg-[#0c1422] md:hidden ${
-          (hideBottomNav && !isBottomAccountOpen) || onBusinessPage
+          (hideBottomNav && !isBottomAccountOpen) || onBusinessPage || onAdPage
             ? "translate-y-full"
             : ""
         }`}
@@ -805,7 +835,7 @@ export default function Navigation({
           <Link
             href="/"
             aria-current={pathname === "/" ? "page" : undefined}
-            className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+            className={`flex flex-col items-center gap-0.5 py-2 text-xs font-medium ${
               pathname === "/" ? "text-primary" : "text-light-text"
             }`}
           >
@@ -816,7 +846,7 @@ export default function Navigation({
           <Link
             href="/ads"
             aria-current={pathname.startsWith("/ads") ? "page" : undefined}
-            className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+            className={`flex flex-col items-center gap-0.5 py-2 text-xs font-medium ${
               pathname.startsWith("/ads") ? "text-primary" : "text-light-text"
             }`}
           >
@@ -837,7 +867,7 @@ export default function Navigation({
           <Link
             href="/messages"
             aria-current={pathname.startsWith("/messages") ? "page" : undefined}
-            className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+            className={`flex flex-col items-center gap-0.5 py-2 text-xs font-medium ${
               pathname.startsWith("/messages")
                 ? "text-primary"
                 : "text-light-text"
@@ -846,7 +876,7 @@ export default function Navigation({
             <span className="relative">
               <MessageCircle className="h-5 w-5" />
               {unreadMessagesTotal > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-premium text-[9px] text-white">
+                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-premium px-1 text-xs text-white">
                   {unreadMessagesTotal > 9 ? "9+" : unreadMessagesTotal}
                 </span>
               )}
@@ -859,7 +889,7 @@ export default function Navigation({
               type="button"
               onClick={() => setIsBottomAccountOpen((prev) => !prev)}
               aria-expanded={isBottomAccountOpen}
-              className={`flex w-full flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+              className={`flex w-full flex-col items-center gap-0.5 py-2 text-xs font-medium ${
                 isBottomAccountOpen ||
                 pathname.startsWith("/dashboard") ||
                 pathname.startsWith("/account")
@@ -1030,7 +1060,7 @@ export default function Navigation({
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                    <span className="absolute left-3 top-3 rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+                    <span className="absolute left-3 top-3 rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
                       {t("megaMenu.sponsored")}
                     </span>
                     {adSlides.length > 1 && (
@@ -1074,22 +1104,24 @@ export default function Navigation({
               )}
             </div>
 
-            {/* Popular searches */}
-            <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
-              <span className="text-xs font-medium text-light-text">
-                {t("megaMenu.popularSearches")}:
-              </span>
-              {POPULAR_SEARCHES.map((s) => (
-                <Link
-                  key={s.label}
-                  href={s.href}
-                  onClick={() => closeCatModal()}
-                  className="rounded-full border border-border bg-background px-3 py-1 text-[11px] font-medium text-light-text transition-colors hover:border-primary/40 hover:text-primary"
-                >
-                  {s.label}
-                </Link>
-              ))}
-            </div>
+            {/* Popular searches (the live list: lib/listings/popularSearches.ts) */}
+            {popularSearches.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
+                <span className="text-[13px] font-semibold text-light-text">
+                  {t("megaMenu.popularSearches")}:
+                </span>
+                {popularSearches.map((s) => (
+                  <Link
+                    key={s.label}
+                    href={s.href}
+                    onClick={() => closeCatModal()}
+                    className="inline-flex h-8 items-center rounded-full border border-border bg-background px-3 text-[13px] font-medium text-light-text transition-colors hover:border-primary/40 hover:text-primary"
+                  >
+                    {s.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}

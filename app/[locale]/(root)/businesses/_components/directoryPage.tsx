@@ -9,7 +9,7 @@ import {
   DIRECTORY_CATEGORY_ORDER,
 } from "@/lib/business/directory/seo";
 import { isListed, runDirectory } from "@/lib/business/directory/query";
-import { getSampleDirectory } from "@/lib/business/directory/sampleDirectory";
+import { getDirectory } from "@/lib/business/directory/fromDatabase";
 import { DEFAULT_FILTERS } from "@/lib/business/directory/types";
 import { getStorefront } from "@/lib/business/getStorefront";
 import { localeAlternates } from "@/lib/seo/hreflang";
@@ -74,9 +74,9 @@ function pathOf(base: DirectoryBase) {
   return `/businesses/${base.category}`;
 }
 
-function countFor(base: DirectoryBase) {
+async function countFor(base: DirectoryBase) {
   return runDirectory(
-    getSampleDirectory(),
+    await getDirectory(),
     {
       ...DEFAULT_FILTERS,
       category: base.category,
@@ -96,7 +96,7 @@ export async function buildDirectoryMetadata(
   const t = await getTranslations({ locale, namespace: "businesses" });
   const names = await categoryNames(locale);
   const path = pathOf(base);
-  const n = countFor(base);
+  const n = await countFor(base);
   const place = base.district ?? t("directory.sriLanka");
 
   let title: string;
@@ -147,7 +147,7 @@ export async function DirectoryPage({
   setRequestLocale(locale);
   const base = await resolveRoute(locale, route);
   const names = await categoryNames(locale);
-  const all = getSampleDirectory().filter(isListed);
+  const all = (await getDirectory()).filter(isListed);
   const t = await getTranslations({ locale, namespace: "businesses" });
 
   const first = runDirectory(

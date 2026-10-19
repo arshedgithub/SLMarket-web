@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bell,
   LayoutDashboard,
   Package,
   MessageSquare,
@@ -24,6 +25,12 @@ const navItems = [
     href: "/dashboard/enquiries",
     label: "Enquiries",
     icon: MessageSquare,
+    exact: false,
+  },
+  {
+    href: "/dashboard/saved-searches",
+    label: "Saved searches",
+    icon: Bell,
     exact: false,
   },
   {

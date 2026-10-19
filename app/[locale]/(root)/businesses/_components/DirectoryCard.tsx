@@ -142,7 +142,7 @@ function MetaLine({
           </span>
         </span>
       ) : (
-        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
           {t("directory.newBadge")}
         </span>
       )}
@@ -214,7 +214,7 @@ function Chips({ b }: { b: DirectoryBusiness }) {
         <li
           key={key}
           title={label}
-          className="flex h-7 min-w-0 items-center gap-1 rounded-lg border border-[var(--color-market-border)] bg-[var(--color-market-surface-soft)] px-1.5 text-[11px] font-medium text-[var(--color-market-text-secondary)]"
+          className="flex h-7 min-w-0 items-center gap-1 rounded-lg border border-[var(--color-market-border)] bg-[var(--color-market-surface-soft)] px-1.5 text-xs font-medium text-[var(--color-market-text-secondary)]"
         >
           <Icon className="h-3.5 w-3.5 shrink-0 text-blue-600" />
           <span className="truncate">{label}</span>
@@ -237,7 +237,7 @@ function ResponseLine({
   const label = labelForSurface(responseLabelFor(b.response), "sponsored");
   if (!label && !withCount) return null;
   return (
-    <p className="flex items-center justify-between gap-2 text-[11px] font-medium text-[var(--color-market-text-secondary)]">
+    <p className="flex items-center justify-between gap-2 text-xs font-medium text-[var(--color-market-text-secondary)]">
       {label ? (
         <span
           className="flex min-w-0 items-center gap-1"
@@ -449,7 +449,7 @@ export function DirectoryCard({
 
   const matches =
     result.matchedItems.length > 0 && result.priceRange ? (
-      <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+      <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
         {t("directory.matches", {
           count: result.matchedItems.length,
           price: rs(result.priceRange.min),
@@ -483,7 +483,7 @@ export function DirectoryCard({
   );
 
   const pill = sponsored && (
-    <span className="rounded-full bg-slate-900/75 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+    <span className="rounded-full bg-slate-900/75 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
       {t("directory.sponsored")}
     </span>
   );
