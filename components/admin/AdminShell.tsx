@@ -17,6 +17,7 @@ import {
   Bell,
   User,
   Percent,
+  Megaphone,
 } from "lucide-react";
 import { colors } from "@/lib/theme/colors";
 
@@ -49,6 +50,11 @@ export default function AdminShell({ children }: AdminShellProps) {
       label: "Analytics",
       href: "/admin/analytics",
       icon: <BarChart3 className="w-5 h-5" />,
+    },
+    {
+      label: "Spotlight",
+      href: "/admin/spotlight",
+      icon: <Megaphone className="w-5 h-5" />,
     },
     {
       label: "Coupons",

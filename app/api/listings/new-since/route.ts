@@ -13,11 +13,20 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const counts = await db.listing.groupBy({
-    by: ["categoryId"],
-    where: { status: "ACTIVE", createdAt: { gt: sinceDate } },
-    _count: true,
-  });
+  let counts;
+  try {
+    counts = await db.listing.groupBy({
+      by: ["categoryId"],
+      where: { status: "ACTIVE", createdAt: { gt: sinceDate } },
+      _count: true,
+    });
+  } catch {
+    // "What's new" is optional; a database outage shouldn't be a 500.
+    return NextResponse.json(
+      { message: "Temporarily unavailable" },
+      { status: 503 },
+    );
+  }
 
   return NextResponse.json({
     categories: counts.map((c) => ({

@@ -98,14 +98,14 @@ export function CertificationUploader({
             {isPdf(src) ? (
               <div className="flex flex-col items-center gap-1 px-2 text-center">
                 <FileText className="w-8 h-8 text-red-400" />
-                <span className="text-[9px] text-gray-500 truncate w-full text-center">
+                <span className="text-xs text-gray-500 truncate w-full text-center">
                   {getFilename(src)}
                 </span>
                 <a
                   href={src}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[9px] text-blue-500 hover:underline"
+                  className="text-xs text-blue-500 hover:underline"
                 >
                   View PDF
                 </a>
@@ -138,9 +138,7 @@ export function CertificationUploader({
                 <Upload className="w-3 h-3" />
               </div>
             )}
-            <span className="text-[10px] mt-1 text-center px-1">
-              Image or PDF
-            </span>
+            <span className="text-xs mt-1 text-center px-1">Image or PDF</span>
             <input
               type="file"
               accept={ACCEPTED}

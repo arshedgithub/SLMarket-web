@@ -434,7 +434,7 @@ export function SubscriptionPlans({
                 {cycle === "ANNUAL" &&
                   pricing.couponApplies &&
                   !couponUsableAtCheckout && (
-                    <p className="text-[11px] text-gray-400 text-center mt-2">
+                    <p className="text-xs text-gray-400 text-center mt-2">
                       Annual checkout coming soon
                     </p>
                   )}

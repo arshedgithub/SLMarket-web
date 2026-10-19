@@ -75,8 +75,17 @@
   --color-market-surface-soft: #f8fbff;
 
   --color-market-text: #10213f;
-  --color-market-text-secondary: #475569;
-  --color-market-text-muted: #64748b;
+  /* Secondary text 7.6:1 and muted text 4.8:1 on white (WCAG AA). */
+  --color-market-text-secondary: #4b5563;
+  --color-market-text-muted: #6b7280;
+  --color-market-price: #0f172a;
+
+  /* The one accent next to brand blue: gold, for Featured, Premium and
+     sponsored slots. Green only means success, verified or a deal. */
+  --color-market-gold-soft: #fdf3d7;
+  --color-market-gold-text: #7a5a10;
+  --color-market-gold-line: #e7cf8f;
+  --color-market-gold-tint: #fffbf0;
 
   --color-market-border: #e4ebf5;
   --color-market-border-strong: #d4dfef;
@@ -100,7 +109,7 @@
   --color-surface: #ffffff;
   --color-border: #e4ebf5;
   --color-text: #10213f;
-  --color-light-text: #64748b;
+  --color-light-text: #6b7280;
 
   /*
    * ============================================================
@@ -153,7 +162,13 @@
 
   --color-market-text: #f3f7ff;
   --color-market-text-secondary: #c4cfde;
-  --color-market-text-muted: #94a3b8;
+  --color-market-text-muted: #a3b1c4;
+  --color-market-price: #f3f7ff;
+
+  --color-market-gold-soft: #3a2f12;
+  --color-market-gold-text: #f2d58a;
+  --color-market-gold-line: #6b5520;
+  --color-market-gold-tint: #1c1a12;
 
   --color-market-border: #263852;
   --color-market-border-strong: #334966;
@@ -206,12 +221,29 @@ body {
     color 0.25s ease;
 }
 
-button,
-a,
-input,
-select,
-textarea {
-  font: inherit;
+/* In the base layer so Tailwind's text-size, weight and line-height
+   utilities on links, buttons and inputs win over it (unlayered, it
+   silently overrode every one of them). */
+@layer base {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  /* Placeholders at 4.5:1 or better on white and on the dark surface. */
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280;
+    opacity: 1;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #94a3b8;
+  }
 }
 
 button {
@@ -279,7 +311,7 @@ button {
 }
 
 /*
- * Full-bleed hero photo (public/images/hero-bg.webp).
+ * Full-bleed hero photo (public/images/ui/hero-bg.webp).
  */
 
 .marketplace-hero-photo {
@@ -550,8 +582,9 @@ button {
 .market-listing-card {
   overflow: hidden;
   background: var(--color-market-surface);
-  border: 1px solid var(--color-market-border);
+  border: 1px solid var(--card-border, var(--color-market-border));
   border-radius: 17px;
+  box-shadow: var(--card-shadow, none);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -560,9 +593,35 @@ button {
 
 .market-listing-card:hover {
   transform: translateY(-2px);
-  border-color: #c4d5ef;
+  border-color: var(--card-border-hover, #c4d5ef);
   box-shadow:
     0 15px 35px rgba(31, 76, 150, 0.1);
+}
+
+/* Paid tiers keep a subtle accent edge, also on hover. */
+.market-listing-card[data-tier="featured"] {
+  --card-border: var(--color-market-gold-line);
+  --card-border-hover: #c9a24b;
+}
+
+/* The card link is stretched over the card; ring the whole card when it
+   has keyboard focus. */
+.market-listing-card:has(:focus-visible) {
+  outline: 2px solid var(--color-market-blue);
+  outline-offset: 2px;
+}
+
+.market-listing-card[data-tier="premium"] {
+  --card-border: #e6c879;
+  --card-border-hover: #c9a24b;
+}
+
+/* Ads results page, light theme: a cooler page tone and a resting shadow
+   so white cards keep a defined edge. */
+html:not(.dark) .ads-page {
+  --color-market-background: #f1f4f9;
+  --card-border: #e2e8f0;
+  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 /*
@@ -669,6 +728,128 @@ button {
 }
 
 /*
+ * Premium business card (paid storefront slot in the ads grid).
+ * Same values in light and dark: the card is always navy.
+ */
+
+:root {
+  --premium-navy-1: #0b1f4b;
+  --premium-navy-2: #14367f;
+  --premium-gold-1: #e6c879;
+  --premium-gold-2: #c9a24b;
+  --premium-gold-3: #a8812f;
+  --premium-surface: linear-gradient(
+    145deg,
+    var(--premium-navy-1) 0%,
+    var(--premium-navy-2) 100%
+  );
+  --premium-gold: linear-gradient(
+    135deg,
+    var(--premium-gold-1),
+    var(--premium-gold-2),
+    var(--premium-gold-3)
+  );
+  --premium-meta: rgba(255, 255, 255, 0.72);
+  --premium-shadow:
+    0 1px 2px rgba(11, 31, 75, 0.12), 0 12px 32px rgba(11, 31, 75, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --premium-shadow-hover:
+    0 2px 4px rgba(11, 31, 75, 0.16), 0 20px 44px rgba(11, 31, 75, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.premium-shop-card {
+  position: relative;
+  border-radius: 16px;
+  background: var(--premium-surface);
+  box-shadow: var(--premium-shadow);
+  color: #fff;
+}
+
+/* 1px gold gradient border, drawn above the cover so it never gets hidden. */
+.premium-shop-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--premium-gold);
+  opacity: 0.6;
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.premium-shop-card:hover {
+  box-shadow: var(--premium-shadow-hover);
+}
+
+.premium-shop-card:has(a:focus-visible) {
+  outline: 2px solid var(--premium-gold-1);
+  outline-offset: 3px;
+}
+
+/* Branded banner used when the business has no cover of its own. */
+.premium-shop-cover {
+  background:
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(230, 200, 121, 0.3),
+      transparent 55%
+    ),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.04) 0 2px,
+      transparent 2px 14px
+    ),
+    linear-gradient(135deg, #081738 0%, #1d4aa8 100%);
+}
+
+.premium-shop-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+}
+
+@keyframes premium-shine {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .premium-shop-card {
+    transition:
+      transform 200ms ease-out,
+      box-shadow 200ms ease-out;
+  }
+
+  .premium-shop-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .premium-shop-card:active {
+    transform: translateY(-1px);
+  }
+
+  .premium-shop-card:hover .premium-shop-shine {
+    animation: premium-shine 900ms ease-out 1 forwards;
+  }
+}
+
+/*
  * Accessibility
  */
 
@@ -708,4 +889,28 @@ button {
   .market-section-card {
     border-radius: 18px;
   }
+}
+
+/* Keyboard focus is always visible. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-market-blue);
+  outline-offset: 2px;
+}
+
+/* "Skip to content": hidden until focused with the keyboard. */
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: -60px;
+  z-index: 1000;
+  border-radius: 10px;
+  background: var(--color-market-blue);
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: top 0.15s;
+}
+.skip-link:focus {
+  top: 12px;
 }

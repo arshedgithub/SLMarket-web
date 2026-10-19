@@ -4,6 +4,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // The floating "N" badge is dev-only; off so it never shows in demos.
+  devIndicators: false,
   images: {
     remotePatterns: [
       {
@@ -35,6 +37,13 @@ const nextConfig: NextConfig = {
   },
 
   serverExternalPackages: ["bcryptjs"],
+
+  // Turbopack's on-disk dev cache (.next/dev/cache) grows to ~2 GB. On a
+  // machine short of disk space, set NEXT_DEV_FS_CACHE=off in .env.local:
+  // dev restarts are slower, nothing else changes.
+  experimental: {
+    turbopackFileSystemCacheForDev: process.env.NEXT_DEV_FS_CACHE !== "off",
+  },
 
   turbopack: {
     root: __dirname,

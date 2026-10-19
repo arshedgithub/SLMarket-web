@@ -12,7 +12,8 @@ export type UploadFolder =
   | "profiles"
   | "banners"
   | "documents"
-  | "reels";
+  | "reels"
+  | "spotlight";
 
 export function buildUploadFolder(
   folder: UploadFolder,

@@ -1,6 +1,13 @@
-import { PrismaClient } from "@prisma/client";
-
-const db = new PrismaClient();
+// The app's client: on Neon it connects over HTTPS/WebSockets (port 443),
+// which works on networks that block the Postgres port.
+import { db } from "../lib/db";
+import {
+  RETIRED_SEED_SLUGS,
+  SEED_AD_DETAILS,
+  SEED_AD_EXTRA_PHOTOS,
+  SEED_PHOTO_FOCUS,
+  SEED_PHOTOS,
+} from "./seed-data";
 
 // ─── Subscription plans ─────────────────────────────────────────────────────
 // Business-profile paid plans aren't sold yet, but the rows exist so
@@ -99,7 +106,23 @@ async function seedPlans() {
 // businesses used to show, so switching that page over to real data later
 // lands on familiar-looking content.
 
-const CAT_IMG = "/images/marketplace/categories";
+// Demo photos live in the development Cloudinary account (see
+// prisma/seed-data.ts SEED_PHOTOS), never in the repo.
+const COVER = (id: string) => `${SEED_PHOTOS}/business-covers/${id}.webp`;
+const LISTING_IMG = `${SEED_PHOTOS}/listings`;
+
+// Demo shop pins (plausible points in each town, not real addresses).
+const SHOP_LOCATION: Record<string, { latitude: number; longitude: number }> = {
+  "techzone-sri-lanka": { latitude: 6.8897, longitude: 79.8562 },
+  careerlink: { latitude: 6.9101, longitude: 79.8516 },
+  "fixit-services": { latitude: 6.8925, longitude: 79.877 },
+  "glamour-lk": { latitude: 6.9067, longitude: 79.8634 },
+  "prime-estates": { latitude: 6.9105, longitude: 79.8669 },
+  homestyle: { latitude: 7.2936, longitude: 80.635 },
+  "petcare-lanka": { latitude: 7.2083, longitude: 79.8358 },
+  "autohub-lk": { latitude: 7.0917, longitude: 79.9997 },
+  "digital-hub": { latitude: 6.8935, longitude: 79.8553 },
+};
 
 const BUSINESS_SEED = [
   {
@@ -114,7 +137,7 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-techzone@demo.slmarket.lk",
     ownerName: "TechZone Sri Lanka",
     bio: "Authorised reseller of laptops, phones and audio gear, with full manufacturer warranty on every sale.",
-    cover: `${CAT_IMG}/electronics.webp`,
+    cover: COVER("electronics"),
   },
   {
     slug: "autohub-lk",
@@ -128,7 +151,7 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-autohub@demo.slmarket.lk",
     ownerName: "AutoHub LK",
     bio: "Reconditioned and brand-new vehicle dealer serving the Gampaha and Colombo districts since 2015.",
-    cover: `${CAT_IMG}/vehicles.webp`,
+    cover: COVER("vehicles"),
   },
   {
     slug: "homestyle",
@@ -142,7 +165,7 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-homestyle@demo.slmarket.lk",
     ownerName: "HomeStyle",
     bio: "Furniture and home decor studio, custom orders welcome.",
-    cover: `${CAT_IMG}/home-garden.webp`,
+    cover: COVER("home-garden"),
   },
   {
     slug: "glamour-lk",
@@ -156,7 +179,7 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-glamour@demo.slmarket.lk",
     ownerName: "Glamour.lk",
     bio: "Women's fashion boutique with new arrivals every week.",
-    cover: `${CAT_IMG}/fashion.webp`,
+    cover: COVER("fashion"),
   },
   {
     slug: "petcare-lanka",
@@ -170,7 +193,7 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-petcare@demo.slmarket.lk",
     ownerName: "PetCare Lanka",
     bio: "Responsible breeder and pet supplies shop, all animals vaccinated and health-checked.",
-    cover: `${CAT_IMG}/animals.webp`,
+    cover: COVER("animals-pets"),
   },
   {
     slug: "prime-estates",
@@ -184,7 +207,7 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-primeestates@demo.slmarket.lk",
     ownerName: "Prime Estates",
     bio: "Licensed real estate agency covering land, houses and apartments across the Western Province.",
-    cover: `${CAT_IMG}/property.webp`,
+    cover: COVER("property"),
   },
   {
     slug: "fixit-services",
@@ -198,7 +221,7 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-fixit@demo.slmarket.lk",
     ownerName: "FixIt Services",
     bio: "Home repairs, appliance servicing and cleaning, same-day appointments available.",
-    cover: `${CAT_IMG}/services.webp`,
+    cover: COVER("services"),
   },
   {
     slug: "careerlink",
@@ -212,7 +235,21 @@ const BUSINESS_SEED = [
     ownerEmail: "seed-careerlink@demo.slmarket.lk",
     ownerName: "CareerLink",
     bio: "Recruitment agency placing candidates in full-time and part-time roles across Sri Lanka.",
-    cover: `${CAT_IMG}/jobs.webp`,
+    cover: COVER("jobs"),
+  },
+  {
+    slug: "digital-hub",
+    name: "Digital Hub",
+    categoryId: "electronics",
+    businessType: "STORE" as const,
+    district: "Colombo",
+    city: "Colombo",
+    tier: "PREMIUM" as const,
+    contactPhone: "0711000009",
+    ownerEmail: "seed-digitalhub@demo.slmarket.lk",
+    ownerName: "Digital Hub",
+    bio: "Laptops, phones and audio from Apple, Dell and Lenovo, with shop warranty and islandwide delivery.",
+    cover: COVER("electronics"),
   },
 ];
 
@@ -246,6 +283,7 @@ async function seedBusinesses() {
         city: b.city,
         tier: b.tier,
         isVerified: true,
+        ...SHOP_LOCATION[b.slug],
       },
       create: {
         ownerId: owner.id,
@@ -260,6 +298,7 @@ async function seedBusinesses() {
         city: b.city,
         tier: b.tier,
         isVerified: true,
+        ...SHOP_LOCATION[b.slug],
       },
     });
     businesses[b.slug] = business.id;
@@ -276,17 +315,17 @@ async function seedBusinesses() {
 
 const LISTING_SEED = [
   {
-    slug: "toyota-aqua-2017",
-    title: "Toyota Aqua 2017",
+    slug: "toyota-vios-2014",
+    title: "Toyota Vios 2014",
     categoryId: "vehicles",
     subcategoryId: "cars",
     description:
-      "Well-maintained Toyota Aqua 2017, hybrid, automatic transmission. Single owner, full service history, accident-free.",
+      "Well-maintained Toyota Vios 2014, 1300cc petrol, automatic. Two owners, full service history, accident-free.",
     district: "Colombo",
     city: "Colombo",
-    price: 6950000,
-    image: `${CAT_IMG}/vehicles.webp`,
-    attrs: ["Hybrid", "Automatic", "2017"],
+    price: 5650000,
+    image: `${LISTING_IMG}/toyota-vios.webp`,
+    attrs: ["Petrol", "Automatic", "2014"],
     featured: true,
     hoursAgo: 5,
   },
@@ -300,7 +339,7 @@ const LISTING_SEED = [
     district: "Colombo",
     city: "Rajagiriya",
     price: 250000,
-    image: `${CAT_IMG}/property.webp`,
+    image: `${LISTING_IMG}/modern-house-rent.webp`,
     attrs: ["3 Beds", "3 Baths", "2,500 sq.ft"],
     negotiable: true,
     hoursAgo: 24,
@@ -319,7 +358,7 @@ const LISTING_SEED = [
     // seed-only hint (not a DB field) — seedListings() turns this into a
     // genuine PriceHistory pair: held 10 days, dropped 2 days ago.
     priceDropFrom: 195000,
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/iphone-13.webp`,
     attrs: ["Like New", "128GB", "Original"],
     hoursAgo: 288,
     business: "techzone-sri-lanka",
@@ -334,7 +373,7 @@ const LISTING_SEED = [
     district: "Gampaha",
     city: "Gampaha",
     price: 85000,
-    image: `${CAT_IMG}/home-garden.webp`,
+    image: `${LISTING_IMG}/sofa-set.webp`,
     attrs: ["Used", "Good Condition"],
     hoursAgo: 3,
   },
@@ -348,7 +387,7 @@ const LISTING_SEED = [
     district: "Colombo",
     city: "Colombo",
     price: 299000,
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/dell-xps-13.webp`,
     attrs: ["i7", "16GB", "512GB SSD"],
     featured: true,
     promotionType: "COUPON" as const,
@@ -366,7 +405,7 @@ const LISTING_SEED = [
     district: "Kandy",
     city: "Kandy",
     price: 780000,
-    image: `${CAT_IMG}/vehicles.webp`,
+    image: `${LISTING_IMG}/yamaha-fz-s.webp`,
     attrs: ["2019", "150cc", "32,000 km"],
     hoursAgo: 6,
   },
@@ -380,7 +419,7 @@ const LISTING_SEED = [
     district: "Gampaha",
     city: "Negombo",
     price: 120000,
-    image: `${CAT_IMG}/home-garden.webp`,
+    image: `${LISTING_IMG}/dining-table.webp`,
     attrs: ["6 Chairs", "Solid Wood"],
     hoursAgo: 24,
   },
@@ -394,7 +433,7 @@ const LISTING_SEED = [
     district: "Colombo",
     city: "Colombo",
     price: 185000,
-    image: `${CAT_IMG}/electronics.webp`,
+    image: `${LISTING_IMG}/canon-eos-250d.webp`,
     attrs: ["24.1MP", "With Lens", "Like New"],
     negotiable: true,
     hoursAgo: 24,
@@ -409,7 +448,7 @@ const LISTING_SEED = [
     district: "Gampaha",
     city: "Negombo",
     price: 18500000,
-    image: `${CAT_IMG}/property.webp`,
+    image: `${LISTING_IMG}/house-negombo.webp`,
     attrs: ["House", "3 Beds"],
     featured: true,
     hoursAgo: 48,
@@ -426,7 +465,8 @@ const LISTING_SEED = [
     city: "Colombo",
     price: 80000,
     pricingType: "STARTING_FROM" as const,
-    image: `${CAT_IMG}/jobs.webp`,
+    // Job ads have no photo: they show as a text card.
+    image: null,
     attrs: ["Full-time", "Colombo"],
     hoursAgo: 72,
     business: "careerlink",
@@ -441,7 +481,7 @@ const LISTING_SEED = [
     district: "Gampaha",
     city: "Gampaha",
     price: 2800000,
-    image: `${CAT_IMG}/property.webp`,
+    image: `${LISTING_IMG}/land-gampaha.webp`,
     attrs: ["Land", "10 Perches"],
     hoursAgo: 96,
   },
@@ -450,13 +490,14 @@ const LISTING_SEED = [
     title: "Designer Party Dress",
     categoryId: "fashion",
     subcategoryId: "womens-clothing",
-    description: "Brand-new designer party dress, size M, never worn.",
+    description:
+      "Brand-new ivory party dress, size M, never worn. Sweetheart neckline with a beaded lace waist.",
     district: "Colombo",
     city: "Colombo",
     price: 6500,
-    image: `${CAT_IMG}/fashion.webp`,
+    image: `${LISTING_IMG}/party-dress.webp`,
     attrs: ["Women", "Size M"],
-    promotionType: "COUPON" as const,
+    promotionType: "DISCOUNT" as const,
     promotionDetail: "Buy 2 get 10% off",
     hoursAgo: 5,
     business: "glamour-lk",
@@ -471,7 +512,7 @@ const LISTING_SEED = [
     district: "Matale",
     city: "Matale",
     price: 1200,
-    image: `${CAT_IMG}/food.webp`,
+    image: `${LISTING_IMG}/spice-pack.webp`,
     attrs: ["Organic", "1kg"],
     hoursAgo: 6,
   },
@@ -485,7 +526,7 @@ const LISTING_SEED = [
     district: "Colombo",
     city: "Colombo",
     price: 4500,
-    image: `${CAT_IMG}/services.webp`,
+    image: `${LISTING_IMG}/deep-cleaning.webp`,
     attrs: ["Same Day", "Insured"],
     hoursAgo: 24,
     business: "fixit-services",
@@ -500,7 +541,7 @@ const LISTING_SEED = [
     district: "Nuwara Eliya",
     city: "Nuwara Eliya",
     price: 32000,
-    image: `${CAT_IMG}/hobbies.webp`,
+    image: `${LISTING_IMG}/mountain-bike.webp`,
     attrs: ["21-Speed", "Good Condition"],
     negotiable: true,
     hoursAgo: 48,
@@ -515,7 +556,7 @@ const LISTING_SEED = [
     district: "Kurunegala",
     city: "Kurunegala",
     price: 15000,
-    image: `${CAT_IMG}/animals.webp`,
+    image: `${LISTING_IMG}/labrador-puppy.webp`,
     attrs: ["Vaccinated", "2 Months"],
     featured: true,
     hoursAgo: 3,
@@ -531,7 +572,7 @@ const LISTING_SEED = [
     district: "Kandy",
     city: "Kandy",
     price: 3000,
-    image: `${CAT_IMG}/education.webp`,
+    image: `${LISTING_IMG}/tuition-science.webp`,
     attrs: ["Grade 10 to 11", "Online"],
     hoursAgo: 24,
   },
@@ -545,9 +586,98 @@ const LISTING_SEED = [
     district: "Colombo",
     city: "Colombo",
     price: 5000,
-    image: `${CAT_IMG}/health-beauty.webp`,
+    image: `${LISTING_IMG}/facial-skincare.webp`,
     attrs: ["1 Hour", "All Skin Types"],
     hoursAgo: 8,
+  },
+  {
+    slug: "honda-vezel-2016-galle",
+    title: "Honda Vezel 2016",
+    categoryId: "vehicles",
+    subcategoryId: "cars",
+    description:
+      "Hybrid SUV in very good condition, regularly serviced, second owner.",
+    district: "Galle",
+    city: "Galle",
+    price: 6850000,
+    image: `${LISTING_IMG}/honda-vezel.webp`,
+    attrs: ["Hybrid", "Automatic", "2016"],
+    hoursAgo: 48,
+  },
+  {
+    slug: "bajaj-three-wheeler-gampaha",
+    title: "Bajaj Three Wheeler",
+    categoryId: "vehicles",
+    subcategoryId: "three-wheelers",
+    description:
+      "Bajaj RE 4 stroke, 2019, well maintained and ready to run. Documents clear.",
+    district: "Gampaha",
+    city: "Gampaha",
+    price: 1150000,
+    negotiable: true,
+    image: `${LISTING_IMG}/bajaj-three-wheeler.webp`,
+    attrs: ["Petrol", "Manual", "2019"],
+    hoursAgo: 24,
+  },
+  {
+    slug: "apartment-for-rent-colombo",
+    title: "Apartment for Rent",
+    categoryId: "property",
+    subcategoryId: "apartments",
+    description:
+      "Sea view apartment with parking and 24 hour security, fully furnished.",
+    district: "Colombo",
+    city: "Colombo",
+    price: 120000,
+    image: `${LISTING_IMG}/apartment-sea-view.webp`,
+    attrs: ["2 Beds", "2 Baths", "1,150 sq.ft"],
+    hoursAgo: 48,
+    business: "prime-estates",
+  },
+  {
+    slug: "macbook-air-m1",
+    title: "MacBook Air M1",
+    categoryId: "electronics",
+    subcategoryId: "computers",
+    description:
+      "8GB RAM, 256GB SSD, battery health 94%. Comes with the original charger.",
+    district: "Colombo",
+    city: "Colombo",
+    price: 285000,
+    image: `${LISTING_IMG}/macbook-air-m1.webp`,
+    attrs: ["Like New", "8GB RAM", "256GB SSD"],
+    hoursAgo: 3,
+    business: "digital-hub",
+  },
+  {
+    slug: "iphone-14-128gb-kandy",
+    title: "iPhone 14 128GB",
+    categoryId: "electronics",
+    subcategoryId: "mobile-phones",
+    description:
+      "iPhone 14, 128GB, like new with 5 months of Apple warranty left.",
+    district: "Kandy",
+    city: "Kandy",
+    price: 249000,
+    image: `${LISTING_IMG}/iphone-14.webp`,
+    attrs: ["Like New", "128GB", "Original"],
+    hoursAgo: 6,
+    business: "digital-hub",
+  },
+  {
+    slug: "airpods-pro-2",
+    title: "AirPods Pro 2",
+    categoryId: "electronics",
+    subcategoryId: "audio",
+    description:
+      "Brand new, sealed AirPods Pro (2nd generation) with USB-C case.",
+    district: "Kandy",
+    city: "Kandy",
+    price: 62000,
+    image: `${LISTING_IMG}/airpods-pro.webp`,
+    attrs: ["Brand New", "USB-C", "Sealed"],
+    hoursAgo: 24,
+    business: "digital-hub",
   },
 ];
 
@@ -559,19 +689,33 @@ async function seedListings(
 
   const personalSeller = await db.user.upsert({
     where: { email: "seed-personal-seller@demo.slmarket.lk" },
-    update: {},
+    // A demo number (not a real person's) so private-seller contact,
+    // including the email check before the number shows, can be tried.
+    update: { phone: "94770000099", phoneVerified: true },
     create: {
       email: "seed-personal-seller@demo.slmarket.lk",
       name: "Demo Seller",
       role: "USER",
       district: "Colombo",
+      phone: "94770000099",
+      phoneVerified: true,
     },
   });
+
+  await db.listing.deleteMany({ where: { slug: { in: RETIRED_SEED_SLUGS } } });
 
   for (const l of LISTING_SEED) {
     const sellerId = l.business ? owners[l.business] : personalSeller.id;
     const businessProfileId = l.business ? businesses[l.business] : null;
     const createdAt = new Date(Date.now() - l.hoursAgo * 3600 * 1000);
+    // Structured details (listingFields keys) next to the card highlights.
+    const attributes = { highlights: l.attrs, ...SEED_AD_DETAILS[l.slug] };
+    const images = [
+      ...(l.image ? [l.image] : []),
+      ...(SEED_AD_EXTRA_PHOTOS[l.slug] ?? []),
+    ];
+    const focus = SEED_PHOTO_FOCUS[l.slug];
+    const photoFocus = focus ? [focus] : undefined;
 
     const listing = await db.listing.upsert({
       where: { slug: l.slug },
@@ -579,6 +723,9 @@ async function seedListings(
         title: l.title,
         description: l.description,
         price: l.price,
+        attributes,
+        images,
+        photoFocus,
         status: "ACTIVE",
       },
       create: {
@@ -589,8 +736,9 @@ async function seedListings(
         description: l.description,
         categoryId: l.categoryId,
         subcategoryId: l.subcategoryId,
-        attributes: { highlights: l.attrs },
-        images: [l.image],
+        attributes,
+        images,
+        photoFocus,
         pricingType: l.pricingType ?? "FIXED",
         price: l.price,
         negotiable: Boolean(l.negotiable),

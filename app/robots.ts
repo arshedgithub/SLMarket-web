@@ -27,6 +27,21 @@ export default function robots(): MetadataRoute.Robots {
         "/*/business/new",
         "/*/ads?*",
         "/*/ads/*?*",
+        // Filtered, sorted, searched and map views of the business directory
+        // are for visitors, not the index. Page 2, 3... of a plain directory
+        // page (?page=) stay crawlable.
+        "/*/businesses*?*q=",
+        "/*/businesses*?*sort=",
+        "/*/businesses*?*view=",
+        "/*/businesses*?*verified=",
+        "/*/businesses*?*open=",
+        "/*/businesses*?*rating=",
+        "/*/businesses*?*delivery=",
+        "/*/businesses*?*distance=",
+        "/*/businesses*?*instalment=",
+        "/*/businesses*?*brand=",
+        "/*/businesses*?*district=",
+        "/*/businesses*?*bounds=",
       ],
     },
     sitemap: `${BASE}/sitemap.xml`,

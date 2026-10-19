@@ -5,7 +5,7 @@ import {
   SRI_LANKA_DISTRICTS,
   flatCities,
 } from "@/config/const/sriLankaLocations";
-import { ALL_SAMPLE_BRANCHES } from "@/lib/sampleUserShops";
+import { allBranches, type UserShop } from "@/lib/business/userShops";
 import { SelectField, ToggleRow } from "../fields/Primitives";
 import type { AdDraft, LocationType } from "../types";
 
@@ -39,11 +39,14 @@ export function StepLocation({
   draft,
   patch,
   errors,
+  shops,
 }: {
   draft: AdDraft;
   patch: (p: Partial<AdDraft>) => void;
   errors: Record<string, string>;
+  shops: UserShop[];
 }) {
+  const branches = allBranches(shops);
   const citiesForDistrict = draft.district
     ? (SRI_LANKA_DISTRICTS.find((d) => d.name === draft.district)?.cities ?? [])
     : [];
@@ -67,7 +70,9 @@ export function StepLocation({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        {LOCATION_TYPES.map((opt) => {
+        {LOCATION_TYPES.filter(
+          (opt) => opt.value !== "branches" || branches.length > 0,
+        ).map((opt) => {
           const active = draft.locationType === opt.value;
           const Icon = opt.icon;
           return (
@@ -181,7 +186,7 @@ export function StepLocation({
                   type="button"
                   onClick={() =>
                     patch({
-                      selectedBranchIds: ALL_SAMPLE_BRANCHES.map((b) => b.id),
+                      selectedBranchIds: branches.map((b) => b.id),
                     })
                   }
                   className="text-xs font-semibold text-primary hover:underline"
@@ -190,7 +195,7 @@ export function StepLocation({
                 </button>
               </div>
               <div className="space-y-2">
-                {ALL_SAMPLE_BRANCHES.map((b) => {
+                {branches.map((b) => {
                   const active = draft.selectedBranchIds.includes(b.id);
                   return (
                     <button
@@ -300,7 +305,7 @@ export function StepLocation({
                   {draft.district} District, Sri Lanka
                 </p>
               )}
-              <p className="mt-2 text-[11px] text-[var(--color-market-text-muted)]">
+              <p className="mt-2 text-xs text-[var(--color-market-text-muted)]">
                 Your exact address is never shown publicly.
               </p>
             </div>

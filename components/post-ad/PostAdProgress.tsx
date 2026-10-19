@@ -40,7 +40,7 @@ export function PostAdProgress({
                   {i + 1}
                 </button>
                 <span
-                  className={`whitespace-nowrap text-[11px] font-semibold ${
+                  className={`whitespace-nowrap text-xs font-semibold ${
                     active
                       ? "text-primary"
                       : done

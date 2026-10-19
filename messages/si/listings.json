@@ -1,8 +1,7 @@
 {
   "breadcrumb": {
     "home": "මුල් පිටුව",
-    "listings": "දැන්වීම්",
-    "allListings": "සියලුම දැන්වීම්",
+    "allListings": "සියලු දැන්වීම්",
     "deals": "වට්ටම් සහ දීමනා"
   },
   "header": {
@@ -13,14 +12,9 @@
     "subtitle": "ශ්‍රී ලංකාව පුරා නිෂ්පාදන, දේපළ, වාහන, සේවා සහ අවස්ථා සොයාගන්න.",
     "listingsStat": "දැන්වීම්",
     "statsLine": "දැන්වීම් {total}ක් · අද පළකළ {postedToday}ක්",
-    "newOpportunities": "නව අවස්ථා, දිනපතා"
-  },
-  "marketplaceToday": {
-    "label": "SLMarket සජීවී",
-    "newAds": "නව දැන්වීම්, පසුගිය පැය 24",
-    "acrossDistricts": "දිවයින පුරා දිස්ත්‍රික්ක {count}ක",
-    "otherDistricts": "වෙනත්",
-    "weekAbbr": "7d"
+    "newOpportunities": "නව අවස්ථා, දිනපතා",
+    "totalAds": "දැන්වීම් {count}",
+    "newToday": "අද නව දැන්වීම් {count}"
   },
   "search": {
     "placeholder": "ඔබ සොයන්නේ කුමක්ද?",
@@ -36,7 +30,9 @@
     }
   },
   "categorySwitcher": {
-    "all": "සියල්ල"
+    "all": "සියල්ල",
+    "label": "කාණ්ඩ",
+    "more": "තවත්"
   },
   "shops": {
     "heading": "විශේෂ ව්‍යාපාර",
@@ -56,7 +52,8 @@
       "toprated": "ඉහළම ශ්‍රේණිගත",
       "premium": "ප්‍රිමියම්",
       "verified": "සත්‍යාපිත"
-    }
+    },
+    "viewAds": "දැන්වීම් {count} බලන්න"
   },
   "filters": {
     "location": "ස්ථානය",
@@ -65,7 +62,7 @@
     "sellerLabel": "විකුණුම්කරු",
     "deals": "ගනුදෙනු",
     "moreFilters": "තවත් පෙරහන්",
-    "allFilters": "සියලුම පෙරහන්",
+    "allFilters": "සියලු පෙරහන්",
     "locationLabel": "ස්ථානය",
     "locationSearchPlaceholder": "ස්ථානය සොයන්න...",
     "popular": "ජනප්‍රිය",
@@ -95,51 +92,66 @@
     },
     "deal": {
       "coupon": "කූපන් සහ දීමනා",
-      "price-drop": "මිල අඩුවීම්"
+      "price-drop": "මිල අඩුවීම්",
+      "offer": "විශේෂ දීමනා"
     },
     "active": "සක්‍රීය:",
     "clearAll": "සියල්ල හිස් කරන්න",
     "clear": "හිස් කරන්න",
-    "showResults": "ප්‍රතිඵල {count} පෙන්වන්න",
+    "showResults": "{count, plural, =0 {ප්‍රතිඵල නැත} other {ප්‍රතිඵල # පෙන්වන්න}}",
     "refineResults": "ප්‍රතිඵල පිරිපහදු කරන්න",
     "categoryFilters": "{category} පෙරහන්",
     "close": "වසන්න",
     "category": "ප්‍රවර්ගය",
-    "filters": "පෙරහන්"
+    "filters": "පෙරහන්",
+    "resultsCount": "ප්‍රතිඵල {count}",
+    "removeFilter": "පෙරහන ඉවත් කරන්න: {filter}",
+    "negotiable": "සාකච්ඡා කළ හැකි",
+    "verifiedOnly": "සත්‍යාපිත විකුණුම්කරුවන් පමණි"
   },
   "categoryFields": {
     "vehicles": {
       "brand": "වෙළඳ නාමය",
       "year": "වර්ෂය",
       "fuel": "ඉන්ධන වර්ගය",
-      "transmission": "ගියර් වර්ගය"
+      "transmission": "ගියර් වර්ගය",
+      "model": "මාදිලිය",
+      "mileage": "ධාවන දුර",
+      "fuelType": "ඉන්ධන වර්ගය"
     },
     "property": {
       "propertyType": "දේපළ වර්ගය",
       "bedrooms": "නිදන කාමර",
       "bathrooms": "නාන කාමර",
-      "furnished": "ගෘහභාණ්ඩ තත්වය"
+      "furnished": "ගෘහභාණ්ඩ තත්වය",
+      "listingType": "විකිණීමට හෝ කුලියට",
+      "furnishing": "ගෘහ භාණ්ඩ"
     },
     "electronics": {
       "brand": "වෙළඳ නාමය",
       "storage": "ගබඩා ධාරිතාව",
-      "warranty": "වගකීම"
+      "warranty": "වගකීම",
+      "deviceType": "උපාංග වර්ගය"
     },
     "jobs": {
       "jobType": "රැකියා වර්ගය",
-      "experience": "පළපුරුද්ද"
+      "experience": "පළපුරුද්ද",
+      "employmentType": "රැකියා වර්ගය",
+      "workMode": "වැඩ කරන ආකාරය"
     }
   },
   "toolbar": {
-    "resultsFound": "දැන්වීම් {count}ක් හමු විය",
+    "resultsFound": "{count, plural, =0 {දැන්වීම් හමු නොවීය} other {දැන්වීම් # ක් හමු විය}}",
     "sort": {
-      "newest": "අලුත්ම මුලින්",
+      "newest": "විශේෂ දැන්වීම් පළමුව, පසුව නවතම",
       "price-asc": "මිල: අඩුවේ සිට වැඩි වෙත",
-      "price-desc": "මිල: වැඩි සිට අඩු වෙත"
+      "price-desc": "මිල: වැඩි සිට අඩු වෙත",
+      "nearest": "ළඟම ඒවා පළමුව"
     },
     "gridView": "ග්‍රිඩ් දසුන",
     "listView": "ලැයිස්තු දසුන",
-    "sortShort": "පෙළගස්වන්න"
+    "sortShort": "පෙළගස්වන්න",
+    "sortLabel": "දැන්වීම් පෙළගස්වන්න"
   },
   "card": {
     "featured": "විශේෂාංගගත",
@@ -151,27 +163,44 @@
     "call": "අමතන්න",
     "whatsapp": "WhatsApp",
     "apply": "ඉල්ලුම් කරන්න",
-    "individual": "පුද්ගලික",
-    "viewBusiness": "ව්‍යාපාරය බලන්න",
-    "sponsoredIn": "ප්‍රචාරිත",
-    "viewAll": "සියල්ල බලන්න",
-    "nearYou": "ඔබ අසල {category} ව්‍යාපාර",
     "adsCount": "දැන්වීම් {count}",
     "reviews": "සමාලෝචන {count}",
-    "exploreNear": "ඔබ අසල ව්‍යාපාර බලන්න",
     "photos": "ඡායාරූප {count}",
-    "latest": "නවතම",
-    "nearYouShort": "ඔබ අසල {category}",
-    "exploreBusinesses": "ව්‍යාපාර බලන්න"
+    "cue": {
+      "job": "රැකියාව",
+      "rent": "කුලියට",
+      "sale": "විකිණීමට"
+    },
+    "reserved": "වෙන් කර ඇත",
+    "save": "{title} සුරකින්න",
+    "unsave": "{title} සුරැකීම ඉවත් කරන්න",
+    "couponBadge": "දීමනාව",
+    "showPhone": "දුරකථන අංකය පෙන්වන්න",
+    "verifiedTip": "සත්‍යාපිත ව්‍යාපාරය: ලේඛන පරීක්ෂා කර ඇත",
+    "justListed": "දැන් පළ කළා",
+    "urgent": "හදිසි",
+    "privateSeller": "පුද්ගලික විකුණුම්කරු",
+    "openAd": "දැන්වීම විවෘත කරන්න",
+    "offer": "විශේෂ දීමනා"
+  },
+  "premiumCard": {
+    "premium": "ප්‍රිමියම්",
+    "ad": "දැන්වීම",
+    "verified": "තහවුරු කළ ව්‍යාපාරය",
+    "visitShop": "සාප්පුවට යන්න · දැන්වීම් {count}",
+    "logoAlt": "{name} ලාංඡනය"
   },
   "empty": {
     "title": "ඔබේ පෙරහන් වලට ගැලපෙන දැන්වීම් නැත",
     "desc": "පෙරහනක් හිස් කර හෝ වෙනත් දෙයක් සොයන්න.",
-    "clear": "සියලුම පෙරහන් හිස් කරන්න"
+    "clear": "සියලුම පෙරහන් හිස් කරන්න",
+    "firstTitle": "{category} හි පළමු දැන්වීම පළ කරන්න",
+    "firstDesc": "මෙහි තවම දැන්වීම් නැත. ඔබේ දැන්වීම නොමිලේ පළ කරන්න; මෙම කාණ්ඩය බලන ගැනුම්කරුවන්ට එය පළමුව පෙනේ.",
+    "firstCta": "නොමිලේ දැන්වීමක් පළ කරන්න"
   },
   "loadMore": "තවත් දැන්වීම් පෙන්වන්න",
   "pagination": {
-    "showing": "දැන්වීම් {total} න් {from} සිට {to} දක්වා පෙන්වයි",
+    "showing": "දැන්වීම් {total} න් {from} සිට {to} දක්වා",
     "showingCount": "දැන්වීම් {total} න් {shown} ක් පෙන්වයි",
     "previous": "පෙර",
     "next": "ඊළඟ",
@@ -179,7 +208,8 @@
     "label": "පිටු අංක",
     "showMore": "තවත් දැන්වීම් පෙන්වන්න",
     "narrowTitle": "තවත් දැන්වීම් බැලීමට ඔබේ සෙවුම පටු කරන්න",
-    "narrowDesc": "නිශ්චිත ප්‍රවර්ගයක්, ස්ථානයක් හෝ මූල පදයක් උත්සාහ කරන්න."
+    "narrowDesc": "නිශ්චිත ප්‍රවර්ගයක්, ස්ථානයක් හෝ මූල පදයක් උත්සාහ කරන්න.",
+    "backToTop": "ඉහළට"
   },
   "business": {
     "openNow": "දැන් විවෘතයි",
@@ -189,6 +219,11 @@
       "within-hour": "සාමාන්‍යයෙන් පැයක් ඇතුළත පිළිතුරු දෙයි",
       "within-few-hours": "සාමාන්‍යයෙන් පැය කිහිපයක් ඇතුළත පිළිතුරු දෙයි",
       "within-day": "සාමාන්‍යයෙන් දිනක් ඇතුළත පිළිතුරු දෙයි"
+    },
+    "responseShort": {
+      "within-hour": "පැයක් ඇතුළත පිළිතුරු",
+      "within-few-hours": "පැය කිහිපයකින් පිළිතුරු",
+      "within-day": "දිනක් ඇතුළත පිළිතුරු"
     },
     "highlights": {
       "delivery": "දිවයින පුරා බෙදාහැරීම",
@@ -203,5 +238,120 @@
       "assembly": "එකලස් කිරීමේ සේවාව",
       "freshness": "නැවුම්බව සහතිකයි"
     }
+  },
+  "adPage": {
+    "breadcrumb": "සංචාලන මාර්ගය",
+    "allAds": "සියලු දැන්වීම්",
+    "free": "නොමිලේ",
+    "contactForPrice": "මිල සඳහා අමතන්න",
+    "from": "{price} සිට",
+    "posted": "පළ කළේ {date}",
+    "delivery": "බෙදාහැරීම ඇත",
+    "description": "විස්තරය",
+    "was": "පෙර මිල {price}",
+    "wasSince": "පෙර මිල {price} ({date})",
+    "instalment": "නැතහොත් {provider} සමඟ මසකට {amount}",
+    "warrantyMonths": "{type}, මාස {months}",
+    "keyDetails": "ප්‍රධාන විස්තර",
+    "yes": "ඔව්",
+    "no": "නැත",
+    "readMore": "තවත් කියවන්න",
+    "showLess": "අඩුවෙන් පෙන්වන්න",
+    "policies": "බෙදාහැරීම, වගකීම සහ ආපසු දීම",
+    "policyDelivery": "බෙදාහැරීම",
+    "policyWarranty": "වගකීම",
+    "policyReturns": "ආපසු දීම",
+    "location": "ස්ථානය",
+    "locationApprox": "ආසන්න ප්‍රදේශය. ඔබ සම්බන්ධ වූ විට විකුණුම්කරු නිවැරදි ස්ථානය කියයි.",
+    "locationBusiness": "සාප්පුවේ ආසන්න ප්‍රදේශය",
+    "directions": "මඟ පෙන්වීම",
+    "mapLabel": "{place} අවට ප්‍රදේශයේ සිතියම",
+    "adDetailsTitle": "දැන්වීමේ විස්තර",
+    "adId": "දැන්වීම් අංකය {code}",
+    "views": "නැරඹුම් {count}",
+    "report": "මෙම දැන්වීම වාර්තා කරන්න",
+    "safety": "ආරක්ෂක උපදෙස්: කිසිවිටෙක කලින් මුදල් නොගෙවන්න, මිලදී ගැනීමට පෙර භාණ්ඩය පරීක්ෂා කරන්න.",
+    "safetyMore": "සියලු ආරක්ෂක උපදෙස්",
+    "rating": "{rating} (සමාලෝචන {count})",
+    "memberSince": "{year} සිට SLMarket හි",
+    "viewBusinessAds": "ව්‍යාපාරය බලන්න · දැන්වීම් {count}",
+    "phoneVerified": "දුරකථනය තහවුරු කර ඇත",
+    "otherAds": "මෙම විකුණුම්කරුගේ තවත් දැන්වීම් {count}",
+    "privateSeller": "පුද්ගලික විකුණුම්කරු",
+    "business": "ව්‍යාපාරය",
+    "moreFrom": "{name} වෙතින් තවත්",
+    "theirOtherAds": "ඔවුන්ගේ අනෙකුත් දැන්වීම්",
+    "similar1": "{place} අවට සමාන {sub}",
+    "similar2": "වෙනත් දිස්ත්‍රික්කවල සමාන {sub}",
+    "similar3": "ඔබ අවට වෙනත් {category}",
+    "similar4": "ඔබ අවට ජනප්‍රිය",
+    "businessesNear": "ඔබ අවට {sub} විකුණන ව්‍යාපාර",
+    "sponsored": "ප්‍රචාරිත",
+    "visitShop": "සාප්පුවට පිවිසෙන්න",
+    "recent": "මෑතකදී බැලූ",
+    "viewAll": "සියල්ල බලන්න",
+    "soldTitle": "මෙම භාණ්ඩය විකුණා ඇත",
+    "soldBody": "විකුණුම්කරු මෙය විකුණූ බව සලකුණු කර ඇත. ඔබ කැමති විය හැකි සමාන දැන්වීම් මෙන්න.",
+    "expiredTitle": "මෙම දැන්වීම තවදුරටත් නොමැත",
+    "expiredBody": "එය කල් ඉකුත් වී හෝ විකුණුම්කරු ඉවත් කර ඇත. ඔබ කැමති විය හැකි සමාන දැන්වීම් මෙන්න.",
+    "ownerTitle": "ඔබගේ දැන්වීම",
+    "ownerBody": "ගැනුම්කරුවන්ට මෙහි සම්බන්ධ වීමේ බොත්තම් පෙනේ. මෙතැන් සිට ඉල්ලීම් සහ සුරැකීම් ගණන් කෙරේ.",
+    "ownerViews": "නැරඹුම් {count}",
+    "edit": "දැන්වීම සංස්කරණය",
+    "manage": "ඔබගේ දැන්වීම් කළමනාකරණය",
+    "boost": "මෙම දැන්වීම විශේෂාංග කරන්න",
+    "contact": {
+      "whatsapp": "WhatsApp",
+      "showNumber": "අංකය පෙන්වන්න",
+      "call": "අමතන්න",
+      "chat": "කතාබස්",
+      "save": "සුරකින්න",
+      "saved": "සුරැකිණි",
+      "share": "බෙදාගන්න",
+      "copied": "සබැඳිය පිටපත් විය",
+      "tooMany": "අංක බොහොමයක් පෙන්වා ඇත. පසුව නැවත උත්සාහ කරන්න.",
+      "failed": "යමක් වැරදුණි. නැවත උත්සාහ කරන්න.",
+      "close": "වසන්න",
+      "askNext": "ඊළඟට මට ලබා දෙන්න"
+    },
+    "gallery": {
+      "previous": "පෙර ඡායාරූපය",
+      "next": "ඊළඟ ඡායාරූපය",
+      "fullScreen": "සම්පූර්ණ තිරයෙන් බලන්න",
+      "close": "වසන්න",
+      "photoOf": "ඡායාරූප {total} න් {n}",
+      "video": "වීඩියෝව",
+      "zoom": "විශාලනය කරන්න"
+    },
+    "useMyLocation": "මගේ ස්ථානය භාවිතා කරන්න",
+    "locating": "ඔබව සොයමින්…",
+    "reservedTitle": "මෙම භාණ්ඩය වෙන් කර ඇත",
+    "reservedBody": "ගැනුම්කරුවෙක් පෙළ ගැසී ඇත. විකිණීම අසාර්ථක වුවහොත් ඊළඟට ඔබට ලබා දෙන ලෙස ඔබට තවමත් විකුණුම්කරුගෙන් ඉල්ලිය හැක.",
+    "locationShop": "සාප්පුවේ ස්ථානය",
+    "markSold": "විකුණූ බව සලකුණු කරන්න",
+    "markReserved": "වෙන් කළ බව සලකුණු කරන්න",
+    "markAvailable": "නැවත ලබා ගත හැක",
+    "emailCheck": {
+      "title": "ඔබගේ විද්‍යුත් තැපෑල තහවුරු කරන්න",
+      "body": "පුද්ගලික විකුණුම්කරුවන් ආරක්ෂා කිරීමට, ඔවුන්ගේ අංක බැලීමට එක් වරක් ඔබගේ විද්‍යුත් තැපෑල තහවුරු කරන්න. අපි ඉලක්කම් 6ක කේතයක් යවමු; ගිණුමක් අවශ්‍ය නැත.",
+      "emailLabel": "විද්‍යුත් තැපැල් ලිපිනය",
+      "sendCode": "කේතය යවන්න",
+      "codeLabel": "ඉලක්කම් 6ක කේතය",
+      "codeSent": "අපි {email} වෙත කේතයක් යැව්වෙමු. එය මිනිත්තු 5කින් කල් ඉකුත් වේ.",
+      "confirm": "තහවුරු කර ඉදිරියට යන්න",
+      "changeEmail": "වෙනත් විද්‍යුත් තැපෑලක් භාවිතා කරන්න"
+    }
+  },
+  "savedSearch": {
+    "save": "සෙවීම සුරකින්න",
+    "saved": "සෙවීම සුරැකිණි",
+    "saveHint": "මෙම සෙවීමට ගැලපෙන නව දැන්වීම් ඊමේල් මගින් ලබා ගන්න",
+    "savedHint": "ඇඟවීම් සක්‍රියයි. ඉවත් කිරීමට තෝරන්න",
+    "failed": "නැවත උත්සාහ කරන්න"
+  },
+  "spotlight": {
+    "sponsored": "අනුග්‍රාහක",
+    "opensNewTab": "නව ටැබයක විවෘත වේ",
+    "visitShop": "සාප්පුවට යන්න"
   }
 }

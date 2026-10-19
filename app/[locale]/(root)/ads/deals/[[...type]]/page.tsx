@@ -11,7 +11,7 @@ interface Props {
 }
 
 // /ads/deals            -> every deal type
-// /ads/deals/<type>     -> one deal type (coupons, price-drops)
+// /ads/deals/<type>     -> one deal type (coupons, price-drops, offers)
 function resolveDealType(segments: string[] | undefined) {
   if (!segments?.length) return { valid: true, dealType: null } as const;
   const dealType =

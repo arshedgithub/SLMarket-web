@@ -1,121 +1,46 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ListingCardSkeleton,
-  SellerCardSkeleton,
-} from "@/components/cards/CardSkeletons";
+  AdCardSkeleton,
+  CategoryGridSkeleton,
+  ChipRowSkeleton,
+  SearchBarSkeleton,
+} from "@/components/skeletons/MarketSkeletons";
 
-// Matches the homepage (app/(root)/page.tsx) section-for-section, since this
-// is the loading boundary for the (root) segment's own page — "/". Routes
-// nested deeper that need a different shape define their own loading.tsx,
-// which takes precedence over this one.
+// Matches the homepage (app/[locale]/(root)/page.tsx) section for section:
+// the compact search hero, the category grid and Latest ads. This is the
+// (root) segment's own loading boundary; deeper routes with a different
+// shape (/ads, /ad/<slug>, /businesses, /dashboard) define their own.
 export default function HomeLoading() {
   return (
-    <div className="bg-gray-50 dark:bg-gray-950">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-primary-dark to-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 text-center flex flex-col items-center gap-4">
-          <Skeleton light className="h-3 w-72" />
-          <Skeleton light className="h-10 md:h-14 w-full max-w-xl" />
-          <Skeleton light className="h-10 md:h-14 w-2/3 max-w-md" />
-          <Skeleton light className="h-4 w-full max-w-2xl mt-2" />
-          <Skeleton light className="h-4 w-5/6 max-w-xl" />
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
-            <Skeleton light className="h-12 w-40" />
-            <Skeleton light className="h-12 w-44" />
+    <div className="marketplace-page" aria-busy="true">
+      <section className="bg-gradient-to-b from-[#eaf3ff] to-[var(--color-market-background)] dark:from-[#0c1a30]">
+        <div className="mx-auto flex max-w-3xl flex-col items-center px-4 pb-6 pt-7 sm:px-6 sm:pb-8 sm:pt-10 lg:pt-12">
+          <Skeleton className="h-8 w-4/5 max-w-xl sm:h-11" />
+          <SearchBarSkeleton className="mt-5 w-full max-w-2xl sm:mt-6" />
+          <div className="mt-3 flex w-full justify-center">
+            <ChipRowSkeleton
+              widths={["w-20", "w-24", "w-28", "w-20", "w-24"]}
+            />
           </div>
+          <Skeleton className="mt-4 h-4 w-72 max-w-full" />
         </div>
       </section>
 
-      {/* Shop by category */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <Skeleton className="h-7 w-56 mx-auto mb-8" />
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800"
-            >
-              <Skeleton className="aspect-square w-full rounded-none" />
-              <div className="py-3 flex justify-center">
-                <Skeleton className="h-4 w-16" />
-              </div>
-            </div>
-          ))}
-        </div>
+      <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-6">
+        <CategoryGridSkeleton />
       </section>
 
-      {/* Featured listings */}
-      <section className="bg-gradient-to-b from-amber-50 to-gray-50 dark:from-amber-950/15 dark:to-gray-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-          <div className="mb-8 space-y-3">
-            <Skeleton className="h-5 w-20 rounded-full" />
-            <Skeleton className="h-7 w-64" />
-            <Skeleton className="h-4 w-48" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <ListingCardSkeleton key={i} />
-            ))}
-          </div>
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <Skeleton className="mb-4 h-6 w-40 sm:h-8 sm:w-52" />
+        <div className="mb-4">
+          <ChipRowSkeleton
+            widths={["w-12", "w-24", "w-24", "w-28", "w-32", "w-24", "w-28"]}
+          />
         </div>
-      </section>
-
-      {/* New arrivals */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <div className="mb-8 space-y-3">
-          <Skeleton className="h-7 w-56" />
-          <Skeleton className="h-4 w-64" />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <ListingCardSkeleton key={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* Services */}
-      <section className="bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-          <div className="flex flex-col items-center gap-3 mb-8">
-            <Skeleton className="h-7 w-72" />
-            <Skeleton className="h-4 w-full max-w-2xl" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800"
-              >
-                <Skeleton className="aspect-square w-full rounded-none" />
-                <div className="py-3 flex justify-center">
-                  <Skeleton className="h-4 w-20" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured businesses */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <div className="flex items-center justify-between mb-8">
-          <Skeleton className="h-7 w-48" />
-          <Skeleton className="h-4 w-20" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <SellerCardSkeleton key={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* Trust band */}
-      <section className="bg-primary-dark">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex flex-col items-center gap-2">
-              <Skeleton light className="h-6 w-16" />
-              <Skeleton light className="h-3 w-24" />
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className={i >= 6 ? "hidden md:block" : undefined}>
+              <AdCardSkeleton />
             </div>
           ))}
         </div>

@@ -92,7 +92,7 @@ export function ImageUploader({
               <X className="w-3.5 h-3.5" />
             </button>
             {i === 0 && (
-              <span className="absolute bottom-1 left-1 bg-blue-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+              <span className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs font-semibold px-1.5 py-0.5 rounded">
                 Cover
               </span>
             )}
@@ -106,7 +106,7 @@ export function ImageUploader({
             ) : (
               <Upload className="w-5 h-5" />
             )}
-            <span className="text-[10px] mt-1">Add photo</span>
+            <span className="text-xs mt-1">Add photo</span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp,image/avif"

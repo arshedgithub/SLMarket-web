@@ -2,19 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ChevronDown, ChevronLeft, LayoutGrid } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  LayoutGrid,
+} from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { compactNumber } from "@/lib/format";
+import { showCount } from "@/lib/listings/socialProof";
 import { Link } from "@/i18n/navigation";
 import { categoryAccent, categoryGlyphSrc } from "@/config/const/categoryIcons";
 import { useCategoryModalStore } from "@/store/categoryModalStore";
-import { CATEGORY_LISTING_COUNTS, subcategoryListingCount } from "./data";
+import type { FeedStats } from "@/lib/listings/feed";
 import type { CategoryOption } from "./ListingsExperience";
 
-// Top-level chips shown before the row runs out of horizontal space — the
-// fixed, traffic-ordered subset from config/const/navLinks.ts (see that
-// file's header comment: it's the single category schema everything else
-// reads from too, so this row, the mega menu and the homepage never
-// disagree). No trailing "More" button on mobile: the row just scrolls,
-// with the next chip peeking at the edge to signal that.
+// Top-level chips, in the traffic order of config/const/navLinks.ts; the
+// rest are behind "More" (the category menu).
 const TOP_LEVEL_VISIBLE = 8;
 
 type Chip = {
@@ -26,33 +30,30 @@ type Chip = {
   hasIcon?: boolean;
 };
 
-function ariaLabelFor(chip: Chip) {
-  return chip.count != null
-    ? `${chip.label}, ${chip.count.toLocaleString()} ads`
-    : chip.label;
-}
+// Counts below the threshold read as an empty marketplace, so they are
+// left out (lib/listings/socialProof.ts).
+const visibleCount = (chip: Chip) =>
+  chip.count != null && showCount(chip.count) ? chip.count : null;
 
 // Single-line 40px chip: coloured icon circle (the same white glyph +
 // accent colour as the homepage's category cards), 14px name, 13px muted
 // count. Filled #EEF4FF + blue border + blue text when active — never the
 // same look as a filter chip (outlined, neutral icon, chevron).
 function ChipLink({ chip }: { chip: Chip }) {
+  const locale = useLocale();
   return (
     <Link
       href={chip.href}
       aria-current={chip.active ? "page" : undefined}
-      aria-label={ariaLabelFor(chip)}
       data-active={chip.active || undefined}
-      className={`flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border pl-1.5 pr-3 sm:h-10 text-[14px] font-semibold transition-colors ${
+      className={`flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border pl-1.5 pr-3 text-[14px] font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
         chip.active
           ? "border-blue-600 bg-[#EEF4FF] text-blue-700 dark:bg-blue-950/40"
-          : chip.count === 0
-            ? "pointer-events-none border-[var(--color-market-border)] text-[var(--color-market-text-muted)]/50"
-            : "border-[var(--color-market-border)] text-[var(--color-market-text-secondary)] hover:border-blue-300 hover:text-blue-600"
+          : "border-[var(--color-market-border)] text-[var(--color-market-text-secondary)] hover:border-blue-300 hover:text-blue-600"
       }`}
     >
       {chip.key === "all" ? (
-        <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border-2 border-blue-600 bg-blue-50 text-blue-600 dark:bg-blue-950/40">
+        <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
           <LayoutGrid className="h-[15px] w-[15px]" />
         </span>
       ) : (
@@ -71,11 +72,11 @@ function ChipLink({ chip }: { chip: Chip }) {
         )
       )}
       {chip.label}
-      {chip.count != null && (
+      {visibleCount(chip) != null && (
         <span
-          className={`text-[13px] ${chip.active ? "text-blue-600/70" : "text-current opacity-70"}`}
+          className={`text-[13px] font-medium ${chip.active ? "text-blue-700" : "text-[var(--color-market-text-secondary)]"}`}
         >
-          {chip.count.toLocaleString()}
+          {compactNumber(visibleCount(chip)!, locale)}
         </span>
       )}
     </Link>
@@ -100,44 +101,63 @@ function BackChipLink({
 
 export function CategoryRow({
   categories,
+  stats,
   activeCategory,
   activeSubcategory,
   allAdsLabel,
   allInCategoryLabel,
 }: {
   categories: CategoryOption[];
+  stats: FeedStats;
   activeCategory: CategoryOption | null;
   activeSubcategory: { id: string; name: string } | null;
   allAdsLabel: string;
   // e.g. "All Vehicles" — built by the caller so it can be translated.
   allInCategoryLabel: string | null;
 }) {
+  const t = useTranslations("listings");
   const openCategoryModal = useCategoryModalStore((s) => s.open);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  // The right-edge fade only signals "more to scroll" — once the row is
-  // scrolled to its end it goes away so the last chip/More shows clearly.
-  const [atEnd, setAtEnd] = useState(false);
-  const updateAtEnd = () => {
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+  const update = () => {
     const el = scrollRef.current;
     if (!el) return;
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 2);
+    const overflow = el.scrollWidth - el.clientWidth;
+    setCanLeft(el.scrollLeft > 2);
+    setCanRight(overflow > 2 && el.scrollLeft < overflow - 2);
   };
   useEffect(() => {
-    updateAtEnd();
-    window.addEventListener("resize", updateAtEnd);
-    return () => window.removeEventListener("resize", updateAtEnd);
+    update();
+    const el = scrollRef.current;
+    const ro =
+      el && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(update)
+        : null;
+    if (el) ro?.observe(el);
+    return () => ro?.disconnect();
   }, [activeCategory?.id, activeSubcategory?.id]);
 
-  // Bring the active chip into view on mobile without moving the page
-  // itself (the row doesn't stick, so this only matters on first paint).
+  // Bring the active chip into view without moving the page itself.
   useEffect(() => {
-    scrollRef.current
-      ?.querySelector('[data-active="true"]')
-      ?.scrollIntoView({ block: "nearest", inline: "center" });
+    const el = scrollRef.current;
+    const active = el?.querySelector<HTMLElement>('[data-active="true"]');
+    if (el && active)
+      el.scrollLeft =
+        active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
   }, [activeCategory?.id, activeSubcategory?.id]);
+
+  const scrollBy = (dir: 1 | -1) =>
+    scrollRef.current?.scrollBy({
+      left: dir * scrollRef.current.clientWidth * 0.7,
+      behavior: "smooth",
+    });
 
   let chips: Chip[];
   let backChip: { href: string; label: string } | null = null;
+  // Empty categories are a dead end, so they are not offered as chips (the
+  // category menu behind "More" still lists every category).
+  const withAds = categories.filter((c) => (stats.byCategory[c.id] ?? 0) > 0);
 
   if (!activeCategory) {
     chips = [
@@ -148,98 +168,88 @@ export function CategoryRow({
         count: null,
         active: true,
       },
-      ...categories.slice(0, TOP_LEVEL_VISIBLE).map((cat) => ({
+      ...withAds.slice(0, TOP_LEVEL_VISIBLE).map((cat) => ({
         key: cat.id,
         href: `/ads/${cat.id}`,
         label: cat.name,
-        count: CATEGORY_LISTING_COUNTS[cat.id] ?? 0,
+        count: stats.byCategory[cat.id] ?? 0,
         active: false,
         hasIcon: true,
       })),
     ];
-  } else if (!activeSubcategory) {
-    backChip = { href: "/ads", label: allAdsLabel };
-    chips = [
-      {
-        key: "all-in-category",
-        href: `/ads/${activeCategory.id}`,
-        label: allInCategoryLabel ?? activeCategory.name,
-        count: CATEGORY_LISTING_COUNTS[activeCategory.id] ?? 0,
-        active: true,
-      },
-      ...activeCategory.subcategories.map((sub) => ({
-        key: sub.id,
-        href: `/ads/${activeCategory.id}/${sub.id}`,
-        label: sub.name,
-        count: subcategoryListingCount(
-          activeCategory.id,
-          sub.id,
-          activeCategory.subcategories.length,
-        ),
-        active: false,
-      })),
-    ];
   } else {
-    backChip = {
-      href: `/ads/${activeCategory.id}`,
-      label: activeCategory.name,
-    };
+    backChip = activeSubcategory
+      ? { href: `/ads/${activeCategory.id}`, label: activeCategory.name }
+      : { href: "/ads", label: allAdsLabel };
     chips = [
       {
         key: "all-in-category",
         href: `/ads/${activeCategory.id}`,
         label: allInCategoryLabel ?? activeCategory.name,
-        count: CATEGORY_LISTING_COUNTS[activeCategory.id] ?? 0,
-        active: false,
+        count: stats.byCategory[activeCategory.id] ?? 0,
+        active: !activeSubcategory,
       },
-      ...activeCategory.subcategories.map((sub) => ({
-        key: sub.id,
-        href: `/ads/${activeCategory.id}/${sub.id}`,
-        label: sub.name,
-        count: subcategoryListingCount(
-          activeCategory.id,
-          sub.id,
-          activeCategory.subcategories.length,
-        ),
-        active: sub.id === activeSubcategory.id,
-      })),
+      ...activeCategory.subcategories
+        .map((sub) => ({
+          key: sub.id,
+          href: `/ads/${activeCategory.id}/${sub.id}`,
+          label: sub.name,
+          count: stats.bySubcategory[`${activeCategory.id}/${sub.id}`] ?? 0,
+          active: sub.id === activeSubcategory?.id,
+        }))
+        .filter((c) => c.active || c.count > 0),
     ];
   }
 
+  const fade = `linear-gradient(to right, ${canLeft ? "transparent, black 32px" : "black"}, ${
+    canRight ? "black calc(100% - 32px), transparent" : "black"
+  })`;
+  const arrowCls =
+    "absolute top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--color-market-border)] bg-[var(--color-market-surface)] text-[var(--color-market-text)] shadow-md transition hover:border-blue-300 hover:text-blue-600 sm:flex";
+
   return (
-    <nav aria-label="Categories">
+    <nav aria-label={t("categorySwitcher.label")} className="relative">
+      {canLeft && (
+        <button
+          type="button"
+          onClick={() => scrollBy(-1)}
+          aria-label={t("shops.scrollLeft")}
+          className={`${arrowCls} left-0`}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      )}
       <div
         ref={scrollRef}
-        onScroll={updateAtEnd}
-        className="scrollbar-hide flex items-center gap-2 overflow-x-auto"
-        style={
-          atEnd
-            ? undefined
-            : {
-                maskImage:
-                  "linear-gradient(to right, black 92%, transparent 100%)",
-                WebkitMaskImage:
-                  "linear-gradient(to right, black 92%, transparent 100%)",
-              }
-        }
+        onScroll={update}
+        className="scrollbar-hide flex items-center gap-2 overflow-x-auto py-1"
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
       >
         {backChip && <BackChipLink backChip={backChip} />}
         {chips.map((chip) => (
           <ChipLink key={chip.key} chip={chip} />
         ))}
-        {/* Desktop only — mobile relies on swipe + the peeking next chip,
-            per the mobile review (no tap-and-cover arrow). */}
         {!activeCategory && categories.length > TOP_LEVEL_VISIBLE && (
           <button
             type="button"
             onClick={openCategoryModal}
-            className="hidden h-10 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-[var(--color-market-border)] px-3 text-[14px] font-semibold text-[var(--color-market-text-secondary)] hover:border-blue-300 hover:text-blue-600 sm:flex"
+            className="flex h-10 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-[var(--color-market-border)] px-3 text-[14px] font-semibold text-[var(--color-market-text-secondary)] outline-none hover:border-blue-300 hover:text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
           >
-            More
+            {t("categorySwitcher.more")}
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
+      {canRight && (
+        <button
+          type="button"
+          onClick={() => scrollBy(1)}
+          aria-label={t("shops.scrollRight")}
+          className={`${arrowCls} right-0`}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      )}
     </nav>
   );
 }

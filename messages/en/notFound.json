@@ -1,0 +1,28 @@
+{
+  "ad": {
+    "eyebrow": "Ad not available",
+    "title": "This ad is no longer here",
+    "body": "The ad you are looking for may have been sold or deleted by the seller, or it may never have existed. If you followed a link, it may be mistyped.",
+    "searchLabel": "Search all ads",
+    "searchPlaceholder": "Search phones, cars, houses and more",
+    "searchButton": "Search",
+    "allAds": "Browse all ads",
+    "postAd": "Post a free ad",
+    "categoriesTitle": "Or start from a category"
+  },
+  "page": {
+    "title": "We could not find that page",
+    "body": "The page may have moved, or the address may be mistyped. These are good places to continue from.",
+    "searchLabel": "Search SLMarket.lk",
+    "searchPlaceholder": "What are you looking for?",
+    "searchButton": "Search",
+    "home": "Homepage",
+    "homeDesc": "Start again from the top",
+    "ads": "All ads",
+    "adsDesc": "Thousands of ads across Sri Lanka",
+    "businesses": "Businesses",
+    "businessesDesc": "Verified shops and services",
+    "help": "Help centre",
+    "helpDesc": "Answers and contact options"
+  }
+}

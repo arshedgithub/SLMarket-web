@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { db } from "@/lib/db";
+import { getAdView } from "@/lib/listings/adView";
 import { categories } from "@/config/const/navLinks";
 
 export const alt = "Listing preview on SLMarket.lk";
@@ -17,13 +17,19 @@ export default async function OpengraphImage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const listing = await db.listing.findUnique({
-    where: { slug, status: "ACTIVE" },
-    select: { title: true, images: true, categoryId: true },
-  });
+  const listing = await getAdView(slug);
 
   const title = listing?.title ?? "SLMarket.lk Listing";
-  const image = listing?.images?.[0];
+  // Ads are shared on WhatsApp constantly: the preview carries the price.
+  const price =
+    listing?.priceRange ??
+    (listing?.price != null && listing.pricingType !== "CONTACT"
+      ? `Rs. ${listing.price.toLocaleString("en-US")}`
+      : null);
+  // The renderer fetches images itself, so a site path needs the origin.
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://slmarket.lk";
+  const photo = listing?.photos[0];
+  const image = photo ? new URL(photo, base).toString() : undefined;
   const label = categoryLabel(listing?.categoryId);
 
   return new ImageResponse(
@@ -118,6 +124,19 @@ export default async function OpengraphImage({
           >
             {title}
           </div>
+          {price && (
+            <div
+              style={{
+                display: "flex",
+                color: "#ffd166",
+                fontSize: 40,
+                fontWeight: 800,
+                marginTop: 14,
+              }}
+            >
+              {price}
+            </div>
+          )}
         </div>
       </div>
     ),

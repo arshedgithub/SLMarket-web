@@ -9,6 +9,8 @@ const DOCUMENT_TYPES = [...IMAGE_TYPES, "application/pdf", "image/tiff"];
 const VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024;
+const SPOTLIGHT_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SPOTLIGHT_BYTES = 2 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -30,7 +32,25 @@ export async function POST(req: NextRequest) {
 
   const { contentType, folder = "listings", sizeBytes } = await req.json();
 
-  if (folder === "reels") {
+  // Spotlight campaign images: admins only, JPG, PNG or WebP under 2 MB
+  // (the form also checks the master is at least 2000px wide).
+  if (folder === "spotlight") {
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    if (!SPOTLIGHT_TYPES.includes(contentType)) {
+      return NextResponse.json(
+        { message: "Use a JPG, PNG or WebP image" },
+        { status: 400 },
+      );
+    }
+    if (sizeBytes && sizeBytes > MAX_SPOTLIGHT_BYTES) {
+      return NextResponse.json(
+        { message: "Images must be under 2 MB" },
+        { status: 400 },
+      );
+    }
+  } else if (folder === "reels") {
     const baseContentType =
       typeof contentType === "string" ? contentType.split(";")[0] : "";
     if (!VIDEO_TYPES.includes(baseContentType)) {

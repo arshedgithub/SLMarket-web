@@ -2,75 +2,96 @@
 
 import { useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Check, ChevronDown } from "lucide-react";
-import { useOutsideClick } from "@/hooks/useOutsideClick";
+import { Check, ChevronDown, Globe } from "lucide-react";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { routing, type Locale } from "@/i18n/routing";
+import { type Locale } from "@/i18n/routing";
+import { useOutsideClick } from "@/hooks/useOutsideClick";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
-const LANGUAGE_LABELS: Record<Locale, string> = {
-  en: "English",
-  ta: "தமிழ்",
-  si: "සිංහල",
-};
+// Each language in its own script, so a Sinhala or Tamil reader finds it
+// without reading English first.
+const LANGUAGES: { code: Locale; short: string; name: string }[] = [
+  { code: "en", short: "EN", name: "English" },
+  { code: "si", short: "සිං", name: "සිංහල" },
+  { code: "ta", short: "த", name: "தமிழ்" },
+];
 
-// Short form for the tablet-width nav, where there isn't room for the full
-// language name next to the logo, nav links and auth buttons.
-const LANGUAGE_LABELS_SHORT: Record<Locale, string> = {
-  en: "En",
-  ta: "தமி",
-  si: "සිං",
-};
+// On unless NEXT_PUBLIC_I18N_ENABLED is "false" (a switch to hide the
+// language menu if a translation is ever not ready).
+export const I18N_ENABLED = process.env.NEXT_PUBLIC_I18N_ENABLED !== "false";
 
+/*
+ * One compact control: a globe and the current language ("EN"), opening a
+ * menu with each language in its own script. next-intl remembers the choice
+ * in its locale cookie and sets <html lang>.
+ */
 export default function LanguageSwitcher({
-  compact = false,
+  align = "right",
 }: {
-  compact?: boolean;
+  align?: "left" | "right";
 }) {
   const t = useTranslations("nav");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-  useOutsideClick([ref], () => setIsOpen(false));
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  useOutsideClick([wrapRef], () => setOpen(false));
+  useFocusTrap(menuRef, open, () => setOpen(false));
 
-  const selectLocale = (nextLocale: Locale) => {
-    setIsOpen(false);
-    router.replace(pathname, { locale: nextLocale });
-  };
+  if (!I18N_ENABLED) return null;
+  const current = LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES[0];
 
   return (
-    <div className="relative" ref={ref}>
+    <div ref={wrapRef} className="relative">
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-1 whitespace-nowrap text-sm font-medium text-light-text hover:text-text transition-colors"
-        aria-label={t("changeLanguage")}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`${t("changeLanguage")}: ${current.name}`}
+        className="flex h-11 min-w-11 items-center justify-center gap-1 rounded-full px-2 text-sm font-semibold text-light-text transition-colors hover:bg-background hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
       >
-        {compact ? LANGUAGE_LABELS_SHORT[locale] : LANGUAGE_LABELS[locale]}
+        <Globe aria-hidden className="h-[18px] w-[18px]" />
+        <span lang={current.code}>{current.short}</span>
         <ChevronDown
-          className={`h-3.5 w-3.5 shrink-0 transform transition-transform ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
-      {isOpen && (
+      {open && (
         <div
-          role="listbox"
-          className="absolute right-0 top-full mt-2 w-36 rounded-lg border border-border bg-surface shadow-lg z-50 overflow-hidden"
+          ref={menuRef}
+          role="menu"
+          aria-label={t("changeLanguage")}
+          className={`absolute top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-lg dark:bg-[#111d30] ${
+            align === "right" ? "right-0" : "left-0"
+          }`}
         >
-          {routing.locales.map((code) => (
-            <button
-              key={code}
-              role="option"
-              aria-selected={code === locale}
-              onClick={() => selectLocale(code)}
-              className="flex w-full items-center justify-between px-3 py-2 text-sm text-text hover:bg-background"
-            >
-              {LANGUAGE_LABELS[code]}
-              {code === locale && <Check className="h-4 w-4 text-primary" />}
-            </button>
-          ))}
+          {LANGUAGES.map(({ code, name }) => {
+            const active = code === locale;
+            return (
+              <button
+                key={code}
+                type="button"
+                role="menuitemradio"
+                aria-checked={active}
+                lang={code}
+                onClick={() => {
+                  setOpen(false);
+                  if (!active) router.replace(pathname, { locale: code });
+                }}
+                className="flex h-11 w-full items-center justify-between rounded-lg px-3 text-[15px] text-text hover:bg-background"
+              >
+                {name}
+                {active && (
+                  <Check aria-hidden className="h-4 w-4 text-primary" />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

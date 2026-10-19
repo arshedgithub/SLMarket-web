@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   Mail,
+  MessageCircle,
   Phone,
   MapPin,
   Store,
@@ -88,11 +89,12 @@ const SOCIALS: {
 
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
-  { label: "All Categories", href: "/categories" },
+  { label: "All Categories", href: "/ads" },
   { label: "Deals & Offers", href: "/ads/deals" },
   { label: "Premium Businesses", href: "/businesses" },
   { label: "Post a Free Ad", href: "/post-ad" },
   { label: "How It Works", href: "/help" },
+  { label: "Safety Tips", href: "/help/safety" },
   { label: "Help & Support", href: "/help/contact" },
 ];
 
@@ -124,7 +126,7 @@ const TRUST_ITEMS = [
 
 const LEGAL_LINKS = [
   { label: "About Us", href: "/about" },
-  { label: "Terms of Service", href: "/help/privacy-policy" },
+  { label: "Terms of Service", href: "/help/terms" },
   { label: "Privacy Policy", href: "/help/privacy-policy" },
   { label: "Listing Policy", href: "/help/faq" },
   { label: "Contact Us", href: "/help/contact" },
@@ -144,7 +146,7 @@ export default function Footer() {
   return (
     <footer className="relative isolate mt-4 overflow-hidden text-[var(--color-market-text)]">
       <Image
-        src="/images/footer/footer-bg.webp"
+        src="/images/ui/footer-bg.webp"
         alt=""
         fill
         sizes="100vw"
@@ -230,7 +232,7 @@ export default function Footer() {
             {WHATSAPP_PERKS.map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="flex flex-col items-center gap-1.5 text-center text-[11px] font-medium leading-tight text-[var(--color-market-text-muted)]"
+                className="flex flex-col items-center gap-1.5 text-center text-xs font-medium leading-tight text-[var(--color-market-text-muted)]"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm ring-1 ring-emerald-100 dark:bg-white/10 dark:ring-white/10">
                   <Icon className="h-4 w-4" />
@@ -252,7 +254,7 @@ export default function Footer() {
           <div className="flex flex-col items-center text-center">
             <Link href="/" className="inline-flex items-center">
               <Image
-                src="/images/footer/logo.webp"
+                src="/images/brand/logo.webp"
                 alt="SLMarket.lk, Sri Lanka's Trusted Marketplace"
                 width={1030}
                 height={292}
@@ -298,7 +300,7 @@ export default function Footer() {
                   {tCategories(`${c.id}.name`)}
                 </FooterLink>
               ))}
-              <FooterLink href="/categories" strong>
+              <FooterLink href="/ads" strong>
                 View All Categories
               </FooterLink>
             </FooterAccordion>
@@ -335,7 +337,7 @@ export default function Footer() {
               <FooterLink href="/help">Help Centre</FooterLink>
               <FooterLink href="/help/contact">Contact Us</FooterLink>
               <FooterLink href="/help/faq">Listing Policy</FooterLink>
-              <FooterLink href="/help/faq">
+              <FooterLink href="/help/safety">
                 Safety / Buying &amp; Selling Tips
               </FooterLink>
             </FooterAccordion>
@@ -347,7 +349,7 @@ export default function Footer() {
               <h3 className="text-base font-bold text-[var(--color-market-text)]">
                 Get in Touch
               </h3>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                 We&apos;re here to help
               </span>
@@ -358,6 +360,12 @@ export default function Footer() {
                 title="+94 78 521 7472"
                 sub="Available 24x7"
                 href="tel:+94785217472"
+              />
+              <ContactRow
+                icon={MessageCircle}
+                title="WhatsApp support"
+                sub="Chat with us on +94 78 521 7472"
+                href="https://wa.me/94785217472"
               />
               <ContactRow
                 icon={Mail}
@@ -417,7 +425,7 @@ export default function Footer() {
             <div className="col-span-2 md:col-span-3 lg:col-span-4">
               <Link href="/" className="inline-flex items-center">
                 <Image
-                  src="/images/footer/logo.webp"
+                  src="/images/brand/logo.webp"
                   alt="SLMarket.lk, Sri Lanka's Trusted Marketplace"
                   width={1030}
                   height={292}
@@ -503,7 +511,7 @@ export default function Footer() {
                 </FooterLink>
               ))}
               <Link
-                href="/categories"
+                href="/ads"
                 className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
               >
                 View All Categories
@@ -546,6 +554,12 @@ export default function Footer() {
                 title="+94 78 521 7472"
                 sub="Available 24x7"
                 href="tel:+94785217472"
+              />
+              <ContactRow
+                icon={MessageCircle}
+                title="WhatsApp support"
+                sub="Chat with us on +94 78 521 7472"
+                href="https://wa.me/94785217472"
               />
               <ContactRow
                 icon={Mail}
@@ -719,9 +733,12 @@ function ContactRow({
   sub: string;
   href?: string;
 }) {
+  const external = href?.startsWith("https://");
   const titleEl = href ? (
     <a
       href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
       className="block text-sm font-semibold text-[var(--color-market-text)] transition-colors hover:text-blue-600"
     >
       {title}

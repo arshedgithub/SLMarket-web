@@ -14,14 +14,21 @@ import {
   X,
 } from "lucide-react";
 import { uploadImage } from "@/lib/uploadMedia";
+import {
+  MIN_PHOTO,
+  PhotoTooSmallError,
+  preparePhoto,
+} from "@/lib/postAd/preparePhoto";
 import { getImageLimits, type AdDraft } from "../types";
 
 const TIPS = [
-  "Use clear, recent photos",
-  "Show the actual item (not stock photos)",
-  "Good lighting, multiple angles",
+  "Use clear, recent photos of the actual item (not stock photos)",
+  "Landscape (4:3) photos fill the card best; keep the item in the middle",
+  "Good lighting, several angles",
   "Avoid text or contact numbers in images",
 ];
+
+const RECOMMENDED_PHOTOS = 3;
 
 export function StepPhotos({
   draft,
@@ -45,13 +52,27 @@ export function StepPhotos({
     const room = maxImages - draft.images.length;
     const picked = Array.from(files).slice(0, room);
     setUploading(true);
+    const added: string[] = [];
+    let tooSmall = 0;
     try {
-      const urls: string[] = [];
-      for (const file of picked) urls.push(await uploadImage(file, "listings"));
-      patch({ images: [...draft.images, ...urls] });
+      for (const file of picked) {
+        try {
+          // At least 800 x 600, and resized to 1600px before upload.
+          added.push(await uploadImage(await preparePhoto(file), "listings"));
+        } catch (e) {
+          if (e instanceof PhotoTooSmallError) tooSmall++;
+          else throw e;
+        }
+      }
+      if (tooSmall) {
+        setUploadError(
+          `${tooSmall === 1 ? "One photo was" : `${tooSmall} photos were`} too small. Use photos at least ${MIN_PHOTO.long} x ${MIN_PHOTO.short} pixels.`,
+        );
+      }
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Upload failed");
     } finally {
+      if (added.length) patch({ images: [...draft.images, ...added] });
       setUploading(false);
     }
   };
@@ -73,7 +94,7 @@ export function StepPhotos({
         <h2 className="flex items-center gap-2 text-lg font-bold text-[var(--color-market-text)]">
           Add photos
           {minImages === 0 && (
-            <span className="rounded-full bg-background px-2 py-0.5 text-[10px] font-medium text-[var(--color-market-text-muted)]">
+            <span className="rounded-full bg-background px-2 py-0.5 text-xs font-medium text-[var(--color-market-text-muted)]">
               Optional
             </span>
           )}
@@ -118,8 +139,9 @@ export function StepPhotos({
           <span className="btn-outline rounded-lg px-4 py-2 text-xs font-semibold">
             Browse Files
           </span>
-          <p className="mt-1 text-[11px] text-[var(--color-market-text-muted)]">
-            JPG, PNG up to 10MB each
+          <p className="mt-1 text-xs text-[var(--color-market-text-muted)]">
+            JPG, PNG or WebP, at least {MIN_PHOTO.long} x {MIN_PHOTO.short}{" "}
+            pixels
           </p>
           <input
             type="file"
@@ -150,6 +172,13 @@ export function StepPhotos({
         </div>
       </div>
 
+      {draft.images.length > 0 && draft.images.length < RECOMMENDED_PHOTOS && (
+        <p className="rounded-xl bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
+          Add at least {RECOMMENDED_PHOTOS} photos so buyers can see the item
+          from every side.
+        </p>
+      )}
+
       {(uploadError || errors.images) && (
         <p className="text-xs font-medium text-[var(--color-market-danger)]">
           {uploadError || errors.images}
@@ -175,7 +204,7 @@ export function StepPhotos({
                 className="object-cover"
               />
               {i === 0 && (
-                <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white">
+                <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-xs font-bold text-white">
                   <Star className="h-2.5 w-2.5 fill-current" />
                   Cover
                 </span>
@@ -220,7 +249,7 @@ export function StepPhotos({
           {draft.images.length < maxImages && (
             <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border text-[var(--color-market-text-muted)] transition hover:border-primary/50 hover:text-primary">
               <Plus className="h-5 w-5" />
-              <span className="text-[11px] font-medium">Add more</span>
+              <span className="text-xs font-medium">Add more</span>
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/avif"
@@ -241,7 +270,7 @@ export function StepPhotos({
             <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-market-text)]">
               <Film className="h-4 w-4 text-[var(--color-market-text-muted)]" />
               Add a short video
-              <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] font-medium text-[var(--color-market-text-muted)]">
+              <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-[var(--color-market-text-muted)]">
                 <Lock className="mr-1 inline h-2.5 w-2.5" />
                 Premium
               </span>

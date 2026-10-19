@@ -11,44 +11,31 @@
     "searchPlaceholder": "Try \"3BR house Negombo\" or \"Toyota Aqua 2015\"",
     "searchButton": "Search",
     "popularLabel": "Popular searches",
-    "popularMore": "See more"
-  },
-  "categoryTaglines": {
-    "vehicles": "Cars, bikes & three-wheelers",
-    "property": "Land, houses & rentals",
-    "electronics": "Phones, laptops & more",
-    "home-garden": "Furniture & home living",
-    "fashion": "Clothing, shoes & bags",
-    "food": "Groceries & fresh produce",
-    "agriculture": "Machinery, seeds & crops",
-    "animals-pets": "Pets, livestock & supplies",
-    "services": "Repairs, classes & experts",
-    "jobs": "Full-time & part-time",
-    "health-beauty": "Skincare, makeup & wellness",
-    "hobbies": "Sports gear, fitness & hobbies",
-    "education": "Classes, courses & tutoring",
-    "other": "Everything else on the market"
+    "popularMore": "See more",
+    "title": "Sri Lanka's trusted place to buy and sell",
+    "trustVerified": "Verified sellers",
+    "trustFree": "Free to post",
+    "subline": "Find it near you, or sell yours free in about a minute.",
+    "allSriLanka": "All Sri Lanka",
+    "searchLocationLabel": "Search location",
+    "useMyLocation": "Use my location",
+    "trustSafety": "Safety tips",
+    "trustIslandwide": "Islandwide"
   },
   "browse": {
     "heading": "Browse categories",
-    "subheading": "Everything you need, all in one marketplace",
-    "viewAll": "View all",
-    "eyebrow": "Explore"
+    "more": "More",
+    "countLabel": "{count, plural, one {{shown} ad} other {{shown} ads}}"
   },
-  "featured": {
-    "heading": "Featured Ads",
-    "subheading": "Handpicked deals from trusted sellers",
-    "viewAll": "View all",
-    "eyebrow": "Featured"
-  },
-  "shops": {
-    "eyebrow": "Featured Businesses",
-    "heading": "Discover Local Businesses",
-    "subheading": "Explore businesses across Sri Lanka.",
-    "viewAll": "View All Businesses",
-    "visit": "View Business",
-    "listings": "Ads",
-    "more": "More"
+  "latest": {
+    "heading": "Latest ads",
+    "viewAll": "View all ads",
+    "tabsLabel": "Latest ads",
+    "latest": "Latest",
+    "featured": "Featured",
+    "deals": "Deals",
+    "nearIn": "In {district}",
+    "newToday": "{count} new today"
   },
   "deals": {
     "eyebrow": "Deals & Offers",
@@ -70,46 +57,45 @@
     }
   },
   "sell": {
-    "eyebrow": "Start Selling Today",
-    "heading": "Sell on",
-    "tagline": "Turn things you no longer need into something valuable.",
-    "desc": "List your property, vehicle, electronics, products, services or anything else and reach buyers across Sri Lanka.",
+    "desc": "List your products, property, vehicles, or services and connect with buyers across Sri Lanka.",
     "ctaPost": "Post a Free Ad",
     "ctaShop": "Create a Business Page",
-    "freeTitle": "Free to list",
-    "freeDesc": "No listing fees",
-    "reachTitle": "Reach local buyers",
-    "reachDesc": "Across Sri Lanka",
-    "quickTitle": "Quick and easy",
-    "quickDesc": "List in minutes"
+    "eyebrow": "Sell on SLMarket.lk",
+    "heading": "Have Something to Sell? Start Here.",
+    "benefit1": "Free Listings",
+    "benefit2": "Reach Buyers Across Sri Lanka",
+    "benefit3": "Quick & Easy to Get Started",
+    "panelTitle": "Post your ad today",
+    "panelDesc": "New or used, big or small: add photos, a price and a few details."
   },
-  "whyUs": {
-    "eyebrow": "Why Choose Us",
-    "heading": "Why",
-    "desc": "More than just a marketplace, we create opportunities for a stronger Sri Lanka.",
-    "script": "Local People, Stronger Communities",
-    "builtTitle": "Built for Sri Lanka",
-    "builtDesc": "A marketplace designed around local buyers, sellers and businesses.",
-    "discoverTitle": "More Ways to Get Discovered",
-    "discoverDesc": "Ads, businesses, deals and powerful marketplace discovery.",
-    "exposureTitle": "Extra Exposure for Premium Ads",
-    "exposureDesc": "Get additional visibility through our social media promotion channels.",
-    "everyoneTitle": "For Individuals & Businesses",
-    "everyoneDesc": "Sell one item or build your business presence with a professional business page."
+  "forYou": {
+    "recentlyViewed": "Recently viewed",
+    "clear": "Clear"
   },
-  "mobileApp": {
-    "eyebrow": "Coming Soon",
-    "heading": "Mobile App",
-    "tagline": "Your marketplace, now in your pocket.",
-    "desc": "Browse ads, discover deals, manage favourites and connect with buyers and sellers, anytime, anywhere in Sri Lanka.",
-    "comingSoon": "Coming soon on iOS and Android",
-    "f1Title": "Easy to use",
-    "f1Desc": "Clean and simple experience",
-    "f2Title": "Instant notifications",
-    "f2Desc": "Be the first to know",
-    "f3Title": "Save favourites",
-    "f3Desc": "Never miss a deal",
-    "f4Title": "Access anywhere",
-    "f4Desc": "Across Sri Lanka"
+  "districts": {
+    "all": "View all districts",
+    "eyebrow": "Explore by location",
+    "headingStart": "Browse by",
+    "headingHighlight": "District",
+    "desc": "Find listings and sellers near you, in districts across Sri Lanka."
+  },
+  "safety": {
+    "heading": "Your Safety Matters",
+    "cta": "View safety tips",
+    "tip1Title": "Never pay in advance",
+    "tip1Desc": "Don't send a deposit before you see the item.",
+    "tip2Title": "Meet safely",
+    "tip2Desc": "Meet the seller in a busy public place.",
+    "tip3Title": "Check before you pay",
+    "tip3Desc": "Inspect the item and its papers first.",
+    "tip4Title": "Report suspicious activity",
+    "tip4Desc": "Tell us about any ad or person that seems wrong.",
+    "eyebrow": "Buy with confidence",
+    "desc": "Simple habits that keep every deal safe."
+  },
+  "categoriesPage": {
+    "title": "All categories",
+    "description": "Every category on SLMarket.lk, from vehicles and property to jobs and services.",
+    "intro": "Pick a category, or a type of item inside it."
   }
 }

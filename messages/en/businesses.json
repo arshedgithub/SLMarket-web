@@ -2,8 +2,166 @@
   "title": "Businesses on SLMarket.lk",
   "subtitle": "Discover trusted businesses across Sri Lanka, from electronics to property to services.",
   "searchPlaceholder": "Search businesses...",
-  "resultsFound": "{count} businesses found",
+  "resultsFound": "{count, plural, one {# business found} other {# businesses found}}",
   "verified": "Verified",
-  "activeListings": "{count} active listings",
-  "empty": "No businesses found."
+  "activeListings": "{count, plural, one {# active listing} other {# active listings}}",
+  "empty": "No businesses found.",
+  "directory": {
+    "home": "Home",
+    "businesses": "Businesses",
+    "sriLanka": "Sri Lanka",
+    "allSriLanka": "All Sri Lanka",
+    "location": "Location",
+    "titleAll": "Businesses in {place}",
+    "titleCategory": "{category} businesses in {place}",
+    "stats": "{count, plural, one {# business} other {# businesses}} · {verified} verified",
+    "statsShort": "{count, plural, one {# business} other {# businesses}}",
+    "acrossDistricts": "across {count, plural, one {# district} other {# districts}}",
+    "listYourBusiness": "List your business",
+    "searchLabel": "Search businesses or products",
+    "searchPlaceholder": "Search businesses or products (e.g. iPhone, laptop, AC repair, salon...)",
+    "search": "Search",
+    "recent": "Recent searches",
+    "suggestBusinesses": "Businesses",
+    "suggestProducts": "Products and services",
+    "suggestCategories": "Categories",
+    "suggestFrom": "{count, plural, one {# ad} other {# ads}} from Rs. {price}",
+    "browseCategory": "Browse {name} businesses",
+    "sponsored": "Sponsored",
+    "categories": {
+      "label": "Business categories",
+      "electronics": "Electronics",
+      "vehicles": "Vehicle dealers",
+      "property": "Real estate",
+      "services": "Services",
+      "home-garden": "Home & Living",
+      "fashion": "Fashion",
+      "food": "Food & Groceries",
+      "agriculture": "Agriculture",
+      "education": "Education"
+    },
+    "all": "All",
+    "allFilters": "All filters",
+    "verified": "Verified",
+    "openNowFilter": "Open now",
+    "rating4": "4+ rating",
+    "delivery": "Delivery",
+    "distance": "Distance",
+    "withinKm": "Within {km} km",
+    "useMyLocation": "Use my location",
+    "sortLabel": "Sort: {sort}",
+    "sort": {
+      "recommended": "Recommended",
+      "nearest": "Nearest",
+      "rating": "Highest rated",
+      "items": "Most ads"
+    },
+    "howRanking": "How ranking works",
+    "view": "View",
+    "views": {
+      "grid": "Grid",
+      "list": "List",
+      "map": "Map"
+    },
+    "deliveryIslandwide": "Islandwide delivery",
+    "deliveryDistrict": "Delivers to my district",
+    "verifiedHint": "Phone verified and business registration checked",
+    "openHint": "Uses each business's opening hours in Sri Lanka time",
+    "ratingHint": "Based on a weighted rating, so one review can't decide it",
+    "instalment": "Instalment plans",
+    "instalmentHint": "Offers KOKO, Mintpay or bank easy payment plans",
+    "authorisedDealer": "Authorised dealer of",
+    "anyBrand": "Any brand",
+    "authorisedHint": "Only brands with verified proof are listed",
+    "clearAll": "Clear all",
+    "showResults": "{count, plural, =0 {No businesses} one {Show # business} other {Show # businesses}}",
+    "close": "Close",
+    "showingCategory": "Showing {from} to {to} of {total} {category} businesses in {place}",
+    "showingAll": "Showing {from} to {to} of {total} businesses in {place}",
+    "sponsoredResults": "{count, plural, one {# sponsored result} other {# sponsored results}}",
+    "none": "No businesses match.",
+    "noResults": "No businesses match these filters",
+    "noResultsQuery": "No businesses found for that search",
+    "noResultsHint": "Try a different word, remove a filter, or browse a category.",
+    "newBadge": "New on SLMarket",
+    "openNow": "Open now",
+    "closed": "Closed",
+    "closingSoon": "Closes in {minutes} min",
+    "km": "{km} km",
+    "authorised": "Authorised: {brand}",
+    "count": {
+      "products": "{count, plural, one {# product} other {# products}}",
+      "services": "{count, plural, one {# service} other {# services}}",
+      "vehicles": "{count, plural, one {# vehicle} other {# vehicles}}",
+      "properties": "{count, plural, one {# property} other {# properties}}",
+      "courses": "{count, plural, one {# course} other {# courses}}"
+    },
+    "viewBusiness": "View business",
+    "whatsapp": "WhatsApp",
+    "call": "Call",
+    "save": "Save {name}",
+    "matches": "{count, plural, one {# matching ad} other {# matching ads}} from {price}",
+    "mapLabel": "Map of businesses",
+    "searchArea": "Search this area",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "locate": "Show my location",
+    "inPlace": "{count, plural, one {# business} other {# businesses}} in {place}",
+    "inArea": "{count, plural, one {# business} other {# businesses}} in this area",
+    "resetArea": "Reset area",
+    "noLocation": "{count, plural, one {# business without a shop location isn't shown on the map.} other {# businesses without a shop location aren't shown on the map.}}",
+    "showThem": "Show them",
+    "backToMap": "Back to the map list",
+    "rankingTitle": "How ranking works",
+    "rankingIntro": "Businesses are ordered by how well they match what you asked for, and by signals that show they are reliable.",
+    "ranking": {
+      "relevance": {
+        "title": "How well it matches",
+        "text": "The words you searched for, or the category you're browsing."
+      },
+      "distance": {
+        "title": "How close it is",
+        "text": "Nearer businesses rank higher, measured from your chosen place or your location."
+      },
+      "trust": {
+        "title": "Verification",
+        "text": "Businesses with more checks completed (phone, registration, address, authorised dealer) rank higher."
+      },
+      "rating": {
+        "title": "Reviews",
+        "text": "A fair average of verified reviews, so one 5-star review can't outrank a long record."
+      },
+      "responsiveness": {
+        "title": "Replies",
+        "text": "How quickly and how often the business answers buyers' messages."
+      },
+      "activity": {
+        "title": "Activity and completeness",
+        "text": "Recent ads and a complete profile."
+      }
+    },
+    "rankingPayment": "Payment never changes a business's place in the results.",
+    "rankingSponsored": "Sponsored businesses are shown first, clearly labelled, and only when they match your search and filters.",
+    "grow": {
+      "title": "Grow your business on SLMarket",
+      "text": "Your verified shop. More customers, real leads and insights.",
+      "cta": "Create your Business Page",
+      "found": {
+        "title": "Be found by serious buyers",
+        "text": "Appear in search, categories and Google."
+      },
+      "trust": {
+        "title": "Build trust with a professional page",
+        "text": "Verified badge, reviews, products and offers."
+      },
+      "leads": {
+        "title": "Get real leads and insights",
+        "text": "Calls, WhatsApp and enquiries in your dashboard."
+      }
+    },
+    "seoTitleCategory": "{category} businesses in Sri Lanka | SLMarket",
+    "seoTitleDistrict": "{category} in {district}: {count, plural, one {# business} other {# businesses}} | SLMarket",
+    "seoDescription": "Compare {count} {category} businesses in {place}. See verified sellers, ratings, opening hours and prices, and contact them directly on WhatsApp.",
+    "sortBy": "Sort by"
+  }
 }
