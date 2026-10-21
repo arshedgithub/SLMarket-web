@@ -24,6 +24,12 @@ const eslintConfig = [
     ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Image routes render through next/og, which only accepts <img>. The rule
+  // skips these files itself on Linux but not on Windows, so turn it off here.
+  {
+    files: ["app/**/{opengraph-image,twitter-image,icon}.{js,jsx,ts,tsx}"],
+    rules: { "@next/next/no-img-element": "off" },
+  },
 ];
 
 export default eslintConfig;
