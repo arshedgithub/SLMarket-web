@@ -1,0 +1,186 @@
+name: CI
+
+# Quality gate. Runs on every pull request into dev or main, and is called
+# by deploy.yml before anything is deployed, so a red CI never ships.
+on:
+  pull_request:
+    branches: [dev, main]
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  HUSKY: "0"
+
+jobs:
+  # Releases go dev -> main. Only dev (or an urgent hotfix/* branch) may be
+  # merged into main, so production never gets code dev has not seen.
+  branch-policy:
+    name: Branch policy
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Only dev or hotfix/* may merge into main
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [[ "$HEAD_REF" == "dev" || "$HEAD_REF" == hotfix/* ]]; then
+            echo "OK: $HEAD_REF -> main"
+          else
+            echo "::error::Pull requests into main must come from dev or a hotfix/* branch (got '$HEAD_REF'). Target dev instead."
+            exit 1
+          fi
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: npm run lint
+
+  typecheck:
+    name: Type-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: npm run typecheck
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: npm test
+
+  # Migrations applied to an empty Postgres, schema drift check, a
+  # production build, then the built app started and its key pages fetched.
+  build:
+    name: Build and smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: slmarket
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci -d slmarket"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # Throwaway values for CI only: a local database and dummy keys. No
+      # real service is reached; pages that need one render their empty state.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/slmarket
+      DIRECT_URL: postgresql://ci:ci@localhost:5432/slmarket
+      AUTH_SECRET: ci-only-auth-secret-not-used-anywhere-else
+      AUTH_TRUST_HOST: "true"
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_FIREBASE_API_KEY: ci-placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ci-placeholder
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ci-placeholder.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:ci"
+      SMTP: logs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Apply migrations to an empty database
+        run: npx prisma migrate deploy
+
+      # A schema.prisma change without a migration would deploy code that
+      # expects columns the database does not have.
+      - name: Schema matches migrations
+        run: |
+          if ! npx prisma migrate diff \
+              --from-url "$DATABASE_URL" \
+              --to-schema-datamodel prisma/schema.prisma \
+              --exit-code; then
+            echo "::error file=prisma/schema.prisma::schema.prisma differs from prisma/migrations. Create a migration: npx prisma migrate dev --name <change>"
+            exit 1
+          fi
+
+      - name: Cache Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('app/**', 'components/**', 'lib/**', 'hooks/**', 'config/**', 'i18n/**', 'messages/**', 'styles/**', '*.ts', '*.mjs') }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+
+      - name: Production build
+        run: npm run build
+
+      - name: Smoke test
+        run: |
+          npm run start -- --port 3000 > next-start.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3000/robots.txt && break
+            sleep 1
+          done
+          fail=0
+          for path in / /en /en/ads /en/businesses /en/categories /en/register /en/login /robots.txt /sitemap.xml; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L "http://localhost:3000$path")
+            echo "$code  $path"
+            [[ "$code" == "200" ]] || fail=1
+          done
+          if [[ $fail -ne 0 ]]; then
+            echo "::error::Smoke test failed: a page did not return 200. Server log:"
+            tail -n 100 next-start.log
+            exit 1
+          fi
+
+  # New dependencies with known high-severity vulnerabilities, or with a
+  # disallowed licence, are flagged on the pull request.
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+  # One status to require in branch protection, whatever jobs exist above.
+  ci-passed:
+    name: CI passed
+    if: always()
+    needs: [branch-policy, lint, typecheck, test, build, dependency-review]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Every job succeeded or was skipped
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          if echo "$RESULTS" | grep -qE '"(failure|cancelled)"'; then
+            echo "::error::A CI job failed or was cancelled."
+            exit 1
+          fi

@@ -1,0 +1,20 @@
+name: Setup
+description: Node from .nvmrc, npm ci from the lockfile (cached), Prisma client generated.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+
+    # Install scripts stay on (Prisma engines, native packages, the map
+    # worker copy); HUSKY=0, set by the workflows, skips git hook setup.
+    - name: Install dependencies
+      shell: bash
+      run: npm ci --no-audit --no-fund
+
+    - name: Generate Prisma client
+      shell: bash
+      run: npx prisma generate
