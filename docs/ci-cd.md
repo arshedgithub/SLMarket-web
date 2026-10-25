@@ -87,7 +87,10 @@ so a pushed API key is blocked before it lands.
 
 ## Day to day
 
-- Run `npm run lint && npm run typecheck && npm test` before pushing.
+- `npm run ci:local` runs the CI checks that work locally: the lockfile on
+  Linux (through WSL on Windows), high or critical advisories anywhere in
+  the lockfile, lint, typecheck and tests. The pre-push hook runs it;
+  `git push --no-verify` skips it. The build and smoke test only run in CI.
 - A migration must work while the previous release is still running:
   add columns and tables first, remove old ones in a later release.
 - A failed production smoke test leaves the new deployment live:
