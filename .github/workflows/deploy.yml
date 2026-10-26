@@ -1,0 +1,150 @@
+name: Deploy
+
+# dev  -> "development" environment: Vercel preview build of the dev branch
+#         (dev database, dev env vars), optionally aliased to a fixed domain.
+# main -> "production" environment: Vercel production (slmarket.lk).
+#
+# Order: CI (the full quality gate) -> database migrations -> Vercel build
+# and deploy -> smoke test of the live URL. Vercel's own git deploys for
+# dev and main are switched off in vercel.json, so this is the only path
+# to those environments. Feature-branch PR previews still come from Vercel.
+#
+# Setup (secrets, variables, environments): docs/ci-cd.md
+on:
+  push:
+    branches: [dev, main]
+  workflow_dispatch:
+
+# One deploy per branch at a time, and never cancelled halfway through a
+# migration or upload: a newer push waits for the current one to finish.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  HUSKY: "0"
+  # Vercel CLI major version; bump deliberately.
+  VERCEL_CLI: vercel@41
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    needs: ci
+    if: github.ref_name == 'main' || github.ref_name == 'dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      IS_PROD: ${{ github.ref_name == 'main' }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check deployment settings
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: |
+          missing=()
+          [[ -n "$VERCEL_TOKEN" ]]      || missing+=("secret VERCEL_TOKEN")
+          [[ -n "$VERCEL_ORG_ID" ]]     || missing+=("variable VERCEL_ORG_ID")
+          [[ -n "$VERCEL_PROJECT_ID" ]] || missing+=("variable VERCEL_PROJECT_ID")
+          [[ -n "$DATABASE_URL" ]]      || missing+=("environment secret DATABASE_URL")
+          [[ -n "$DIRECT_URL" ]]        || missing+=("environment secret DIRECT_URL")
+          if (( ${#missing[@]} )); then
+            printf '::error::Missing %s (see docs/ci-cd.md)\n' "${missing[@]}"
+            exit 1
+          fi
+
+      - uses: ./.github/actions/setup
+
+      # Before the new code goes live, so it never runs against an older
+      # schema. Migrations must stay backward compatible with the code still
+      # running until the deploy finishes (add first, remove in a later
+      # release). Production can require a reviewer's approval to reach here
+      # (environment protection rules).
+      - name: Apply database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: npx prisma migrate deploy
+
+      - name: Pull Vercel settings and environment variables
+        run: |
+          if [[ "$IS_PROD" == "true" ]]; then
+            npx --yes "$VERCEL_CLI" pull --yes --environment=production --token="$VERCEL_TOKEN"
+          else
+            # Preview variables scoped to the dev branch (dev database etc.).
+            npx --yes "$VERCEL_CLI" pull --yes --environment=preview --git-branch=dev --token="$VERCEL_TOKEN"
+          fi
+
+      - name: Build
+        run: |
+          if [[ "$IS_PROD" == "true" ]]; then
+            npx --yes "$VERCEL_CLI" build --prod --token="$VERCEL_TOKEN"
+          else
+            npx --yes "$VERCEL_CLI" build --token="$VERCEL_TOKEN"
+          fi
+
+      - name: Deploy
+        id: deploy
+        run: |
+          meta=(--meta "githubCommitSha=$GITHUB_SHA" --meta "githubCommitRef=$GITHUB_REF_NAME" --meta "githubRunId=$GITHUB_RUN_ID")
+          if [[ "$IS_PROD" == "true" ]]; then
+            url=$(npx --yes "$VERCEL_CLI" deploy --prebuilt --prod "${meta[@]}" --token="$VERCEL_TOKEN")
+          else
+            url=$(npx --yes "$VERCEL_CLI" deploy --prebuilt "${meta[@]}" --token="$VERCEL_TOKEN")
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      # The dev site at a fixed address (e.g. dev.slmarket.lk), if set.
+      - name: Point the dev domain at this deployment
+        if: env.IS_PROD != 'true' && vars.DEV_DOMAIN != ''
+        env:
+          DEV_DOMAIN: ${{ vars.DEV_DOMAIN }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          npx --yes "$VERCEL_CLI" alias set "$URL" "$DEV_DOMAIN" --token="$VERCEL_TOKEN"
+          echo "Dev domain: https://$DEV_DOMAIN" >> "$GITHUB_STEP_SUMMARY"
+
+      # Key pages must answer 200 on the live deployment. Preview
+      # deployments behind Vercel Deployment Protection need the automation
+      # bypass secret.
+      - name: Smoke test the deployment
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          headers=()
+          [[ -n "$BYPASS" ]] && headers=(-H "x-vercel-protection-bypass: $BYPASS")
+          fail=0
+          for path in /en /en/ads /en/businesses /robots.txt; do
+            code=000
+            for attempt in 1 2 3 4 5; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' -L "${headers[@]}" "$URL$path")
+              [[ "$code" == "200" ]] && break
+              sleep 5
+            done
+            echo "$code  $path"
+            [[ "$code" == "200" ]] || fail=1
+          done
+          if [[ $fail -ne 0 ]]; then
+            echo "::error::Smoke test failed on $URL"
+            if [[ "$IS_PROD" == "true" ]]; then
+              echo "::error::Roll back from the Vercel dashboard (Deployments -> previous -> Instant Rollback) or: npx $VERCEL_CLI rollback"
+            fi
+            exit 1
+          fi
