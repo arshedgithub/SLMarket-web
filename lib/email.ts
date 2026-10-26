@@ -37,13 +37,25 @@ function getTransporter() {
   });
 }
 
+// Removes every match, repeating until none is left: one pass can join the
+// text around a removed tag into a new one ("<scr<script>ipt>").
+function removeAll(text: string, pattern: RegExp): string {
+  let previous: string;
+  do {
+    previous = text;
+    text = text.replace(pattern, "");
+  } while (text !== previous);
+  return text;
+}
+
 // The readable text of an email body, for the log.
-function htmlToText(html: string): string {
-  return html
-    .replace(/<(style|head)[\s\S]*?<\/\1>/gi, "")
+export function htmlToText(html: string): string {
+  const withoutBlocks = removeAll(html, /<(style|head)\b[\s\S]*?<\/\1\s*>/gi)
     .replace(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 ($1)")
-    .replace(/<br\s*\/?>|<\/(p|div|tr|h\d|blockquote)>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
+    .replace(/<br\s*\/?>|<\/(p|div|tr|h\d|blockquote)>/gi, "\n");
+  // A "<" left over (from a tag cut short) is never part of the text.
+  return removeAll(withoutBlocks, /<[^>]*>/g)
+    .replace(/</g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&middot;/g, "·")
     .replace(/&amp;/g, "&")
