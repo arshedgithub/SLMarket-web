@@ -91,6 +91,12 @@ so a pushed API key is blocked before it lands.
   Linux (through WSL on Windows), high or critical advisories anywhere in
   the lockfile, lint, typecheck and tests. The pre-push hook runs it;
   `git push --no-verify` skips it. The build and smoke test only run in CI.
+- Before opening a pull request, run `npm run ci:pr`: everything above plus
+  CodeQL with the settings in `codeql.yml`, failing on what would block the
+  PR (security-severity high or more). It takes about two minutes; the first
+  run downloads CodeQL (about 140 MB) into WSL. A reviewed false positive goes
+  in `.github/codeql/accepted-alerts.json` with the reason, and is dismissed in
+  GitHub (Security → Code scanning → the alert → Dismiss → False positive).
 - A migration must work while the previous release is still running:
   add columns and tables first, remove old ones in a later release.
 - A failed production smoke test leaves the new deployment live:

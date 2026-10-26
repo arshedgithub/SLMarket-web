@@ -1,0 +1,17 @@
+[
+  {
+    "rule": "js/xss-through-dom",
+    "file": "app/[locale]/(root)/dashboard/ads/new/_components/shared/ReelUploader.tsx",
+    "reason": "video.src is a blob: URL from URL.createObjectURL() for a file the user picked; it cannot carry script or markup. No code change satisfies this rule (only ones that hide the data flow), so it is dismissed in GitHub as a false positive."
+  },
+  {
+    "rule": "js/xss-through-dom",
+    "file": "app/[locale]/(root)/dashboard/ads/new/_components/shared/VideoTrimModal.tsx",
+    "reason": "video.src is a blob: URL from URL.createObjectURL() for a file the user picked; it cannot carry script or markup. Dismissed in GitHub as a false positive."
+  },
+  {
+    "rule": "js/xss-through-dom",
+    "file": "lib/utils/trimVideo.ts",
+    "reason": "video.src is a blob: URL from URL.createObjectURL() for a file the user picked; it cannot carry script or markup. Dismissed in GitHub as a false positive."
+  }
+]

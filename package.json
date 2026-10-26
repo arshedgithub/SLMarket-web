@@ -19,7 +19,8 @@
     "db:generate": "prisma generate",
     "test": "vitest run",
     "test:watch": "vitest",
-    "ci:local": "node scripts/ci-local.mjs"
+    "ci:local": "node scripts/ci-local.mjs",
+    "ci:pr": "node scripts/ci-local.mjs --codeql"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
