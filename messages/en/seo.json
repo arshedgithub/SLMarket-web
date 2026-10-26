@@ -1,32 +1,12 @@
 {
   "home": {
-    "title": "SLMarket.lk: Sri Lanka's Marketplace for Every Need",
+    "title": "SLMarket.lk: Sri Lanka's Trusted Marketplace to Buy & Sell",
     "description": "Buy and sell across Sri Lanka on SLMarket.lk. Vehicles, property, electronics, home and garden, fashion, food, agriculture, pets, services, jobs and more from verified local sellers.",
     "keywords": "Sri Lanka marketplace, buy sell Sri Lanka, vehicles for sale, property for sale, houses for rent, electronics, jobs Sri Lanka, agriculture, pets, services, classifieds Sri Lanka"
   },
-  "gems": {
-    "title": "Buy Certified Gemstones: Sapphires, Rubies & Rare Gems",
-    "description": "Browse and buy certified gemstones for sale, Ceylon sapphires, rubies, spinel, alexandrite and more, directly from verified sellers. Sell your gems on Lumevelo too.",
-    "keywords": "buy sapphire online, sell gemstones, ruby for sale, Ceylon sapphire for sale, certified gemstones, gemstone marketplace, buy gems online Sri Lanka"
-  },
-  "jewellery": {
-    "title": "Buy & Sell Fine Jewellery Online: Gold, Silver & Gemstone Jewellery",
-    "description": "Shop handcrafted gold, silver and gemstone jewellery for sale from verified sellers, or list your own jewellery to sell. Trusted online jewellery marketplace.",
-    "keywords": "buy jewellery online, sell jewellery, gold jewellery for sale, silver jewellery for sale, gemstone jewellery, jewellery marketplace"
-  },
-  "preciousMetals": {
-    "title": "Buy & Sell Gold and Silver: Precious Metals Marketplace",
-    "description": "Buy gold and silver or sell your precious metals to verified buyers. Live metal prices and a trusted marketplace for gold and silver trading.",
-    "keywords": "buy gold online, sell gold, buy silver, sell silver, gold price, silver price, precious metals marketplace"
-  },
-  "services": {
-    "title": "Gem & Jewellery Services: Certification, Valuation & Custom Design",
-    "description": "Find trusted gem certification, valuation, and custom jewellery design services from verified professionals.",
-    "keywords": "gem certification, jewellery valuation, custom jewellery design, gemstone appraisal services"
-  },
-  "sellers": {
-    "title": "Verified Gem & Jewellery Sellers",
-    "description": "Browse verified sellers of certified gems, jewellery and precious metals. Start selling your own gems and jewellery today.",
-    "keywords": "gem sellers, jewellery sellers, sell gems online, become a seller"
+  "businesses": {
+    "title": "Businesses on SLMarket.lk",
+    "description": "Discover trusted businesses across Sri Lanka. Browse verified sellers in electronics, vehicles, property, fashion and more.",
+    "keywords": "sri lanka businesses, verified sellers, business directory, sell online sri lanka"
   }
 }

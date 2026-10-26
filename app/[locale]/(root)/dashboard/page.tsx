@@ -2,14 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import {
-  Package,
-  MessageSquare,
-  Zap,
-  TrendingUp,
-  Plus,
-  Eye,
-} from "lucide-react";
+import { Package, MessageSquare, Store, Plus } from "lucide-react";
 
 export const metadata = { title: "Seller Dashboard" };
 
@@ -22,34 +15,25 @@ export default async function DashboardPage({
   if (!session) redirect("/login");
   const { welcome } = await searchParams;
 
-  const [activeListings, totalEnquiries, unreadEnquiries, subscription] =
+  const [activeListings, totalEnquiries, unreadEnquiries, businessCount] =
     await Promise.all([
       db.listing.count({
         where: { sellerId: session.user.id, status: "ACTIVE" },
       }),
       db.enquiry.count({ where: { sellerId: session.user.id } }),
       db.enquiry.count({ where: { sellerId: session.user.id, isRead: false } }),
-      db.sellerSubscription.findUnique({
-        where: { sellerId: session.user.id },
-        include: { plan: true },
-      }),
+      db.businessProfile.count({ where: { ownerId: session.user.id } }),
     ]);
-
-  const plan = subscription?.plan;
-  const listingLimit = plan?.maxListings ?? null;
-  const listingUsagePct = listingLimit
-    ? Math.min(100, (activeListings / listingLimit) * 100)
-    : 0;
 
   const stats = [
     {
-      label: "Active Listings",
+      label: "Active Ads",
       value: activeListings,
-      sub: listingLimit ? `of ${listingLimit} allowed` : "Unlimited",
+      sub: "Unlimited",
       icon: Package,
       color: "text-blue-600",
       bg: "bg-blue-50 dark:bg-blue-900/20",
-      href: "/dashboard/listings",
+      href: "/dashboard/ads",
     },
     {
       label: "Total Enquiries",
@@ -61,25 +45,13 @@ export default async function DashboardPage({
       href: "/dashboard/enquiries",
     },
     {
-      label: "Free Boosts Left",
-      value: subscription?.freeBoostsRemaining ?? 0,
-      sub: "this month",
-      icon: Zap,
-      color: "text-purple-600",
-      bg: "bg-purple-50 dark:bg-purple-900/20",
-      href: "/dashboard/listings",
-    },
-    {
-      label: "Current Plan",
-      value: plan?.displayName ?? "Free",
-      sub:
-        plan?.priceUsd && Number(plan.priceUsd) > 0
-          ? `$${Number(plan.priceUsd)}/mo`
-          : "Always free",
-      icon: TrendingUp,
+      label: "Businesses",
+      value: businessCount,
+      sub: businessCount > 0 ? "Manage your businesses" : "Create one to grow",
+      icon: Store,
       color: "text-amber-600",
       bg: "bg-amber-50 dark:bg-amber-900/20",
-      href: "/dashboard/upgrade",
+      href: "/dashboard",
     },
   ];
 
@@ -91,15 +63,15 @@ export default async function DashboardPage({
             Welcome to your Seller Dashboard! 🎉
           </h2>
           <p className="text-blue-100 text-sm">
-            Your seller account is live. Start by creating your first listing.
-            It only takes a couple of minutes.
+            Your seller account is live. Start by creating your first ad. It
+            only takes a couple of minutes.
           </p>
           <Link
-            href="/dashboard/listings/new"
+            href="/dashboard/ads/new"
             className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-white text-blue-600 font-semibold text-sm rounded-lg hover:bg-blue-50 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Create your first listing
+            Create your first ad
           </Link>
         </div>
       )}
@@ -114,11 +86,11 @@ export default async function DashboardPage({
           </p>
         </div>
         <Link
-          href="/dashboard/listings/new"
+          href="/dashboard/ads/new"
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          New Listing
+          New Ad
         </Link>
       </div>
 
@@ -147,59 +119,6 @@ export default async function DashboardPage({
           </Link>
         ))}
       </div>
-
-      {/* Listing limit bar */}
-      {listingLimit && (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Listing quota
-            </p>
-            <span className="text-sm text-gray-500">
-              {activeListings} / {listingLimit} used
-            </span>
-          </div>
-          <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all ${listingUsagePct >= 90 ? "bg-red-500" : "bg-blue-600"}`}
-              style={{ width: `${listingUsagePct}%` }}
-            />
-          </div>
-          {listingUsagePct >= 80 && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
-              You&apos;re nearing your listing limit.{" "}
-              <Link href="/dashboard/upgrade" className="underline font-medium">
-                Upgrade your plan
-              </Link>{" "}
-              to add more.
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Shop profile link for eligible plans */}
-      {plan?.hasShopProfile && session.user.shopSlug && (
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                Your shop profile is live
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                lumevelo.com/shop/{session.user.shopSlug}
-              </p>
-            </div>
-            <Link
-              href={`/shop/${session.user.shopSlug}`}
-              target="_blank"
-              className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
-            >
-              <Eye className="w-4 h-4" />
-              View
-            </Link>
-          </div>
-        </div>
-      )}
 
       {/* Recent enquiries */}
       {unreadEnquiries > 0 && (

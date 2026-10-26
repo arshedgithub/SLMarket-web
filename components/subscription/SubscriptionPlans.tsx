@@ -19,16 +19,15 @@ export interface PlanData {
   name: string;
   displayName: string;
   maxListings: number | null;
-  maxReelsPerMonth: number | null;
+  maxBranches: number | null;
   listingDurationDays: number | null;
-  hasShopProfile: boolean;
+  hasBusinessProfile: boolean;
   hasAnalytics: boolean;
   hasRealtimeAlerts: boolean;
   hasDigitalMarketing: boolean;
   hasWhatsappBroadcast: boolean;
   hasPrioritySearch: boolean;
   hasApiAccess: boolean;
-  hasWholesaleListings: boolean;
   monthlyFreeBoosts: number;
   supportLevel: string;
   badgeFastTrack: boolean;
@@ -69,8 +68,6 @@ function formatPrice(amount: number, currency: "usd" | "lkr"): string {
 function getFeatureRows(
   plan: PlanData,
 ): { label: string; included: boolean }[] {
-  const reelsIncluded =
-    plan.maxReelsPerMonth === null || plan.maxReelsPerMonth > 0;
   const boostsIncluded = plan.monthlyFreeBoosts > 0;
 
   return [
@@ -86,7 +83,14 @@ function getFeatureRows(
         : "Listings never expire",
       included: true,
     },
-    { label: "shop profile page", included: plan.hasShopProfile },
+    { label: "business page", included: plan.hasBusinessProfile },
+    {
+      label:
+        plan.maxBranches === null
+          ? "Unlimited branches"
+          : `${plan.maxBranches} branch${plan.maxBranches === 1 ? "" : "es"}`,
+      included: plan.hasBusinessProfile && plan.maxBranches !== 0,
+    },
     { label: "analytics dashboard", included: plan.hasAnalytics },
     { label: "real-time price alerts", included: plan.hasRealtimeAlerts },
     {
@@ -99,15 +103,6 @@ function getFeatureRows(
     },
     { label: "priority placement in search", included: plan.hasPrioritySearch },
     { label: "API access for integrations", included: plan.hasApiAccess },
-    { label: "wholesale / bulk listings", included: plan.hasWholesaleListings },
-    {
-      label: reelsIncluded
-        ? plan.maxReelsPerMonth === null
-          ? "Unlimited reels"
-          : `${plan.maxReelsPerMonth} reel${plan.maxReelsPerMonth === 1 ? "" : "s"}/month`
-        : "reel uploads",
-      included: reelsIncluded,
-    },
     {
       label: boostsIncluded
         ? `${plan.monthlyFreeBoosts} free boost${plan.monthlyFreeBoosts === 1 ? "" : "s"}/month`
@@ -434,7 +429,7 @@ export function SubscriptionPlans({
                 {cycle === "ANNUAL" &&
                   pricing.couponApplies &&
                   !couponUsableAtCheckout && (
-                    <p className="text-[11px] text-gray-400 text-center mt-2">
+                    <p className="text-xs text-gray-400 text-center mt-2">
                       Annual checkout coming soon
                     </p>
                   )}

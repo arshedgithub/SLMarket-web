@@ -54,7 +54,7 @@ function Toast({
         <div className="flex items-center gap-1.5">
           <p className="truncate text-sm font-semibold text-text">{title}</p>
           {count > 1 && (
-            <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+            <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary">
               {count}
             </span>
           )}

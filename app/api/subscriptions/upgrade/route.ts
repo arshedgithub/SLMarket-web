@@ -2,12 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { upgradeSchema } from "@/lib/validations/subscription";
-import { buildPayhereFormData, PAYHERE_CHECKOUT_URL } from "@/lib/payhere";
 import { calculateDiscount, isCouponApplicable } from "@/lib/utils/coupon";
+import {
+  activateBusinessPlan,
+  BUSINESS_CHOICE_MESSAGE,
+  planPrice,
+  resolveOwnedBusiness,
+} from "@/lib/billing/subscription";
+import {
+  planPaymentMessage,
+  supportWhatsappUrl,
+} from "@/lib/billing/manualPayment";
 
+/*
+ * POST { planId, cycle?, couponCode?, businessProfileId? }
+ * Puts one of the owner's business pages on a plan. Free (or fully
+ * discounted) plans start at once; paid ones return a WhatsApp link to
+ * arrange payment, and an admin starts the plan once it is paid.
+ */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session || session.user.role !== "SELLER") {
+  if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,20 +35,30 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { planId, couponCode, cycle } = parsed.data;
+  const { planId, couponCode, cycle, businessProfileId } = parsed.data;
+
+  const choice = await resolveOwnedBusiness(session.user.id, businessProfileId);
+  if (!choice.ok) {
+    return NextResponse.json(
+      { code: choice.code, message: BUSINESS_CHOICE_MESSAGE[choice.code] },
+      { status: choice.code === "not_found" ? 404 : 400 },
+    );
+  }
+  const business = choice.business;
 
   const plan = await db.subscriptionPlan.findUnique({ where: { id: planId } });
   if (!plan || !plan.isActive) {
     return NextResponse.json({ message: "Plan not found" }, { status: 404 });
   }
 
-  let finalPriceLkr = Number(plan.priceLkr);
-  let finalPriceUsd = Number(plan.priceUsd);
+  const price = planPrice(plan, cycle);
+  let finalPriceLkr = price.lkr;
+  let finalPriceUsd = price.usd;
   let freeMonths = 0;
-  let couponRedemption = null;
+  let coupon = null;
 
   if (couponCode) {
-    const coupon = await db.couponCode.findFirst({
+    coupon = await db.couponCode.findFirst({
       where: {
         code: { equals: couponCode, mode: "insensitive" },
         isActive: true,
@@ -94,84 +119,51 @@ export async function POST(req: NextRequest) {
     finalPriceUsd = discount.finalPriceUsd;
     finalPriceLkr = discount.finalPriceLkr;
     freeMonths = discount.freeMonths;
-
-    couponRedemption = coupon;
   }
 
-  const orderId = `sub_${session.user.id}_${planId}_${Date.now()}`;
-
-  // Free or 100% coupon — activate immediately
+  // Free or fully discounted: start now, no payment step.
   if (finalPriceLkr <= 0 || freeMonths > 0) {
-    const now = new Date();
-    const periodEnd = new Date(now);
-    periodEnd.setMonth(periodEnd.getMonth() + 1 + freeMonths);
-
     await db.$transaction(async (tx) => {
-      const sub = await tx.sellerSubscription.upsert({
-        where: { sellerId: session.user.id },
-        create: {
-          sellerId: session.user.id,
-          planId,
-          status: "ACTIVE",
-          currentPeriodStart: now,
-          currentPeriodEnd: periodEnd,
-          freeBoostsRemaining: plan.monthlyFreeBoosts,
-        },
-        update: {
-          planId,
-          status: "ACTIVE",
-          currentPeriodStart: now,
-          currentPeriodEnd: periodEnd,
-          freeBoostsRemaining: plan.monthlyFreeBoosts,
-          cancelAtPeriodEnd: false,
-        },
-      });
-
-      if (couponRedemption) {
+      let couponRedemptionId: string | undefined;
+      if (coupon) {
         const redemption = await tx.couponRedemption.create({
           data: {
-            couponId: couponRedemption.id,
+            couponId: coupon.id,
             userId: session.user.id,
-            discountAppliedUsd: Number(plan.priceUsd) - finalPriceUsd,
-            discountAppliedLkr: Number(plan.priceLkr) - finalPriceLkr,
+            discountAppliedUsd: price.usd - finalPriceUsd,
+            discountAppliedLkr: price.lkr - finalPriceLkr,
           },
         });
         await tx.couponCode.update({
-          where: { id: couponRedemption.id },
+          where: { id: coupon.id },
           data: { usesCount: { increment: 1 } },
         });
-        await tx.sellerSubscription.update({
-          where: { id: sub.id },
-          data: { couponRedemptionId: redemption.id },
-        });
+        couponRedemptionId = redemption.id;
       }
+      await activateBusinessPlan(tx, {
+        businessProfileId: business.id,
+        plan,
+        months: price.months + freeMonths,
+        couponRedemptionId,
+      });
     });
 
     return NextResponse.json({
       activated: true,
-      message: `${plan.displayName} plan activated${freeMonths > 0 ? ` for ${freeMonths + 1} months` : ""}. Enjoy!`,
+      message: `${plan.displayName} plan activated for ${business.name}${freeMonths > 0 ? ` for ${price.months + freeMonths} months` : ""}.`,
     });
   }
 
-  const seller = await db.user.findUnique({ where: { id: session.user.id } });
-  if (!seller)
-    return NextResponse.json({ message: "Seller not found" }, { status: 404 });
-
-  const [firstName, ...rest] = seller.name.split(" ");
-  const formData = buildPayhereFormData({
-    orderId,
-    items: `Lumevelo ${plan.displayName} Plan`,
-    amountLkr: finalPriceLkr,
-    firstName,
-    lastName: rest.join(" ") || "-",
-    email: seller.email,
-    phone: seller.phone ?? "",
-  });
-
   return NextResponse.json({
-    gateway: "payhere",
-    checkoutUrl: PAYHERE_CHECKOUT_URL,
-    formData,
-    orderId,
+    whatsappUrl: supportWhatsappUrl(
+      planPaymentMessage({
+        planName: plan.displayName,
+        cycle,
+        businessName: business.name,
+        amountLkr: finalPriceLkr,
+        couponCode: coupon ? couponCode : undefined,
+      }),
+    ),
+    amountLkr: finalPriceLkr,
   });
 }

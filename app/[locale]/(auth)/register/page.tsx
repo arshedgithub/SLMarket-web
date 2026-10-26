@@ -1,16 +1,25 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { AuthTabs } from "@/components/auth/AuthTabs";
+import { ExistingAccountNotice } from "@/components/auth/ExistingAccountNotice";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { Eye, EyeOff, UserPlus, ChevronDown, CheckCircle2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  UserPlus,
+  ChevronDown,
+  CheckCircle2,
+  LogIn,
+} from "lucide-react";
 import { colors } from "@/lib/theme/colors";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { OtpVerifyModal } from "@/components/auth/OtpVerifyModal";
-import { COUNTRIES, getDialCode } from "@/lib/utils/countries";
+import { SRI_LANKA_DISTRICTS } from "@/config/const/sriLankaLocations";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 function getRedirectTarget(): string | null {
@@ -27,25 +36,23 @@ const fieldVerifiedCls = "border-green-400 bg-green-50/40 focus:ring-green-400";
 
 type FieldErrors = Partial<
   Record<
-    | "fullName"
-    | "email"
-    | "phone"
-    | "verify"
-    | "password"
-    | "confirmPassword"
-    | "terms",
+    "fullName" | "email" | "phone" | "password" | "confirmPassword" | "terms",
     string
   >
 >;
 
 export default function RegisterPage() {
   const t = useTranslations("auth.register");
+  // Where they were going, kept when they switch to sign-in.
+  const [nextQuery, setNextQuery] = useState("");
+  useEffect(() => {
+    const target = getRedirectTarget();
+    if (target) setNextQuery(`&next=${encodeURIComponent(target)}`);
+  }, []);
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [country, setCountry] = useState("LK");
-  const [locationCity, setLocationCity] = useState("");
-  const [dialCode, setDialCode] = useState("+94");
+  const [district, setDistrict] = useState("");
   const [phoneLocal, setPhoneLocal] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -56,31 +63,43 @@ export default function RegisterPage() {
   const [topError, setTopError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  const [verifyChannel, setVerifyChannel] = useState<"email" | "phone" | null>(
-    null,
-  );
+  // An account already uses this email or phone: the form says so and
+  // offers "Sign in" instead (checked when the field is left, before an
+  // email code is sent, and on submit).
+  const [taken, setTaken] = useState({ email: false, phone: false });
+  const takenRef = useRef<HTMLDivElement>(null);
+  const checkAccount = async (fields: { email?: string; phone?: string }) => {
+    try {
+      const res = await fetch("/api/auth/check-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      if (!res.ok) return { emailTaken: false, phoneTaken: false };
+      const d = (await res.json()) as {
+        emailTaken: boolean;
+        phoneTaken: boolean;
+      };
+      setTaken((prev) => ({
+        email: fields.email !== undefined ? d.emailTaken : prev.email,
+        phone: fields.phone !== undefined ? d.phoneTaken : prev.phone,
+      }));
+      return d;
+    } catch {
+      return { emailTaken: false, phoneTaken: false };
+    }
+  };
+
+  const [emailOtpOpen, setEmailOtpOpen] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
 
   // Refs for scroll-to-error
   const fullNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
-  const verifyCardRef = useRef<HTMLDivElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const termsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const code = getDialCode(country);
-    if (code) setDialCode(code);
-  }, [country]);
-
-  const handleCountryChange = (code: string) => {
-    setCountry(code);
-    setPhoneLocal("");
-    setPhoneVerified(false);
-  };
 
   const clearError = (key: keyof FieldErrors) => {
     if (fieldErrors[key]) {
@@ -92,8 +111,8 @@ export default function RegisterPage() {
     }
   };
 
-  const fullPhone = `${dialCode} ${phoneLocal}`;
   const isEmailValid = EMAIL_PATTERN.test(email);
+  const isPhoneValid = /^0\d{9}$/.test(phoneLocal.trim());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,8 +123,7 @@ export default function RegisterPage() {
     if (!email.trim()) errors.email = t("errors.emailRequired");
     else if (!isEmailValid) errors.email = t("errors.emailInvalid");
     if (!phoneLocal.trim()) errors.phone = t("errors.phoneRequired");
-    if (!emailVerified && !phoneVerified)
-      errors.verify = t("errors.verifyRequired");
+    else if (!isPhoneValid) errors.phone = t("errors.phoneInvalid");
     if (!password) errors.password = t("errors.passwordRequired");
     else if (password.length < 8)
       errors.password = t("errors.passwordTooShort");
@@ -126,7 +144,6 @@ export default function RegisterPage() {
         { key: "fullName", ref: fullNameRef },
         { key: "email", ref: emailRef },
         { key: "phone", ref: phoneRef },
-        { key: "verify", ref: verifyCardRef },
         { key: "password", ref: passwordRef },
         { key: "confirmPassword", ref: confirmPasswordRef },
         { key: "terms", ref: termsRef },
@@ -139,8 +156,35 @@ export default function RegisterPage() {
       return;
     }
 
+    // An account already uses this email or phone: say so (with a way to
+    // sign in) instead of sending a code.
     setFieldErrors({});
     setTopError("");
+    setLoading(true);
+    const existing = await checkAccount({ email, phone: phoneLocal.trim() });
+    if (existing.emailTaken || existing.phoneTaken) {
+      setLoading(false);
+      requestAnimationFrame(() =>
+        takenRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        }),
+      );
+      return;
+    }
+
+    // The email is confirmed with a code before the account is made: the
+    // code is sent as the window opens, and the account is created as soon
+    // as it is accepted. Cancel returns to this form, still filled in.
+    if (!emailVerified) {
+      setLoading(false);
+      setEmailOtpOpen(true);
+      return;
+    }
+    await createAccount();
+  };
+
+  const createAccount = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
@@ -150,13 +194,29 @@ export default function RegisterPage() {
           name: fullName,
           email,
           password,
-          phone: fullPhone,
-          country,
-          locationCity: locationCity || undefined,
+          phone: phoneLocal.trim(),
+          district: district || undefined,
         }),
       });
 
       const data = await res.json();
+      if (
+        res.status === 409 &&
+        (data.code === "email_taken" || data.code === "phone_taken")
+      ) {
+        setTaken({
+          email: data.code === "email_taken",
+          phone: data.code === "phone_taken",
+        });
+        setLoading(false);
+        requestAnimationFrame(() =>
+          takenRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          }),
+        );
+        return;
+      }
       if (!res.ok)
         throw new Error(data.message ?? t("errors.registrationFailed"));
 
@@ -205,16 +265,9 @@ export default function RegisterPage() {
               />
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-            <p className="mt-1.5 text-sm text-gray-500">
-              {t("alreadyHaveAccount")}{" "}
-              <Link
-                href="/login"
-                className="font-semibold hover:underline"
-                style={{ color: colors.primary.main }}
-              >
-                {t("signIn")}
-              </Link>
-            </p>
+            <div className="mt-5">
+              <AuthTabs active="register" />
+            </div>
           </div>
 
           {/* Form */}
@@ -267,191 +320,119 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* ── Verification card ── */}
-            <div
-              ref={verifyCardRef}
-              className="rounded-xl border border-gray-200 overflow-hidden"
-            >
-              {/* Card sub-header */}
-              <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  {t("verifyIdentity")}
-                </p>
-                <p className="text-[11px] text-gray-400 mt-0.5">
-                  {t("verifyIdentityHint")}
-                </p>
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t("emailAddress")} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  ref={emailRef}
+                  type="email"
+                  id="email-address"
+                  name="email"
+                  autoComplete="email"
+                  required
+                  placeholder={t("emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailVerified(false);
+                    setTaken((p) => ({ ...p, email: false }));
+                    clearError("email");
+                  }}
+                  onBlur={() => {
+                    if (EMAIL_PATTERN.test(email)) void checkAccount({ email });
+                  }}
+                  className={`${fieldCls} ${
+                    emailVerified
+                      ? `${fieldVerifiedCls} pr-28`
+                      : fieldErrors.email
+                        ? fieldErrorCls
+                        : ""
+                  }`}
+                />
+                {emailVerified && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 text-xs font-semibold text-green-600 pointer-events-none">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    {t("verified")}
+                  </span>
+                )}
               </div>
-
-              {/* Email */}
-              <div className="px-4 py-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t("emailAddress")} <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    ref={emailRef}
-                    type="email"
-                    id="email-address"
-                    name="email"
-                    autoComplete="email"
-                    required
-                    placeholder={t("emailPlaceholder")}
+              {fieldErrors.email && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>
+              )}
+              {taken.email && (
+                <div ref={takenRef}>
+                  <ExistingAccountNotice
+                    kind="email"
                     value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setEmailVerified(false);
-                      clearError("email");
-                      clearError("verify");
-                    }}
-                    className={`${fieldCls} ${
-                      emailVerified
-                        ? `${fieldVerifiedCls} pr-28`
-                        : fieldErrors.email
-                          ? fieldErrorCls
-                          : ""
-                    }`}
+                    next={getRedirectTarget()}
                   />
-                  {emailVerified && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 text-xs font-semibold text-green-600 pointer-events-none">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      {t("verified")}
-                    </span>
-                  )}
-                </div>
-                {fieldErrors.email && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {fieldErrors.email}
-                  </p>
-                )}
-                {!emailVerified && (
-                  <button
-                    type="button"
-                    onClick={() => setVerifyChannel("email")}
-                    disabled={!isEmailValid}
-                    className="mt-1.5 cursor-pointer text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:underline"
-                    style={{ color: colors.primary.main }}
-                  >
-                    {t("sendEmailCode")}
-                  </button>
-                )}
-              </div>
-
-              {/* OR divider */}
-              <div className="flex items-center gap-3 px-4 py-2.5 bg-gray-50 border-y border-gray-100">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-[11px] text-gray-400 font-medium">
-                  {t("orVerifyPhone")}
-                </span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-
-              {/* Country */}
-              <div className="px-4 pt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t("country")}
-                </label>
-                <div className="relative">
-                  <select
-                    value={country}
-                    onChange={(e) => handleCountryChange(e.target.value)}
-                    className={`${fieldCls} pr-10 appearance-none cursor-pointer`}
-                  >
-                    {COUNTRIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.name} ({c.dialCode})
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="px-4 pt-3 pb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t("phoneNumber")} <span className="text-red-500">*</span>
-                </label>
-                <div className="flex gap-2">
-                  <div className="flex items-center px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 whitespace-nowrap select-none">
-                    {dialCode}
-                  </div>
-                  <input
-                    ref={phoneRef}
-                    type="tel"
-                    value={phoneLocal}
-                    onChange={(e) => {
-                      setPhoneLocal(
-                        e.target.value.replace(/[^0-9\s\-()]/g, ""),
-                      );
-                      setPhoneVerified(false);
-                      clearError("phone");
-                      clearError("verify");
-                    }}
-                    placeholder={t("phonePlaceholder")}
-                    required
-                    className={`flex-1 ${fieldCls} ${
-                      phoneVerified
-                        ? fieldVerifiedCls
-                        : fieldErrors.phone
-                          ? fieldErrorCls
-                          : ""
-                    }`}
-                  />
-                  {phoneVerified && (
-                    <div className="flex items-center gap-1 text-xs font-semibold text-green-600 whitespace-nowrap pl-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      {t("verified")}
-                    </div>
-                  )}
-                </div>
-                {fieldErrors.phone && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {fieldErrors.phone}
-                  </p>
-                )}
-                {!phoneVerified && (
-                  <button
-                    type="button"
-                    onClick={() => setVerifyChannel("phone")}
-                    disabled={!phoneLocal.trim()}
-                    className="mt-1.5 cursor-pointer text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:underline"
-                    style={{ color: colors.primary.main }}
-                  >
-                    {t("sendSmsCode")}
-                  </button>
-                )}
-              </div>
-
-              {/* Verify error, shown at bottom of card */}
-              {fieldErrors.verify && (
-                <div className="mx-4 mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-600">
-                  {fieldErrors.verify}
                 </div>
               )}
             </div>
-            {/* ── end verification card ── */}
 
-            {/* City / Region */}
+            {/* Phone */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("cityRegion")}
+                {t("phoneNumber")} <span className="text-red-500">*</span>
+              </label>
+              <input
+                ref={phoneRef}
+                type="tel"
+                inputMode="numeric"
+                value={phoneLocal}
+                onChange={(e) => {
+                  setPhoneLocal(e.target.value.replace(/\D/g, "").slice(0, 10));
+                  setTaken((p) => ({ ...p, phone: false }));
+                  clearError("phone");
+                }}
+                onBlur={() => {
+                  const phone = phoneLocal.trim();
+                  if (/^0\d{9}$/.test(phone)) void checkAccount({ phone });
+                }}
+                placeholder={t("phonePlaceholder")}
+                required
+                className={`${fieldCls} ${fieldErrors.phone ? fieldErrorCls : ""}`}
+              />
+              {fieldErrors.phone && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.phone}</p>
+              )}
+              {taken.phone && !taken.email && (
+                <div ref={takenRef}>
+                  <ExistingAccountNotice
+                    kind="phone"
+                    value={phoneLocal.trim()}
+                    next={getRedirectTarget()}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* District */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t("district")}
                 <span className="ml-1.5 text-xs font-normal text-gray-400">
                   {t("optional")}
                 </span>
               </label>
-              <input
-                type="text"
-                value={locationCity}
-                onChange={(e) => setLocationCity(e.target.value)}
-                placeholder={
-                  country === "LK"
-                    ? t("cityPlaceholderLK")
-                    : country === "IN"
-                      ? t("cityPlaceholderIN")
-                      : t("cityPlaceholderDefault")
-                }
-                className={fieldCls}
-              />
+              <div className="relative">
+                <select
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className={`${fieldCls} pr-10 appearance-none cursor-pointer`}
+                >
+                  <option value="">{t("districtPlaceholder")}</option>
+                  {SRI_LANKA_DISTRICTS.map((d) => (
+                    <option key={d.name} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
             </div>
 
             {/* Password */}
@@ -556,21 +537,23 @@ export default function RegisterPage() {
                   className="text-sm text-gray-600 leading-snug cursor-pointer"
                 >
                   {t("agreeTerms")}{" "}
-                  <a
-                    href="#"
+                  <Link
+                    href="/help/terms"
+                    target="_blank"
                     className="font-semibold hover:underline"
                     style={{ color: colors.primary.main }}
                   >
                     {t("termsOfService")}
-                  </a>{" "}
+                  </Link>{" "}
                   {t("and")}{" "}
-                  <a
-                    href="#"
+                  <Link
+                    href="/help/privacy-policy"
+                    target="_blank"
                     className="font-semibold hover:underline"
                     style={{ color: colors.primary.main }}
                   >
                     {t("privacyPolicy")}
-                  </a>
+                  </Link>
                 </label>
               </div>
               {fieldErrors.terms && (
@@ -590,19 +573,28 @@ export default function RegisterPage() {
               {loading ? t("creatingAccount") : t("createAccount")}
             </Button>
           </form>
+          <div className="border-t border-gray-100 bg-gray-50 px-8 py-5 text-center">
+            <p className="text-sm text-gray-700">{t("haveAccount")}</p>
+            <Link
+              href={`/login?returning=1${nextQuery}`}
+              className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-[#1557d6] bg-white text-sm font-semibold text-[#1557d6] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              <LogIn aria-hidden className="h-4 w-4" />
+              {t("signInInstead")}
+            </Link>
+          </div>
         </div>
       </div>
 
-      {verifyChannel && (
+      {emailOtpOpen && (
         <OtpVerifyModal
-          channel={verifyChannel}
-          value={verifyChannel === "email" ? email : fullPhone}
-          onClose={() => setVerifyChannel(null)}
+          channel="email"
+          value={email}
+          onClose={() => setEmailOtpOpen(false)}
           onVerified={() => {
-            if (verifyChannel === "email") setEmailVerified(true);
-            else setPhoneVerified(true);
-            setVerifyChannel(null);
-            clearError("verify");
+            setEmailVerified(true);
+            setEmailOtpOpen(false);
+            void createAccount();
           }}
         />
       )}

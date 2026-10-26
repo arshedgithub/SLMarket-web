@@ -1,12 +1,8 @@
-import { LISTING_CATEGORY } from "@/types/enums/category.enum";
+import { categories } from "@/config/const/navLinks";
 
-const LABELS: Record<LISTING_CATEGORY, string> = {
-  [LISTING_CATEGORY.GEM]: "Gem",
-  [LISTING_CATEGORY.JEWELLERY]: "Jewellery",
-  [LISTING_CATEGORY.PRECIOUS_METAL]: "Precious Metal",
-  [LISTING_CATEGORY.SERVICE]: "Service",
-};
-
-export function categoryLabel(category: string): string {
-  return LABELS[category as LISTING_CATEGORY] ?? category;
+// Looks up a category id (e.g. "vehicles") against the real taxonomy for
+// its display name ("Vehicles"). Falls back to the raw id for anything
+// unrecognised rather than showing nothing.
+export function categoryLabel(categoryId: string): string {
+  return categories.find((c) => c.id === categoryId)?.name ?? categoryId;
 }

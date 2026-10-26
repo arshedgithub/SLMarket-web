@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   Users,
-  Gem,
+  Package,
   Settings,
   BarChart3,
   FileText,
@@ -17,6 +17,7 @@ import {
   Bell,
   User,
   Percent,
+  Megaphone,
 } from "lucide-react";
 import { colors } from "@/lib/theme/colors";
 
@@ -43,12 +44,17 @@ export default function AdminShell({ children }: AdminShellProps) {
     {
       label: "Listings",
       href: "/admin/listings",
-      icon: <Gem className="w-5 h-5" />,
+      icon: <Package className="w-5 h-5" />,
     },
     {
       label: "Analytics",
       href: "/admin/analytics",
       icon: <BarChart3 className="w-5 h-5" />,
+    },
+    {
+      label: "Spotlight",
+      href: "/admin/spotlight",
+      icon: <Megaphone className="w-5 h-5" />,
     },
     {
       label: "Coupons",
@@ -85,13 +91,13 @@ export default function AdminShell({ children }: AdminShellProps) {
                   background: `linear-gradient(135deg, ${colors.primary.main}, ${colors.accent.features})`,
                 }}
               >
-                <Gem className="h-5 w-5 text-white" />
+                <Package className="h-5 w-5 text-white" />
               </div>
               <span
                 className="font-semibold text-lg"
                 style={{ color: colors.primary.main }}
               >
-                Lumevelo
+                SLMarket.lk
               </span>
             </Link>
           )}

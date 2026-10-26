@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { SessionsPanel } from "@/components/account/SessionsPanel";
 
 export const metadata: Metadata = {
-  title: "Account Security | Lumevelo",
+  title: "Account Security | SLMarket.lk",
   description: "Manage your active sessions and signed-in devices.",
 };
 

@@ -17,7 +17,8 @@ import {
 
 export const metadata: Metadata = {
   title: "Subscription Plans",
-  description: "Compare seller subscription plans and pricing for Lumevelo.",
+  description:
+    "Compare business subscription plans and pricing on SLMarket.lk.",
 };
 
 interface Props {
@@ -28,39 +29,34 @@ export default async function SubscriptionPage({ searchParams }: Props) {
   const { couponCode, price } = await searchParams;
 
   const session = await auth();
-  let isSriLankanSeller = false;
-  let currentSubscriptionPlanId: string | null = null;
+  let isFromSriLanka = false;
   if (session?.user?.id) {
-    const [user, subscription] = await Promise.all([
-      db.user.findUnique({
-        where: { id: session.user.id },
-        select: { locationCity: true },
-      }),
-      session.user.role === "SELLER"
-        ? db.sellerSubscription.findUnique({
-            where: { sellerId: session.user.id },
-            select: { planId: true },
-          })
-        : null,
-    ]);
-    isSriLankanSeller = !!user?.locationCity;
-    currentSubscriptionPlanId = subscription?.planId ?? null;
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { district: true },
+    });
+    isFromSriLanka = !!user?.district;
   }
   const currency: "usd" | "lkr" =
-    price === "lkr" && isSriLankanSeller ? "lkr" : "usd";
+    price === "lkr" && isFromSriLanka ? "lkr" : "usd";
 
   const plans = await db.subscriptionPlan.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
   });
 
-  // No SellerSubscription row means they're implicitly on the free plan
-  const currentPlanId =
-    session?.user?.role === "SELLER"
-      ? (currentSubscriptionPlanId ??
-        plans.find((p) => p.name === "free")?.id ??
-        null)
-      : null;
+  // Plans belong to business pages: with exactly one, its plan is "current";
+  // with several, none is singled out (the upgrade page asks which).
+  let currentPlanId: string | null = null;
+  if (session?.user?.id) {
+    const businesses = await db.businessProfile.findMany({
+      where: { ownerId: session.user.id, status: { not: "DISABLED" } },
+      select: { subscription: { select: { planId: true, status: true } } },
+      take: 2,
+    });
+    const sub = businesses.length === 1 ? businesses[0].subscription : null;
+    currentPlanId = sub?.status === "ACTIVE" ? sub.planId : null;
+  }
 
   let couponInfo: CouponInfo | null = null;
   let couponForDiscount: CouponForDiscount | null = null;
@@ -151,16 +147,15 @@ export default async function SubscriptionPage({ searchParams }: Props) {
       name: plan.name,
       displayName: plan.displayName,
       maxListings: plan.maxListings,
-      maxReelsPerMonth: plan.maxReelsPerMonth,
+      maxBranches: plan.maxBranches,
       listingDurationDays: plan.listingDurationDays,
-      hasShopProfile: plan.hasShopProfile,
+      hasBusinessProfile: plan.hasBusinessProfile,
       hasAnalytics: plan.hasAnalytics,
       hasRealtimeAlerts: plan.hasRealtimeAlerts,
       hasDigitalMarketing: plan.hasDigitalMarketing,
       hasWhatsappBroadcast: plan.hasWhatsappBroadcast,
       hasPrioritySearch: plan.hasPrioritySearch,
       hasApiAccess: plan.hasApiAccess,
-      hasWholesaleListings: plan.hasWholesaleListings,
       monthlyFreeBoosts: plan.monthlyFreeBoosts,
       supportLevel: plan.supportLevel,
       badgeFastTrack: plan.badgeFastTrack,
@@ -186,7 +181,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           plans={planData}
           couponInfo={couponInfo}
           currency={currency}
-          isSriLankanSeller={isSriLankanSeller}
+          isSriLankanSeller={isFromSriLanka}
           isLoggedIn={!!session}
           currentPlanId={currentPlanId}
         />

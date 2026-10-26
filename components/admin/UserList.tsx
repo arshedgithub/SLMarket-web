@@ -4,17 +4,24 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, BadgeCheck, ChevronDown } from "lucide-react";
 
+// Plans belong to business pages, so each of a user's pages has its own.
+interface UserBusiness {
+  id: string;
+  name: string;
+  planId: string | null;
+  planName: string | null;
+  planSlug: string;
+}
+
 interface UserListItem {
   id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "SELLER" | "BUYER";
+  role: "ADMIN" | "USER";
   isVerified: boolean;
   createdAt: string;
   listingCount: number;
-  planId: string | null;
-  planName: string | null;
-  planSlug: string;
+  businesses: UserBusiness[];
 }
 
 interface PlanOption {
@@ -34,12 +41,11 @@ function planBadgeClass(slug: string) {
   return PLAN_BADGE_CLASSES[slug] ?? "bg-slate-100 text-slate-600";
 }
 
-const ROLE_FILTERS = ["ALL", "SELLER", "BUYER", "ADMIN"] as const;
+const ROLE_FILTERS = ["ALL", "USER", "ADMIN"] as const;
 
 const ROLE_FILTER_LABELS: Record<(typeof ROLE_FILTERS)[number], string> = {
   ALL: "All",
-  SELLER: "Sellers",
-  BUYER: "Buyers",
+  USER: "Users",
   ADMIN: "Admins",
 };
 
@@ -47,8 +53,6 @@ function roleBadgeClass(role: UserListItem["role"]) {
   switch (role) {
     case "ADMIN":
       return "bg-purple-100 text-purple-700";
-    case "SELLER":
-      return "bg-blue-100 text-blue-700";
     default:
       return "bg-gray-100 text-gray-600";
   }
@@ -79,14 +83,18 @@ export function UserList({
     });
   }, [users, roleFilter, search]);
 
-  const updatePlan = async (user: UserListItem, planId: string) => {
-    setPendingId(user.id);
+  const updatePlan = async (
+    user: UserListItem,
+    business: UserBusiness,
+    planId: string,
+  ) => {
+    setPendingId(business.id);
     setError(null);
     try {
       const res = await fetch(`/api/admin/users/${user.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId }),
+        body: JSON.stringify({ planId, businessProfileId: business.id }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -175,31 +183,48 @@ export function UserList({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {u.role === "SELLER" ? (
-                      <div
-                        className={`relative inline-flex items-center rounded-full font-medium text-xs ${planBadgeClass(
-                          u.planSlug,
-                        )} ${pendingId === u.id ? "opacity-50" : ""}`}
-                      >
-                        <select
-                          value={u.planId ?? ""}
-                          disabled={pendingId === u.id}
-                          onChange={(e) => updatePlan(u, e.target.value)}
-                          className="appearance-none bg-transparent pl-3 pr-6 py-1 text-xs font-medium focus:outline-none cursor-pointer disabled:cursor-not-allowed"
-                        >
-                          <option value="" disabled>
-                            {u.planName ?? "No plan"}
-                          </option>
-                          {plans.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.displayName}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="w-3 h-3 absolute right-1.5 pointer-events-none" />
-                      </div>
+                    {u.businesses.length === 0 ? (
+                      <span className="text-xs text-gray-400">
+                        No business page
+                      </span>
                     ) : (
-                      <span className="text-gray-400">—</span>
+                      <ul className="space-y-1">
+                        {u.businesses.map((b) => (
+                          <li key={b.id} className="flex items-center gap-2">
+                            <span
+                              className="max-w-[10rem] truncate text-xs text-gray-600"
+                              title={b.name}
+                            >
+                              {b.name}
+                            </span>
+                            <div
+                              className={`relative inline-flex items-center rounded-full font-medium text-xs ${planBadgeClass(
+                                b.planSlug,
+                              )} ${pendingId === b.id ? "opacity-50" : ""}`}
+                            >
+                              <select
+                                aria-label={`Plan for ${b.name}`}
+                                value={b.planId ?? ""}
+                                disabled={pendingId === b.id}
+                                onChange={(e) =>
+                                  updatePlan(u, b, e.target.value)
+                                }
+                                className="appearance-none bg-transparent pl-3 pr-6 py-1 text-xs font-medium focus:outline-none cursor-pointer disabled:cursor-not-allowed"
+                              >
+                                <option value="" disabled>
+                                  {b.planName ?? "Free"}
+                                </option>
+                                {plans.map((p) => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.displayName}
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown className="w-3 h-3 absolute right-1.5 pointer-events-none" />
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{u.listingCount}</td>

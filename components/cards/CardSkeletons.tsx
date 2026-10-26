@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Mirrors GemCard / JewelleryCard / MetalCard: square image, 2-line title,
-// a meta row, a seller row, then price.
+// Mirrors a listing card: square image, 2-line title, a meta row, a seller
+// row, then price.
 export function ListingCardSkeleton() {
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
@@ -40,8 +40,8 @@ export function ServiceCardSkeleton() {
   );
 }
 
-// Mirrors the seller/shop card used on /sellers and the homepage's
-// "Featured Shops" section: banner, overlapping avatar, bio, footer row.
+// Mirrors the business card used on /businesses and the homepage's
+// "Featured Businesses" section: banner, overlapping avatar, bio, footer row.
 export function SellerCardSkeleton() {
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
@@ -58,20 +58,6 @@ export function SellerCardSkeleton() {
           <Skeleton className="h-3 w-24" />
           <Skeleton className="h-3 w-16" />
         </div>
-      </div>
-    </div>
-  );
-}
-
-// Mirrors the blog card used on the homepage's "Learn & Share" section.
-export function BlogCardSkeleton() {
-  return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
-      <Skeleton className="aspect-video w-full rounded-none" />
-      <div className="p-4 space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-3 w-5/6" />
-        <Skeleton className="h-3 w-1/3 mt-2" />
       </div>
     </div>
   );

@@ -4,19 +4,9 @@ export interface IUser {
   name: string;
   phone?: string;
   phoneVerified: boolean;
-  role: "ADMIN" | "SELLER" | "BUYER";
-  isVerified: boolean;
-  verifiedAt?: Date;
+  role: "ADMIN" | "USER";
   avatarUrl?: string;
-  shopSlug?: string;
-  shopBio?: string;
-  shopBannerUrl?: string;
-  whatsappNumber?: string;
-  locationCity?: string;
-  specialties: string[];
-  shopMetaTitle?: string;
-  shopMetaDescription?: string;
-  planName: string;
+  district?: string;
   createdAt: Date;
   updatedAt: Date;
 }

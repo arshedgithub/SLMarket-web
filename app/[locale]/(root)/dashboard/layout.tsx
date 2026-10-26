@@ -24,7 +24,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session || session.user.role === "BUYER") redirect("/login");
+  if (!session) redirect("/login");
 
   const planName = await getSellerPlanName(session.user.id);
   const badge = planBadge[planName] ?? planBadge.free;

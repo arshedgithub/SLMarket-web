@@ -5,7 +5,7 @@ import { getSellerPlanName } from "@/lib/getSellerPlanName";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session || session.user.role !== "SELLER") {
+  if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 

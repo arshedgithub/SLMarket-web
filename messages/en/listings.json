@@ -1,0 +1,357 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "allListings": "All ads",
+    "deals": "Deals & Offers"
+  },
+  "header": {
+    "allListingsTitle": "All ads",
+    "dealsTitle": "Deals & Offers",
+    "dealsSubtitle": "Coupons and price drops from sellers across Sri Lanka.",
+    "categoryTitleSuffix": "Ads",
+    "subtitle": "Discover products, properties, vehicles, services and opportunities across Sri Lanka.",
+    "listingsStat": "ads",
+    "statsLine": "{total} ads · {postedToday} posted today",
+    "newOpportunities": "New opportunities, every day",
+    "totalAds": "{count, plural, one {# ad} other {# ads}}",
+    "newToday": "{count} new today"
+  },
+  "search": {
+    "placeholder": "What are you looking for?",
+    "allCategories": "All Categories",
+    "allSriLanka": "All Sri Lanka",
+    "searchButton": "Search",
+    "popularSearches": "Popular searches:",
+    "popular": {
+      "toyotaAqua": "Toyota Aqua",
+      "houseForRent": "House for rent",
+      "iphone": "iPhone",
+      "partTimeJobs": "Part-time jobs"
+    }
+  },
+  "categorySwitcher": {
+    "all": "All",
+    "label": "Categories",
+    "more": "More"
+  },
+  "shops": {
+    "heading": "Featured Businesses",
+    "subheading": "Discover trusted businesses featured on SLMarket.lk.",
+    "exploreAll": "Explore all businesses",
+    "exploreAllShort": "Explore all",
+    "sponsored": "Sponsored",
+    "feedAll": "Recommended Businesses",
+    "feedCategory": "{category} businesses you may like",
+    "feedSearch": "Businesses related to your search",
+    "feedLocation": "Businesses serving {location}",
+    "feedSub": "Businesses relevant to what you're exploring on SLMarket.lk.",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right",
+    "listings": "ads",
+    "tier": {
+      "toprated": "Top Rated",
+      "premium": "Premium",
+      "verified": "Verified"
+    },
+    "viewAds": "View {count, plural, one {# ad} other {# ads}}"
+  },
+  "filters": {
+    "location": "Location",
+    "price": "Price",
+    "conditionLabel": "Condition",
+    "sellerLabel": "Seller",
+    "deals": "Deals",
+    "moreFilters": "More Filters",
+    "allFilters": "All filters",
+    "locationLabel": "Location",
+    "locationSearchPlaceholder": "Search location...",
+    "popular": "Popular",
+    "priceRange": "Price Range (Rs.)",
+    "min": "Min",
+    "max": "Max",
+    "to": "to",
+    "quickPicks": "Quick picks",
+    "pricePresets": {
+      "under50k": "Under 50K",
+      "50kTo250k": "50K to 250K",
+      "250kTo1m": "250K to 1M",
+      "1mPlus": "1M+"
+    },
+    "condition": {
+      "na": "Any",
+      "new": "Brand New",
+      "used": "Used",
+      "like-new": "Like New",
+      "reconditioned": "Reconditioned"
+    },
+    "seller": {
+      "all": "All Sellers",
+      "individual": "Individual",
+      "verified": "Verified",
+      "shop": "Business"
+    },
+    "deal": {
+      "coupon": "Coupons & Offers",
+      "price-drop": "Price Drops",
+      "offer": "Special offers"
+    },
+    "active": "Active:",
+    "clearAll": "Clear all",
+    "clear": "Clear",
+    "showResults": "{count, plural, =0 {No results} one {Show # result} other {Show # results}}",
+    "refineResults": "Refine Results",
+    "categoryFilters": "{category} filters",
+    "close": "Close",
+    "category": "Category",
+    "filters": "Filters",
+    "negotiable": "Negotiable",
+    "verifiedOnly": "Verified sellers only",
+    "resultsCount": "{count, plural, one {# result} other {# results}}",
+    "removeFilter": "Remove filter: {filter}"
+  },
+  "categoryFields": {
+    "vehicles": {
+      "brand": "Brand",
+      "year": "Year",
+      "fuel": "Fuel",
+      "transmission": "Transmission",
+      "model": "Model",
+      "mileage": "Mileage",
+      "fuelType": "Fuel type"
+    },
+    "property": {
+      "propertyType": "Property Type",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "furnished": "Furnished",
+      "listingType": "For sale or rent",
+      "furnishing": "Furnishing"
+    },
+    "electronics": {
+      "brand": "Brand",
+      "storage": "Storage",
+      "warranty": "Warranty",
+      "deviceType": "Device type"
+    },
+    "jobs": {
+      "jobType": "Job Type",
+      "experience": "Experience",
+      "employmentType": "Job type",
+      "workMode": "Work mode"
+    }
+  },
+  "toolbar": {
+    "resultsFound": "{count, plural, =0 {No ads found} one {# ad found} other {# ads found}}",
+    "sort": {
+      "newest": "Featured first, then newest",
+      "price-asc": "Price: Low to High",
+      "price-desc": "Price: High to Low",
+      "nearest": "Nearest First"
+    },
+    "gridView": "Grid view",
+    "listView": "List view",
+    "sortShort": "Sort",
+    "sortLabel": "Sort ads"
+  },
+  "spotlight": {
+    "sponsored": "Sponsored",
+    "opensNewTab": "opens in new tab",
+    "visitShop": "Visit shop"
+  },
+  "card": {
+    "featured": "Featured",
+    "coupon": "Coupons & Offers",
+    "price-drop": "Price Drop",
+    "negotiable": "Negotiable",
+    "saveListing": "Save ad",
+    "save": "Save {title}",
+    "unsave": "Unsave {title}",
+    "couponBadge": "Offer",
+    "showPhone": "Show phone",
+    "verifiedTip": "Verified business: documents checked",
+    "justListed": "Just listed",
+    "urgent": "Urgent",
+    "privateSeller": "Private seller",
+    "openAd": "Open listing",
+    "shop": "Business",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "apply": "Apply",
+    "adsCount": "{count, plural, one {# ad} other {# ads}}",
+    "reviews": "{count, plural, one {# review} other {# reviews}}",
+    "photos": "{count, plural, one {# photo} other {# photos}}",
+    "cue": {
+      "job": "Job",
+      "rent": "Rent",
+      "sale": "Sale"
+    },
+    "reserved": "Reserved",
+    "offer": "Special offers"
+  },
+  "premiumCard": {
+    "premium": "Premium",
+    "ad": "Ad",
+    "verified": "Verified business",
+    "visitShop": "Visit shop · {count, plural, one {# ad} other {# ads}}",
+    "logoAlt": "{name} logo"
+  },
+  "empty": {
+    "title": "No ads match your filters",
+    "desc": "Try clearing a filter or searching for something else.",
+    "clear": "Clear all filters",
+    "firstTitle": "Be the first to post in {category}",
+    "firstDesc": "There are no ads here yet. Post yours free and buyers browsing this category will see it first.",
+    "firstCta": "Post a free ad"
+  },
+  "loadMore": "Load More Ads",
+  "pagination": {
+    "showing": "Showing {from} to {to} of {total, plural, one {# ad} other {# ads}}",
+    "showingCount": "Showing {shown} of {total} ads",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page}",
+    "label": "Pagination",
+    "showMore": "Show more ads",
+    "narrowTitle": "Narrow your search to see more ads",
+    "narrowDesc": "Try a specific category, location or keyword.",
+    "backToTop": "Back to top"
+  },
+  "business": {
+    "openNow": "Open now",
+    "closed": "Closed",
+    "responseTooltip": "Based on replies to buyers' messages during business hours in the last 30 days.",
+    "response": {
+      "within-hour": "Usually replies within 1 hour",
+      "within-few-hours": "Usually replies within a few hours",
+      "within-day": "Usually replies within a day"
+    },
+    "responseShort": {
+      "within-hour": "Replies within 1 hr",
+      "within-few-hours": "Replies within a few hrs",
+      "within-day": "Replies within a day"
+    },
+    "highlights": {
+      "delivery": "Islandwide delivery",
+      "warranty": "1 year warranty",
+      "easyPayments": "Easy payment plans",
+      "cod": "Cash on delivery",
+      "returns": "Easy returns",
+      "inspection": "Vehicle inspection",
+      "leasing": "Leasing available",
+      "consultation": "Property consultation",
+      "siteVisits": "Site visits available",
+      "assembly": "Assembly service",
+      "freshness": "Freshness guaranteed"
+    }
+  },
+  "adPage": {
+    "breadcrumb": "Breadcrumb",
+    "allAds": "All ads",
+    "free": "Free",
+    "contactForPrice": "Contact for price",
+    "from": "From {price}",
+    "posted": "Posted {date}",
+    "delivery": "Delivery available",
+    "description": "Description",
+    "was": "Was {price}",
+    "wasSince": "Was {price} ({date})",
+    "instalment": "or {amount} a month with {provider}",
+    "warrantyMonths": "{type}, {months} months",
+    "keyDetails": "Key details",
+    "yes": "Yes",
+    "no": "No",
+    "readMore": "Read more",
+    "showLess": "Show less",
+    "policies": "Delivery, warranty and returns",
+    "policyDelivery": "Delivery",
+    "policyWarranty": "Warranty",
+    "policyReturns": "Returns",
+    "location": "Location",
+    "locationApprox": "Approximate area. The seller shares the exact place when you contact them.",
+    "locationBusiness": "Approximate area of the shop",
+    "directions": "Get directions",
+    "mapLabel": "Map of the area around {place}",
+    "adDetailsTitle": "Ad details",
+    "adId": "Ad ID {code}",
+    "views": "{count, plural, one {# view} other {# views}}",
+    "report": "Report this ad",
+    "safety": "Safety tips: never pay in advance, and check the item before you buy.",
+    "safetyMore": "All safety tips",
+    "rating": "{rating} ({count, plural, one {# review} other {# reviews}})",
+    "memberSince": "On SLMarket since {year}",
+    "viewBusinessAds": "View business · {count, plural, one {# ad} other {# ads}}",
+    "phoneVerified": "Phone verified",
+    "otherAds": "{count, plural, one {# other ad} other {# other ads}} by this seller",
+    "privateSeller": "Private seller",
+    "business": "Business",
+    "moreFrom": "More from {name}",
+    "theirOtherAds": "Their other ads",
+    "similar1": "Similar {sub} near {place}",
+    "similar2": "Similar {sub} in other districts",
+    "similar3": "Other {category} near you",
+    "similar4": "Popular near you",
+    "businessesNear": "Businesses selling {sub} near you",
+    "sponsored": "Sponsored",
+    "visitShop": "Visit shop",
+    "recent": "Recently viewed",
+    "viewAll": "View all",
+    "soldTitle": "This item has been sold",
+    "soldBody": "The seller marked it as sold. Here are similar ads you may like.",
+    "expiredTitle": "This ad is no longer available",
+    "expiredBody": "It has expired or the seller removed it. Here are similar ads you may like.",
+    "ownerTitle": "Your ad",
+    "ownerBody": "Buyers see the contact buttons here. Leads and saves are counted from now on.",
+    "ownerViews": "{count, plural, one {# view} other {# views}}",
+    "edit": "Edit ad",
+    "manage": "Manage your ads",
+    "boost": "Feature this ad",
+    "contact": {
+      "whatsapp": "WhatsApp",
+      "showNumber": "Show number",
+      "call": "Call",
+      "chat": "Chat",
+      "save": "Save",
+      "saved": "Saved",
+      "share": "Share",
+      "copied": "Link copied",
+      "tooMany": "Too many numbers shown. Please try again later.",
+      "failed": "Something went wrong. Please try again.",
+      "close": "Close",
+      "askNext": "Ask to be next"
+    },
+    "gallery": {
+      "previous": "Previous photo",
+      "next": "Next photo",
+      "fullScreen": "View full screen",
+      "close": "Close",
+      "photoOf": "Photo {n} of {total}",
+      "video": "Video",
+      "zoom": "Zoom in or out"
+    },
+    "useMyLocation": "Use my location",
+    "locating": "Finding you…",
+    "reservedTitle": "This item is reserved",
+    "reservedBody": "A buyer is lined up. You can still contact the seller and ask to be next if the sale falls through.",
+    "locationShop": "Shop location",
+    "markSold": "Mark as sold",
+    "markReserved": "Mark reserved",
+    "markAvailable": "Available again",
+    "emailCheck": {
+      "title": "Confirm your email",
+      "body": "To protect private sellers, confirm your email once to see their numbers. We send a 6-digit code; no account needed.",
+      "emailLabel": "Email address",
+      "sendCode": "Send code",
+      "codeLabel": "6-digit code",
+      "codeSent": "We sent a code to {email}. It expires in 5 minutes.",
+      "confirm": "Confirm and continue",
+      "changeEmail": "Use a different email"
+    }
+  },
+  "savedSearch": {
+    "save": "Save search",
+    "saved": "Search saved",
+    "saveHint": "Get an email when new ads match this search",
+    "savedHint": "Alerts are on. Select to remove this saved search",
+    "failed": "Try again"
+  }
+}

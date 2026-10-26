@@ -59,7 +59,7 @@ export async function PATCH(
           type: "listing_approved",
           title: "Listing approved",
           body: `"${existing.title}" is now live on the marketplace.`,
-          link: "/dashboard/listings",
+          link: "/dashboard/ads",
         }
       : parsed.data.action === "reject"
         ? {
@@ -67,14 +67,14 @@ export async function PATCH(
             type: "listing_rejected",
             title: "Listing rejected",
             body: `"${existing.title}": ${parsed.data.reason}`,
-            link: "/dashboard/listings",
+            link: "/dashboard/ads",
           }
         : {
             userId: existing.sellerId,
             type: "listing_changes_requested",
             title: "Changes requested",
             body: `"${existing.title}": ${parsed.data.reason}`,
-            link: "/dashboard/listings",
+            link: "/dashboard/ads",
           },
   ).catch(() => {});
 

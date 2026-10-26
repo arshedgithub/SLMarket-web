@@ -1,0 +1,88 @@
+/* One pin style: a white circle with the logo or initials and a neutral
+   border. Only two variations: active (selected or hovered: larger, blue
+   border) and sponsored (a small tag underneath). Verification and category
+   are never encoded in the pin; they are in the popup and the list card. */
+.slm-pin {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid #cbd5e1;
+  box-shadow: 0 2px 8px rgba(15, 33, 63, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  color: #0c1f5e;
+  cursor: pointer;
+  transition:
+    width 0.12s ease,
+    height 0.12s ease,
+    border-color 0.12s ease;
+}
+.slm-pin[data-active="true"] {
+  width: 52px;
+  height: 52px;
+  border: 3px solid #1557d6;
+  font-size: 15px;
+  z-index: 5;
+}
+/* An approximate area (home-based business): the same round mark, dashed,
+   sitting in the middle of the area circle with no pointer. */
+.slm-pin[data-approx="true"] {
+  border-style: dashed;
+  border-color: #1557d6;
+}
+.slm-pin-tag {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: 3px;
+  transform: translateX(-50%);
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.slm-cluster {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: #1557d6;
+  color: #fff;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 4px rgba(21, 87, 214, 0.25),
+    0 2px 8px rgba(15, 33, 63, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.slm-popup .maplibregl-popup-content {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 16px;
+}
+.slm-popup .maplibregl-popup-tip {
+  display: none;
+}
+.slm-popup {
+  z-index: 10;
+}
+
+/* Attribution stays visible and readable on every map. */
+.maplibregl-ctrl-attrib {
+  font-size: 12px;
+}

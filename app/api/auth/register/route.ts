@@ -26,8 +26,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, email, password, phone, role, country, locationCity } =
-    parsed.data;
+  const { name, email, password, phone, district } = parsed.data;
 
   const emailVerified = await isChannelVerified(`email:${email}`);
   const phoneVerified = phone
@@ -41,55 +40,54 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const existing = await db.user.findUnique({ where: { email } });
-  if (existing) {
+  // Same email in any letter case, or the same phone: point them to
+  // sign-in instead (the form shows a "Sign in" button for these codes).
+  const [emailTaken, phoneTaken] = await Promise.all([
+    db.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+      select: { id: true },
+    }),
+    phone
+      ? db.user.findFirst({
+          where: { phone: { in: [phone, `94${phone.replace(/^0/, "")}`] } },
+          select: { id: true },
+        })
+      : null,
+  ]);
+  if (emailTaken) {
     return NextResponse.json(
-      { message: "An account with this email already exists" },
+      {
+        message: "An account with this email already exists",
+        code: "email_taken",
+      },
+      { status: 409 },
+    );
+  }
+  if (phoneTaken) {
+    return NextResponse.json(
+      {
+        message: "An account with this phone number already exists",
+        code: "phone_taken",
+      },
       { status: 409 },
     );
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const user = await db.$transaction(async (tx) => {
-    const newUser = await tx.user.create({
-      data: {
-        name,
-        email,
-        emailVerified: emailVerified ? new Date() : null,
-        passwordHash,
-        phone,
-        phoneVerified,
-        role,
-        country,
-        locationCity,
-      },
-    });
-
-    // Assign FREE subscription plan to sellers automatically
-    if (role === "SELLER") {
-      const freePlan = await tx.subscriptionPlan.findUnique({
-        where: { name: "free" },
-      });
-      if (freePlan) {
-        const now = new Date();
-        const periodEnd = new Date(now);
-        periodEnd.setFullYear(periodEnd.getFullYear() + 10); // Free = never expires
-
-        await tx.sellerSubscription.create({
-          data: {
-            sellerId: newUser.id,
-            planId: freePlan.id,
-            status: "ACTIVE",
-            currentPeriodStart: now,
-            currentPeriodEnd: periodEnd,
-            freeBoostsRemaining: freePlan.monthlyFreeBoosts,
-          },
-        });
-      }
-    }
-
-    return newUser;
+  // Subscriptions now attach to a BusinessProfile, not a bare account, and
+  // registration doesn't create one — there's nothing to subscribe yet.
+  // A plan gets assigned when the user actually creates a business profile.
+  const user = await db.user.create({
+    data: {
+      name,
+      email,
+      emailVerified: emailVerified ? new Date() : null,
+      passwordHash,
+      phone,
+      phoneVerified,
+      district,
+    },
   });
 
   await clearChannelVerified(`email:${email}`);
