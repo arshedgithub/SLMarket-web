@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 /*
  * Paid plans belong to a business page (BusinessSubscription), not to a
  * person: one owner can run several businesses, each on its own plan.
- * Every billing path (upgrade, PayHere webhook, admin override, boosts,
+ * Every billing path (upgrade, admin override, boosts,
  * the expiry job) goes through these helpers so they agree on which
  * business is meant and how a period is counted.
  */
@@ -68,9 +68,9 @@ export function addMonths(from: Date, months: number): Date {
 }
 
 /*
- * Starts (or replaces) a business's plan from now for `months`. Used by the
- * webhook after payment, by free and fully discounted upgrades, and by the
- * admin override. Returns the subscription row.
+ * Starts (or replaces) a business's plan from now for `months`. Used by free
+ * and fully discounted upgrades, and by the admin override (which is how a
+ * plan paid on WhatsApp is switched on). Returns the subscription row.
  */
 export async function activateBusinessPlan(
   tx: Prisma.TransactionClient | typeof db,
@@ -78,7 +78,6 @@ export async function activateBusinessPlan(
     businessProfileId: string;
     plan: SubscriptionPlan;
     months: number;
-    payhereOrderId?: string;
     couponRedemptionId?: string;
   },
 ) {
@@ -90,7 +89,6 @@ export async function activateBusinessPlan(
     currentPeriodEnd: addMonths(now, args.months),
     freeBoostsRemaining: args.plan.monthlyFreeBoosts,
     cancelAtPeriodEnd: false,
-    ...(args.payhereOrderId ? { payhereOrderId: args.payhereOrderId } : {}),
     ...(args.couponRedemptionId
       ? { couponRedemptionId: args.couponRedemptionId }
       : {}),
@@ -101,27 +99,4 @@ export async function activateBusinessPlan(
     update: data,
     include: { plan: true },
   });
-}
-
-/*
- * PayHere order ids carry what was bought, since the webhook only gets the
- * order id back: sub_<businessProfileId>_<planId>_<M|A>_<timestamp>.
- * (cuid ids contain no underscores.)
- */
-export function subscriptionOrderId(
-  businessProfileId: string,
-  planId: string,
-  cycle: BillingCycle,
-): string {
-  return `sub_${businessProfileId}_${planId}_${cycle === "ANNUAL" ? "A" : "M"}_${Date.now()}`;
-}
-
-export function parseSubscriptionOrderId(orderId: string) {
-  const [prefix, businessProfileId, planId, cycle] = orderId.split("_");
-  if (prefix !== "sub" || !businessProfileId || !planId) return null;
-  return {
-    businessProfileId,
-    planId,
-    cycle: (cycle === "A" ? "ANNUAL" : "MONTHLY") as BillingCycle,
-  };
 }

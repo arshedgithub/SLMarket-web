@@ -3,7 +3,10 @@ import { BoostType } from "@prisma/client";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { boostSchema } from "@/lib/validations/subscription";
-import { buildPayhereFormData, PAYHERE_CHECKOUT_URL } from "@/lib/payhere";
+import {
+  boostPaymentMessage,
+  supportWhatsappUrl,
+} from "@/lib/billing/manualPayment";
 import { invalidateListingsCache } from "@/lib/listings-cache";
 
 const BOOST_PRICES_USD: Record<string, number> = {
@@ -11,6 +14,13 @@ const BOOST_PRICES_USD: Record<string, number> = {
   TOP_SEARCH_3D: 9,
   TOP_SEARCH_7D: 18,
   CATEGORY_BANNER: 25,
+};
+
+const BOOST_NAMES: Record<string, string> = {
+  TOP_SEARCH_1D: "1-day top of search",
+  TOP_SEARCH_3D: "3-day top of search",
+  TOP_SEARCH_7D: "7-day top of search",
+  CATEGORY_BANNER: "7-day category banner",
 };
 
 const BOOST_DAYS: Record<string, number> = {
@@ -97,28 +107,16 @@ export async function POST(
     return NextResponse.json({ message: "Boost applied successfully" });
   }
 
-  // Paid boost via PayHere
+  // Paid boost: arranged on WhatsApp, applied by an admin once paid.
   const amountLkr = (BOOST_PRICES_USD[boostType] ?? 3.5) * 330;
-  const orderId = `boost_${listingId}_${Date.now()}`;
-
-  const seller = await db.user.findUnique({ where: { id: session.user.id } });
-  if (!seller)
-    return NextResponse.json({ message: "Seller not found" }, { status: 404 });
-
-  const [firstName, ...rest] = seller.name.split(" ");
-  const formData = buildPayhereFormData({
-    orderId,
-    items: `Listing Boost: ${boostType}`,
-    amountLkr,
-    firstName,
-    lastName: rest.join(" ") || "-",
-    email: seller.email,
-    phone: seller.phone ?? "",
-  });
-
   return NextResponse.json({
-    gateway: "payhere",
-    formData,
-    checkoutUrl: PAYHERE_CHECKOUT_URL,
+    whatsappUrl: supportWhatsappUrl(
+      boostPaymentMessage({
+        boostName: BOOST_NAMES[boostType] ?? boostType,
+        listingTitle: listing.title,
+        amountLkr,
+      }),
+    ),
+    amountLkr,
   });
 }

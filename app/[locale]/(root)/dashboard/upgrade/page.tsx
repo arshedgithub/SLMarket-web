@@ -3,7 +3,15 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, Zap, Crown, Building2, Gift, Loader2 } from "lucide-react";
+import {
+  Check,
+  Zap,
+  Crown,
+  Building2,
+  Gift,
+  Loader2,
+  MessageCircle,
+} from "lucide-react";
 import { ISubscriptionPlan } from "@/types";
 
 const PLAN_ICONS: Record<string, React.ElementType | null> = {
@@ -51,6 +59,8 @@ function UpgradePageContent() {
   >(null);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  // Paid plans are paid on WhatsApp: the chat link for the chosen order.
+  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/subscriptions/plans")
@@ -128,13 +138,13 @@ function UpgradePageContent() {
     if (!selectedPlan) return;
     setLoading(true);
     setError("");
+    setWhatsappUrl(null);
     try {
       const res = await fetch("/api/subscriptions/upgrade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           planId: selectedPlan.id,
-          gateway: "PAYHERE",
           couponCode: couponCode || undefined,
           businessProfileId: businessId ?? undefined,
         }),
@@ -153,27 +163,19 @@ function UpgradePageContent() {
         return;
       }
 
-      if (data.gateway === "payhere" && data.formData) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = data.checkoutUrl;
-        Object.entries(data.formData).forEach(([k, v]) => {
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = k;
-          input.value = v as string;
-          form.appendChild(input);
-        });
-        document.body.appendChild(form);
-        form.submit();
-      }
+      if (data.whatsappUrl) setWhatsappUrl(data.whatsappUrl);
     } finally {
       setLoading(false);
     }
   }, [selectedPlan, couponCode, businessId]);
 
-  // Coming from /subscription with a plan (and optionally a coupon) pre-selected —
-  // skip the extra click and go straight to the PayHere checkout.
+  // A link made for another plan, coupon or business would quote the wrong order.
+  useEffect(() => {
+    setWhatsappUrl(null);
+  }, [selectedPlan, couponCode, businessId]);
+
+  // Coming from /subscription with a plan (and optionally a coupon) pre-selected:
+  // skip the extra click and go straight to the payment step.
   useEffect(() => {
     if (!prefilled || autoRedirected || !selectedPlan) return;
     if (businesses === null || businesses.length !== 1) return;
@@ -499,27 +501,53 @@ function UpgradePageContent() {
             )}
           </div>
 
-          {/* Payment info */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3">
-            <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
-              PayHere: Secure Payment
-            </p>
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
-              Visa · Mastercard · FriMi · genie · Ezcash · mCash
-            </p>
-          </div>
+          {/* Payment: there is no online gateway, plans are paid on WhatsApp */}
+          {whatsappUrl ? (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-4 py-4 space-y-3">
+              <p className="text-sm font-semibold text-green-800 dark:text-green-200">
+                Almost done: send us your order on WhatsApp
+              </p>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                Your message is ready, with the plan, your business page and the
+                amount. Send it and we&apos;ll reply with how to pay. Your plan
+                is switched on as soon as the payment is confirmed.
+              </p>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Open WhatsApp
+              </a>
+            </div>
+          ) : (
+            <>
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3">
+                <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                  Payment on WhatsApp
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                  Online card payment isn&apos;t available yet. You send us your
+                  order on WhatsApp, we reply with how to pay, and your plan is
+                  switched on once the payment is confirmed.
+                </p>
+              </div>
 
-          <button
-            onClick={handleUpgrade}
-            disabled={loading || businesses?.length === 0}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg transition-colors"
-          >
-            {loading
-              ? "Processing..."
-              : couponResult?.valid && couponResult.finalPriceLkr === 0
-                ? "Activate Free Plan"
-                : `Pay LKR ${getDisplayPrice(selectedPlan).lkr?.toLocaleString()}`}
-          </button>
+              <button
+                onClick={handleUpgrade}
+                disabled={loading || businesses?.length === 0}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg transition-colors"
+              >
+                {loading
+                  ? "Processing..."
+                  : couponResult?.valid && couponResult.finalPriceLkr === 0
+                    ? "Activate Free Plan"
+                    : `Continue on WhatsApp · LKR ${getDisplayPrice(selectedPlan).lkr?.toLocaleString()}`}
+              </button>
+            </>
+          )}
 
           <p className="text-xs text-gray-400 text-center">
             Cancel anytime. No refunds on used months.
