@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const upgradeSchema = z.object({
   planId: z.string().min(1),
-  gateway: z.enum(["PAYHERE"]),
   couponCode: z.string().optional(),
   cycle: z.enum(["MONTHLY", "ANNUAL"]).default("MONTHLY"),
   // Which of the owner's business pages; optional when they have only one.
@@ -66,7 +65,6 @@ export const boostSchema = z.object({
     "CATEGORY_BANNER",
   ]),
   useFreeBoost: z.boolean().default(false),
-  gateway: z.enum(["PAYHERE"]).optional(),
 });
 
 export const adminPlanUpdateSchema = z.object({

@@ -94,10 +94,10 @@ export default function PrivacyPolicyPage() {
             <p
               className={`mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
             >
-              Financial information, such as data related to your payment
-              method, that we may collect when you subscribe to a seller plan or
-              pay platform fees through our payment processors, Stripe and
-              PayHere. We do not store full card numbers on our servers.
+              Records of payments you make to us for a business plan or an ad
+              boost, such as the amount, the date and the payment reference you
+              share with us. Payments are arranged with our team directly; we do
+              not collect or store card numbers.
             </p>
 
             <h3

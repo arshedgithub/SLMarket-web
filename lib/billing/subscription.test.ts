@@ -2,8 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SubscriptionPlan } from "@prisma/client";
 
 vi.mock("@/lib/db", () => ({ db: {} }));
-const { addMonths, parseSubscriptionOrderId, planPrice, subscriptionOrderId } =
-  await import("./subscription");
+const { addMonths, planPrice } = await import("./subscription");
 
 // Decimal columns only need to survive Number(...) here.
 const plan = (over: Partial<Record<string, unknown>> = {}) =>
@@ -37,25 +36,6 @@ describe("planPrice", () => {
       lkr: 36000,
       months: 12,
     });
-  });
-});
-
-describe("subscription order ids", () => {
-  it("carry the business, plan and cycle through PayHere", () => {
-    for (const cycle of ["MONTHLY", "ANNUAL"] as const) {
-      const id = subscriptionOrderId("biz123", "planabc", cycle);
-      expect(id.startsWith("sub_biz123_planabc_")).toBe(true);
-      expect(parseSubscriptionOrderId(id)).toEqual({
-        businessProfileId: "biz123",
-        planId: "planabc",
-        cycle,
-      });
-    }
-  });
-
-  it("reject anything that is not a subscription order", () => {
-    expect(parseSubscriptionOrderId("boost_listing1_123")).toBeNull();
-    expect(parseSubscriptionOrderId("sub_")).toBeNull();
   });
 });
 

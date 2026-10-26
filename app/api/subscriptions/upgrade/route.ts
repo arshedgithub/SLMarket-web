@@ -2,21 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { upgradeSchema } from "@/lib/validations/subscription";
-import { buildPayhereFormData, PAYHERE_CHECKOUT_URL } from "@/lib/payhere";
 import { calculateDiscount, isCouponApplicable } from "@/lib/utils/coupon";
 import {
   activateBusinessPlan,
   BUSINESS_CHOICE_MESSAGE,
   planPrice,
   resolveOwnedBusiness,
-  subscriptionOrderId,
 } from "@/lib/billing/subscription";
+import {
+  planPaymentMessage,
+  supportWhatsappUrl,
+} from "@/lib/billing/manualPayment";
 
 /*
  * POST { planId, cycle?, couponCode?, businessProfileId? }
  * Puts one of the owner's business pages on a plan. Free (or fully
- * discounted) plans start at once; paid ones return a PayHere checkout,
- * and the webhook starts the plan when the payment lands.
+ * discounted) plans start at once; paid ones return a WhatsApp link to
+ * arrange payment, and an admin starts the plan once it is paid.
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -152,26 +154,16 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const owner = await db.user.findUnique({ where: { id: session.user.id } });
-  if (!owner)
-    return NextResponse.json({ message: "Account not found" }, { status: 404 });
-
-  const orderId = subscriptionOrderId(business.id, planId, cycle);
-  const [firstName, ...rest] = owner.name.split(" ");
-  const formData = buildPayhereFormData({
-    orderId,
-    items: `SLMarket.lk ${plan.displayName} plan (${cycle === "ANNUAL" ? "1 year" : "1 month"}) for ${business.name}`,
-    amountLkr: finalPriceLkr,
-    firstName,
-    lastName: rest.join(" ") || "-",
-    email: owner.email,
-    phone: owner.phone ?? "",
-  });
-
   return NextResponse.json({
-    gateway: "payhere",
-    checkoutUrl: PAYHERE_CHECKOUT_URL,
-    formData,
-    orderId,
+    whatsappUrl: supportWhatsappUrl(
+      planPaymentMessage({
+        planName: plan.displayName,
+        cycle,
+        businessName: business.name,
+        amountLkr: finalPriceLkr,
+        couponCode: coupon ? couponCode : undefined,
+      }),
+    ),
+    amountLkr: finalPriceLkr,
   });
 }

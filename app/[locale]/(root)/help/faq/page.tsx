@@ -47,7 +47,7 @@ export default function FaqPage() {
     {
       question: "How do payments and business subscriptions work?",
       answer:
-        "Business subscription plans and platform fees are processed securely through PayHere. Payments for individual items are arranged directly between buyers and sellers, and we recommend agreeing on terms before completing any transaction.",
+        "Paid business plans and ad boosts are arranged with our team on WhatsApp: choose a plan, send us the ready-made order message, and we reply with how to pay. Your plan is switched on as soon as the payment is confirmed. Payments for individual items are arranged directly between buyers and sellers, and we recommend agreeing on terms before completing any transaction.",
     },
     {
       question:
