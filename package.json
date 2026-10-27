@@ -28,7 +28,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
     "@hookform/resolvers": "^6.0.0",
-    "@neondatabase/serverless": "0.10.4",
+    "@neondatabase/serverless": "1.2.0",
     "@prisma/adapter-neon": "5.22.0",
     "@prisma/client": "5.22.0",
     "@protomaps/basemaps": "^5.7.2",
