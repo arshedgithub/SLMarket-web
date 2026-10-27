@@ -34,6 +34,12 @@ jobs:
   ci:
     name: CI
     uses: ./.github/workflows/ci.yml
+    # A called workflow cannot get more than the caller grants, and ci.yml's
+    # dependency review job asks for pull-requests: write (it only runs on
+    # pull requests). Without this, GitHub rejects every deploy at startup.
+    permissions:
+      contents: read
+      pull-requests: write
 
   deploy:
     name: Deploy to ${{ github.ref_name == 'main' && 'production' || 'development' }}
@@ -50,7 +56,7 @@ jobs:
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check deployment settings
         env:

@@ -1,15 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import {
-  Facebook,
-  Globe,
-  Instagram,
-  MapPin,
-  Navigation,
-  Phone,
-  Youtube,
-} from "lucide-react";
+import { Globe, MapPin, Navigation, Phone } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import {
   directionsHref,
@@ -97,10 +89,61 @@ export function QuestionsSection({
 
 /* ---------------- about ---------------- */
 
+// lucide-react 1.0 dropped brand logos; these are its former outline icons.
+function BrandIcon({
+  className,
+  children,
+}: {
+  className: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function FacebookIcon({ className }: { className: string }) {
+  return (
+    <BrandIcon className={className}>
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </BrandIcon>
+  );
+}
+
+function InstagramIcon({ className }: { className: string }) {
+  return (
+    <BrandIcon className={className}>
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </BrandIcon>
+  );
+}
+
+function YoutubeIcon({ className }: { className: string }) {
+  return (
+    <BrandIcon className={className}>
+      <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+      <path d="m10 15 5-3-5-3z" />
+    </BrandIcon>
+  );
+}
+
 const SOCIAL_ICONS = {
-  facebook: Facebook,
-  instagram: Instagram,
-  youtube: Youtube,
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  youtube: YoutubeIcon,
   website: Globe,
 } as const;
 
