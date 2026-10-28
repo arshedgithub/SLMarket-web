@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import { getFirestoreAdmin, sendFcmToMultiple } from "@/lib/firebase-admin";
 import { db } from "@/lib/db";
 import type {
@@ -41,10 +41,10 @@ export async function getOrCreateConversation(
     sellerId: input.sellerId,
     sellerName: input.sellerName,
     lastMessage: "",
-    lastMessageAt: admin.firestore.FieldValue.serverTimestamp(),
+    lastMessageAt: FieldValue.serverTimestamp(),
     lastSenderId: "",
     unread: { [input.buyerId]: 0, [input.sellerId]: 0 },
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdAt: FieldValue.serverTimestamp(),
   });
 
   return doc.id;
@@ -111,16 +111,16 @@ export async function appendMessage(
     tx.create(conversationRef.collection("messages").doc(), {
       senderId,
       text,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
       ...(replyTo ? { replyTo } : {}),
       ...(listingContext ? { listingContext } : {}),
     });
 
     tx.update(conversationRef, {
       lastMessage: text,
-      lastMessageAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastMessageAt: FieldValue.serverTimestamp(),
       lastSenderId: senderId,
-      [`unread.${recipientId}`]: admin.firestore.FieldValue.increment(1),
+      [`unread.${recipientId}`]: FieldValue.increment(1),
     });
 
     return {
@@ -191,7 +191,7 @@ export async function createNotification(
         body: input.body,
         link: input.link,
         count,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
       });
       await fanOutPush(input, count);
       return;
@@ -206,7 +206,7 @@ export async function createNotification(
     read: false,
     count,
     ...(input.conversationId ? { conversationId: input.conversationId } : {}),
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdAt: FieldValue.serverTimestamp(),
   });
 
   await fanOutPush(input, count);

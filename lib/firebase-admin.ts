@@ -1,14 +1,18 @@
-import * as admin from "firebase-admin";
+import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { getMessaging } from "firebase-admin/messaging";
 
 // Server-side Firebase Admin SDK — used for verifying OTP tokens sent from the client.
 // Swap to Twilio Verify by replacing verifyOtpToken() only.
 // Required env vars: FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL
 
-function getFirebaseAdmin(): admin.app.App {
-  if (admin.apps.length > 0) return admin.apps[0]!;
+function getFirebaseAdmin(): App {
+  const apps = getApps();
+  if (apps.length > 0) return apps[0];
 
-  return admin.initializeApp({
-    credential: admin.credential.cert({
+  return initializeApp({
+    credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID!,
       privateKey: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
@@ -21,7 +25,7 @@ export async function verifyOtpToken(idToken: string): Promise<{
   uid: string;
 }> {
   const app = getFirebaseAdmin();
-  const decoded = await app.auth().verifyIdToken(idToken);
+  const decoded = await getAuth(app).verifyIdToken(idToken);
 
   if (!decoded.phone_number) {
     throw new Error("Token does not contain a verified phone number");
@@ -37,7 +41,7 @@ export async function sendFcmNotification(
   data?: Record<string, string>,
 ): Promise<void> {
   const app = getFirebaseAdmin();
-  await app.messaging().send({
+  await getMessaging(app).send({
     token: fcmToken,
     notification: { title, body },
     data,
@@ -52,7 +56,7 @@ export async function sendFcmToMultiple(
 ): Promise<{ invalidTokens: string[] }> {
   if (fcmTokens.length === 0) return { invalidTokens: [] };
   const app = getFirebaseAdmin();
-  const result = await app.messaging().sendEachForMulticast({
+  const result = await getMessaging(app).sendEachForMulticast({
     tokens: fcmTokens,
     notification: { title, body },
     data,
@@ -77,10 +81,10 @@ export async function sendFcmToMultiple(
 // letting Firestore security rules scope reads via request.auth.uid.
 export async function mintCustomToken(uid: string): Promise<string> {
   const app = getFirebaseAdmin();
-  return app.auth().createCustomToken(uid);
+  return getAuth(app).createCustomToken(uid);
 }
 
-export function getFirestoreAdmin(): admin.firestore.Firestore {
+export function getFirestoreAdmin(): Firestore {
   const app = getFirebaseAdmin();
-  return app.firestore();
+  return getFirestore(app);
 }
