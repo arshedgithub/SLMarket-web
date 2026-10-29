@@ -34,6 +34,13 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # Blocked upstream: Prisma 5's Neon adapter accepts only 0.x of the Neon
+      # driver (moves with the Prisma major), and typescript-eslint supports
+      # TypeScript below 6.1 only.
+      - dependency-name: "@neondatabase/serverless"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     labels: [dependencies]
 
   - package-ecosystem: github-actions
